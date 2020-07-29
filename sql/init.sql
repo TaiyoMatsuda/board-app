@@ -1,0 +1,2 @@
+GRANT ALL PRIVILEGES ON  board.* TO 'user'@'%';
+FLUSH PRIVILEGES;
