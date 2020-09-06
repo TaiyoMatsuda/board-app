@@ -25,7 +25,7 @@ services:
       TZ: 'Asia/Tokyo'
 
   web:
-    build: ./web
+    build: .
     volumes:
       - ./src:/code
     expose:
