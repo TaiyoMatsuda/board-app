@@ -9,5 +9,5 @@ RUN pip install -r requirements.txt
 ADD . /code/
 
 RUN mkdir -p /vol/web/media
-Run mkdir -p /vol/web/static
+RUN mkdir -p /vol/web/static
 RUN chmod -R 755 /vol/web
