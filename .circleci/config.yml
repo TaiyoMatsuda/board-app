@@ -8,12 +8,8 @@ jobs:
     executor: python/default
     steps:
       - checkout
-      - python/load-cache
-      - python/install-deps
-      - python/save-cache
       - run:
-          command: python ./src/core/tests/test_models.py
-          name: Test
+          command: pip install tox && tox
 
 workflows:
   main:

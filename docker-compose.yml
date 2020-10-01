@@ -13,7 +13,6 @@ services:
       MYSQL_PASSWORD: password
       TZ: 'Asia/Tokyo'
 
-#　本番デプロイ用定義
   nginx:
     image: nginx:1.17.8
     ports:
@@ -35,18 +34,3 @@ services:
     depends_on:
       - db
     command: uwsgi --ini /code/app/uwsgi.ini
-
-#　開発中定義
-#  web:
-#    build: ./web
-#    volumes:
-#      - ./src:/code
-#      - ./static:/static
-#    depends_on:
-#      - db
-#    command:
-#      sh -c "python manage.py wait_for_db &&
-#             python manage.py migrate &&
-#             python manage.py runserver 0.0.0.0:8000"
-#    ports:
-#      - "8000:8000"
