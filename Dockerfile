@@ -4,8 +4,8 @@ ENV PYTHONUNBUFFERED 1
 
 RUN mkdir /code
 WORKDIR /code
-ADD ./requirements.txt /code/
-RUN pip install -r requirements.txt
+ADD ./dockerfile_requirements.txt /code/
+RUN pip install -r dockerfile_requirements.txt
 ADD . /code/
 
 RUN mkdir -p /vol/web/media
