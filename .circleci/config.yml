@@ -9,7 +9,10 @@ jobs:
     steps:
       - checkout
       - run:
-          command: pip install tox && tox
+          command: 
+            pip install tox
+            cd ./src
+            tox
 
 workflows:
   main:
