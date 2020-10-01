@@ -2,8 +2,8 @@ from unittest.mock import patch
 
 from django.test import TestCase
 from django.contrib.auth import get_user_model
-from django.utils import timezone
-
+from django.utils.timezone import make_aware
+import datetime
 from core import models
 
 
@@ -11,12 +11,14 @@ def sample_user(email='test@matsuda.com', password='testpass'):
     """Create a sample user"""
     return get_user_model().objects.create_user(email, password)
 
+
 def sample_event():
     """Create a sample event"""
     return models.Event.objects.create(
         title='sample event',
         organizer=sample_user(),
-        event_time=timezone.now().strftime('%Y-%m-%d %H:%M:%S'),
+        event_time=make_aware(datetime.datetime.now())
+        .strftime('%Y-%m-%d %H:%M:%S'),
         address='sample test place'
     )
 
@@ -54,15 +56,14 @@ class ModelTests(TestCase):
         self.assertTrue(user.is_superuser)
         self.assertTrue(user.is_staff)
 
-
     @patch('uuid.uuid4')
     def test_icon_file_name_uuid(self, mock_uuid):
         """Test that icon image is saved in the correct location"""
         uuid = 'icon-test-uuid'
         mock_uuid.return_value = uuid
-        file_path = models.event_icon_file_path(None, 'icontimage.jpg')
+        file_path = models.user_icon_file_path(None, 'icontimage.jpg')
 
-        exp_path = f'uploads/icon/{uuid}.jpg'
+        exp_path = f'uploads/user/{uuid}.jpg'
         self.assertEqual(file_path, exp_path)
 
     def test_event_str(self):
@@ -70,7 +71,8 @@ class ModelTests(TestCase):
         event = models.Event.objects.create(
             title='test event',
             organizer=sample_user(),
-            event_time=timezone.now().strftime('%Y-%m-%d %H:%M:%S'),
+            event_time=make_aware(datetime.datetime.now())
+            .strftime('%Y-%m-%d %H:%M:%S'),
             address='testplace'
         )
 
