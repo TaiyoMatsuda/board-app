@@ -27,6 +27,7 @@ jobs:
     executor: board_app_django
     steps:
       - checkout
+      - chown_python_package
       - run_pip_install
       - run_test
 
