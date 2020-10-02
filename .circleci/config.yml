@@ -1,18 +1,27 @@
 version: 2.1
 
-orbs:
-  python: circleci/python@0.2.1
+executors:
+  board_app_django:
+    working_directory: ~/board-app
+    docker:
+      - image: circleci/python:3.8.1
 
+commands:
+    run_pip_install:
+      steps:
+        - run:
+          command: pip install -r dockerfile_requirements.txt
+    run_test:
+      steps:
+        - run:
+          command: tox
 jobs:
   build-and-test:
-    executor: python/default
+    executor: board_app_django
     steps:
       - checkout
-      - run:
-          command:
-            pip install tox
-            cd ./src
-            tox
+      - run_pip_install
+      - run_test
 
 workflows:
   main:
