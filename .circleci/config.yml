@@ -7,14 +7,21 @@ executors:
       - image: circleci/python:3.8.1
 
 commands:
-    run_pip_install:
-      steps:
-        - run:
-          command: pip install -r dockerfile_requirements.txt
-    run_test:
-      steps:
-        - run:
-          command: tox
+  chown_python_package:
+    steps:
+      - run:
+        command: |
+                    sudo chown -R circleci:circleci /usr/local/bin
+                    sudo chown -R circleci:circleci /usr/local/lib/python3.8/site-packages
+  run_pip_install:
+    steps:
+      - run:
+        command: pip install -r dockerfile_requirements.txt
+  run_test:
+    steps:
+      - run:
+        command: tox
+
 jobs:
   build-and-test:
     executor: board_app_django
