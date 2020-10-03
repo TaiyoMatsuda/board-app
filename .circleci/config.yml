@@ -12,9 +12,9 @@ jobs:
     steps:
       - checkout
       - run:
-          command: |
-            ls -al
-            sudo docker-cpmpose run web tox
+          command: ls -al
+      - run:
+          command: sudo docker-cpmpose run web tox
 
 workflows:
   main:
