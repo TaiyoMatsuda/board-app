@@ -5,7 +5,10 @@ executors:
     working_directory: ~/board-app
     docker:
       - image: circleci/python:3.8.1
-
+      - image: circleci/mysql:5.7
+          environment:
+            MYSQL_USER: user
+            MYSQL_PASSWORD: password
 jobs:
   build-and-test:
     executor: board_app_django
