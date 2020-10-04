@@ -12,8 +12,8 @@ jobs:
     steps:
       - checkout
       - run: pip install tox
-  - run:
-      command: cd ./src
+      - run:
+          command: cd ./src
       - run:
           command: ls -al
       - run:
