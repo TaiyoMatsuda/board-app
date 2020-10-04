@@ -11,8 +11,7 @@ jobs:
     executor: board_app_django
     steps:
       - checkout
-      - run: pip install virtualenv
-      - run: pip install tox
+      - run: pip install -r dockerfile_requirements.txt
       - run:
           command: |
             cd ./src
