@@ -65,7 +65,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     last_name = models.CharField(_('last name'), max_length=30, blank=True)
     is_active = models.BooleanField(_('active'), default=True)
     is_staff = models.BooleanField(_('staff status'), default=False)
-    introduction = models.TextField(default=False, max_length=1000)
+    introduction = models.TextField(blank=True, max_length=1000)
     icon = models.ImageField(
         null=True,
         blank=True,
@@ -92,7 +92,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     def get_short_name(self):
         """Return the short name for the user"""
         return self.first_name
-
+        
     def email_user(self, subject, message, from_email=None, **kwargs):
         """Send an email to this user."""
         send_mail(subject, message, from_email, [self.email], **kwargs)

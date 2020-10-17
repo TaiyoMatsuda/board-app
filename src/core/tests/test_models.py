@@ -61,7 +61,7 @@ class ModelTests(TestCase):
         """Test that icon image is saved in the correct location"""
         uuid = 'icon-test-uuid'
         mock_uuid.return_value = uuid
-        file_path = models.user_icon_file_path(None, 'icontimage.jpg')
+        file_path = models.user_icon_file_path(None, 'iconimage.jpg')
 
         exp_path = f'uploads/user/{uuid}.jpg'
         self.assertEqual(file_path, exp_path)
