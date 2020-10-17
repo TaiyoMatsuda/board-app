@@ -7,7 +7,8 @@ executors:
       - image: circleci/python:3.8.1
       - image: circleci/mysql:5.7
         environment:
-          MYSQL_USER: user
+          MYSQL_DATABASE: board
+          MYSQL_USER: root
           MYSQL_PASSWORD: password
 jobs:
   build-and-test:
