@@ -9,7 +9,8 @@ executors:
         environment:
           MYSQL_DATABASE: board
           MYSQL_USER: root
-          MYSQL_PASSWORD: password
+          MYSQL_ALLOW_EMPTY_PASSWORD: yes
+          
 jobs:
   build-and-test:
     executor: board_app_django
