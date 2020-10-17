@@ -16,6 +16,11 @@ jobs:
       - checkout
       - run: pip install -r dockerfile_requirements.txt
       - run:
+          name: add db host
+          command: |
+            # Add '127.0.0.1 db' to /etc/host file. Then 'db' is used as a value of 'DB_HOST' name.
+            echo 127.0.0.1 db | sudo tee -a /etc/hosts
+      - run:
           command: |
             cd ./src
             tox
