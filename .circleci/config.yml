@@ -7,10 +7,9 @@ executors:
       - image: circleci/python:3.8.1
       - image: circleci/mysql:5.7
         environment:
-          - MYSQL_ROOT_PASSWORD=circleci
-          - MYSQL_DATABASE=circleci
-          - MYSQL_USER=circleci
-          - MYSQL_PASSWORD=circleci
+          MYSQL_DATABASE: board
+          MYSQL_USER: user
+          MYSQL_ALLOW_EMPTY_PASSWORD: yes
 
 jobs:
   build-and-test:
