@@ -9,7 +9,7 @@ executors:
         environment:
           MYSQL_DATABASE: board
           MYSQL_USER: user
-          MYSQL_ALLOW_EMPTY_PASSWORD: yes
+          MYSQL_PASSWORD: password3
 
 jobs:
   build-and-test:
