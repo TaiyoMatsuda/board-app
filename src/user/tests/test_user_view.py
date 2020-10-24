@@ -10,10 +10,13 @@ from django.urls import reverse
 from rest_framework.test import APIClient
 from rest_framework import status
 
-
 CREATE_USER_URL = reverse('user:create')
 TOKEN_URL = reverse('user:token')
-AUTH_URL = reverse('user:auth')
+ME_URL = reverse('user:me')
+
+def detail_url(user_id):
+    """Return event comment detail URL"""
+    return reverse('user:select', args=[user_id])
 
 def create_user(**params):
     return get_user_model().objects.create_user(**params)
@@ -51,6 +54,20 @@ class PublicUserApiTests(TestCase):
     def setUp(self):
         self.client = APIClient()
 
+    def test_retrieve_designated_user(self):
+        """Test that authentication is required for users"""
+        payload = {
+            'email': 'test@matsuda.com',
+            'password': 'testpass'
+        }
+        user = create_user(**payload)
+        url = detail_url([self.user.id])
+        res = self.client.get(url)
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+
+        expected_json_dict = get_user_by_json(**res.data)
+        self.assertJSONEqual(res.content, expected_json_dict)
+
     def test_create_valid_user_success(self):
         """Test creating user with valid payload is successful"""
         payload = {
@@ -70,7 +87,6 @@ class PublicUserApiTests(TestCase):
             'password': 'testpass'
         }
         create_user(**payload)
-
         res = self.client.post(CREATE_USER_URL, payload)
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
 
@@ -93,7 +109,6 @@ class PublicUserApiTests(TestCase):
             'password': 'worng'
         }
         res = self.client.post(TOKEN_URL, payload)
-
         self.assertNotIn('token', res.data)
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
 
@@ -104,14 +119,12 @@ class PublicUserApiTests(TestCase):
             'password': 'testpass'
         }
         res = self.client.post(TOKEN_URL, payload)
-
         self.assertNotIn('token', res.data)
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_retrieve_user_unauthorized(self):
         """Test that authentication is required for users"""
-        res = self.client.get(AUTH_URL)
-
+        res = self.client.get(ME_URL)
         self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
 
 
@@ -127,18 +140,16 @@ class PrivateUserAPiTests(TestCase):
         self.client.force_authenticate(user=self.user)
 
     def test_retrieve_profile_success(self):
-        """Test retrieving profile for logged in used"""
-        res = self.client.get(AUTH_URL)
+        """Test retrieving profile for logged in user"""
+        res = self.client.get(ME_URL)
         self.assertEqual(res.status_code, status.HTTP_200_OK)
 
         expected_json_dict = get_user_by_json(**res.data)
-
         self.assertJSONEqual(res.content, expected_json_dict)
 
-    def test_post_me_not_allowed(self):
-        """Test that POST is not allowed on the me url"""
-        res = self.client.post(AUTH_URL, {})
-
+    def test_post_auth_not_allowed(self):
+        """Test that POST is not allowed on the auth url"""
+        res = self.client.post(ME_URL, {})
         self.assertEqual(res.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
 
     def test_partial_update_user_profile(self):
@@ -148,9 +159,8 @@ class PrivateUserAPiTests(TestCase):
             'first_name': 'newfirstname',
             'last_name': 'newlastname'
         }
-        res = self.client.patch(AUTH_URL, payload)
+        res = self.client.patch(ME_URL, payload)
         self.assertEqual(res.status_code, status.HTTP_200_OK)
-
         self.user.refresh_from_db()
 
         expected_json_dict = get_user_by_json(**res.data)
@@ -172,10 +182,9 @@ class PrivateUserAPiTests(TestCase):
                 'introduction': 'introductiontest',
                 'icon': ntf
             }
-            res = self.client.put(AUTH_URL, payload, format='multipart')
+            res = self.client.put(ME_URL, payload, format='multipart')
 
         self.assertEqual(res.status_code, status.HTTP_200_OK)
-
         self.user.refresh_from_db()
 
         expected_json_dict = get_user_by_json(**res.data)
@@ -187,9 +196,8 @@ class PrivateUserAPiTests(TestCase):
     def test_upload_image_bad_request(self):
         """Test uploading an invalid image"""
         res = self.client.patch(
-            AUTH_URL,
+            ME_URL,
             {'icon':'notimage'},
             format='multipart'
         )
-
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)

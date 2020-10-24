@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'core',
     'user',
+    'event',
 ]
 
 MIDDLEWARE = [
@@ -92,6 +93,7 @@ if '/code/.tox/py38/bin/py.test' in sys.argv:
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': 'test_database',
     }
+
 
 # Password validation
 # https://docs.djangoproject.com/en/3.0/ref/settings/#auth-password-validators
