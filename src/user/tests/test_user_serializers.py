@@ -42,14 +42,3 @@ class PublicUserApiTests(TestCase):
         """Test that email and password are required"""
         res = self.client.post(TOKEN_URL, {'email': 'one', 'password': ''})
         self.assertNotIn('token', res.data)
-
-class PrivateUserAPiTests(TestCase):
-    """Test API requests that require authhentication"""
-
-    def setUp(self):
-        self.user = create_user(
-            email='test@matsuda.com',
-            password='testpass'
-        )
-        self.client = APIClient()
-        self.client.force_authenticate(user=self.user)
