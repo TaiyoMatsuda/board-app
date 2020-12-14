@@ -98,11 +98,11 @@ DATABASES = {
     # }
     'default': env.db()
 }
-# if '/code/.tox/py38/bin/pytest' in sys.argv:
-#     DATABASES['default'] = {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': 'test_database',
-#     }
+if '/code/.tox/py38/bin/pytest' in sys.argv:
+    DATABASES['default'] = {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': 'test_database',
+    }
 
 
 # Password validation
