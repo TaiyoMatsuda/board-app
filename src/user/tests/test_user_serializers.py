@@ -10,13 +10,7 @@ from django.urls import reverse
 from rest_framework.test import APIClient
 from rest_framework import status
 
-
-CREATE_USER_URL = reverse('user:create')
-TOKEN_URL = reverse('user:token')
-AUTH_URL = reverse('user:auth')
-
-def create_user(**params):
-    return get_user_model().objects.create_user(**params)
+from user.serializers import UserSerializer, AuthTokenSerializer
 
 
 class PublicUserApiTests(TestCase):
@@ -31,14 +25,40 @@ class PublicUserApiTests(TestCase):
             'email': 'test@matsuda.com',
             'password': 'pw'
         }
-        res = self.client.post(CREATE_USER_URL, payload)
+        serializer = UserSerializer(data=payload)
 
-        user_exists = get_user_model().objects.filter(
-            email=payload['email']
-        ).exists()
-        self.assertFalse(user_exists)
+        self.assertEqual(serializer.is_valid(), False)
+        self.assertCountEqual(serializer.errors.keys(), ['password'])
 
-    def test_create_token_missing_field(self):
-        """Test that email and password are required"""
-        res = self.client.post(TOKEN_URL, {'email': 'one', 'password': ''})
-        self.assertNotIn('token', res.data)
+    def test_create_token_missing_email_field(self):
+        """Test that email is required"""
+        payload = {
+            'email': 'one',
+            'password': 'password'
+        }
+        serializer = AuthTokenSerializer(data=payload)
+
+        self.assertEqual(serializer.is_valid(), False)
+        self.assertCountEqual(serializer.errors.keys(), ['email'])
+
+    def test_create_token_missing_password_field(self):
+        """Test that password is required"""
+        payload = {
+            'email': 'test@matsuda.com',
+            'password': ''
+        }
+        serializer = AuthTokenSerializer(data=payload)
+
+        self.assertEqual(serializer.is_valid(), False)
+        self.assertCountEqual(serializer.errors.keys(), ['password'])
+
+    def test_create_token_non_field(self):
+        """Test that field is invalid"""
+        payload = {
+            'email': 'test@matsuda.com',
+            'password': 'password'
+        }
+        serializer = AuthTokenSerializer(data=payload)
+
+        self.assertEqual(serializer.is_valid(), False)
+        self.assertCountEqual(serializer.errors.keys(), ['non_field_errors'])

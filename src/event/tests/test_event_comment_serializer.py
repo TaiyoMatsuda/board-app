@@ -1,40 +1,45 @@
-from django.contrib.auth imoprt get_user_model
+from django.contrib.auth import get_user_model
 from django.urls import reverse
 from django.test import TestCase
 from django.utils import timezone
+from django.utils.timezone import make_aware
+import datetime
 
 from rest_framework import status
-from rest_framework import APIClient
+from rest_framework.test import APIClient
 
-from core.models import EventComment
+from core.models import Event, EventComment
 
-from event.serializers import EventCommentSerializer
-
-CREATE_EVENT_COMMENT_URL = reverse('event:create-event-comment')
+from event.serializers import ListCreateEventCommentSerializer
 
 def sample_user(**params):
     """Create and return a sample user"""
     return get_user_model().objects.create_user(**params)
 
-def sample_event(user, **params):
-    """Create and return a sample comment"""
+def sample_event(user):
+    """Create and return a sample event"""
     default = {
-        'title': 'test title',
+        'title':'test title',
         'description': 'test description',
         'image': None,
-        'event_time': timezone.now,
+        'event_time': make_aware(datetime.datetime.now())
+        .strftime('%Y-%m-%d %H:%M:%S'),
         'address': 'test address',
-        'fee': '500'
+        'fee': 500,
     }
-    defaults.update(params)
 
-    return EventComment.object.create(event=event, organizer=user,
-     comment=comment, **default)
+    return Event.objects.create(organizer=user, **default)
 
 def sample_event_comment(event, user, comment='test comment', **params):
     """Create and return a sample comment"""
-    return EventComment.object.create(event=event, user=user, comment=comment,
-    **params)
+    default = {
+        'event': event,
+        'user': user,
+        'comment': comment,
+    }
+    default.update(params)
+
+    return EventComment.objects.create(**default)
 
 
 class PrivateEventCommentApiTests(TestCase):
@@ -42,24 +47,47 @@ class PrivateEventCommentApiTests(TestCase):
 
     def setUp(self):
         self.client = APIClient()
-        self.user = sample_user(email='test@matsuda.com', password='testpass')
-        self.event = sample_event([self.user.id])
-        self.event_comment = sample_event_comment(
-            [self.event.id],
-            [self.user.id]
+        self.organaizer = sample_user(
+            email='organaizer@matsuda.com',
+            password='testpass'
         )
-        self.client.force_authenticate(self.user)
+        self.event = sample_event(self.organaizer)
+        self.event_comment = sample_event_comment(
+            self.event,
+            self.organaizer
+        )
+        self.client.force_authenticate(self.organaizer)
 
     def test_create_event_comment_successful(self):
-        """Test creating a new event comment"""
+        """Test create a new event comment"""
         payload = {
-            'event': [self.event.id],
-            'user': [self.user.id],
+            'event': self.event.id,
+            'user': self.organaizer.id,
+            'comment': 'test comment'
+        }
+        serializer = ListCreateEventCommentSerializer(data=payload)
+
+        self.assertEqual(serializer.is_valid(), True)
+
+    def test_event_comment_too_long_comment(self):
+        """Test fail creating a new event comment because of long comment"""
+        payload = {
+            'event': self.event.id,
+            'user': self.organaizer.id,
             'comment': 'test comment' * 100
         }
-        res = self.client.post(CREATE_EVENT_COMMENT_URL, payload)
-        self.assertEqual(res.status_code, status.HTTP_201_CREATED)
+        serializer = ListCreateEventCommentSerializer(data=payload)
 
-        expected_json_dict = get_event_comment_by_json(**res.data)
+        self.assertEqual(serializer.is_valid(), False)
+        self.assertCountEqual(serializer.errors.keys(), ['comment'])
 
-        self.assertJSONEqual(res.content, expected_json_dict)
+    def test_create_event_comment_blank(self):
+        """Test fail creating a new event comment because of comment blank"""
+        payload = {
+            'event': self.event.id,
+            'user': self.organaizer.id,
+            'comment': ''
+        }
+        serializer = ListCreateEventCommentSerializer(data=payload)
+        self.assertEqual(serializer.is_valid(), False)
+        self.assertCountEqual(serializer.errors.keys(), ['comment'])
