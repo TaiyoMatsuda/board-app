@@ -16,7 +16,7 @@ class AdminSiteTests(TestCase):
             email='test5@matsuda.com',
             password='password123',
             first_name='testfirst',
-            last_name='testlast'
+            family_name='testlast'
         )
 
     def test_users_listed(self):
@@ -25,7 +25,7 @@ class AdminSiteTests(TestCase):
         res = self.client.get(url)
 
         self.assertContains(res, self.user.first_name)
-        self.assertContains(res, self.user.last_name)
+        self.assertContains(res, self.user.family_name)
         self.assertContains(res, self.user.email)
 
     def test_user_change_page(self):

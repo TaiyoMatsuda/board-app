@@ -7,23 +7,28 @@ import datetime
 from core import models
 
 
-def sample_user(email='test@matsuda.com', password='testpass'):
+def sample_user(email='sampleuser@matsuda.com', password='testpass'):
     """Create a sample user"""
     return get_user_model().objects.create_user(email, password)
 
-
-def sample_event():
+def sample_event(user):
     """Create a sample event"""
     return models.Event.objects.create(
         title='sample event',
-        organizer=sample_user(),
+        description='test description',
+        organizer=user,
         event_time=make_aware(datetime.datetime.now())
         .strftime('%Y-%m-%d %H:%M:%S'),
-        address='sample test place'
+        address='sample test place',
+        fee=500
     )
 
 
 class ModelTests(TestCase):
+
+    def setUp(self):
+        self.user = sample_user()
+        self.event = sample_event(self.user)
 
     def test_create_user_with_email_successful(self):
         """Test creating a neww user withh an email is successful"""
@@ -68,15 +73,17 @@ class ModelTests(TestCase):
 
     def test_event_str(self):
         """Test the event string representations"""
-        event = models.Event.objects.create(
+        create_event = models.Event.objects.create(
             title='test event',
-            organizer=sample_user(),
+            description='test description',
+            organizer=self.user,
             event_time=make_aware(datetime.datetime.now())
             .strftime('%Y-%m-%d %H:%M:%S'),
-            address='testplace'
+            address='testplace',
+            fee=50
         )
 
-        self.assertEqual(str(event), event.title)
+        self.assertEqual(str(create_event), create_event.title)
 
     @patch('uuid.uuid4')
     def test_event_file_name_uuid(self, mock_uuid):
@@ -95,22 +102,22 @@ class ModelTests(TestCase):
         comment_user = get_user_model().objects.create_user(email, password)
 
         event_comment = models.EventComment.objects.create(
-            event=sample_event(),
+            event=self.event,
             user=comment_user,
             comment='test comment',
         )
 
         self.assertEqual(str(event_comment), event_comment.comment)
 
-    def test_candidate_str(self):
-        """Test the candidate string representations"""
-        email = 'candidate@matsuda.com'
+    def test_participant_str(self):
+        """Test the participant string representations"""
+        email = 'participant@matsuda.com'
         password = 'Testpass123'
-        candidate = get_user_model().objects.create_user(email, password)
+        user = get_user_model().objects.create_user(email, password)
 
-        candidate = models.EventComment.objects.create(
-            event=sample_event(),
-            user=candidate,
+        participant = models.Participant.objects.create(
+            event=self.event,
+            user=user,
         )
 
-        self.assertEqual(str(candidate), candidate.user.get_full_name())
+        self.assertEqual(str(participant), participant.user.get_short_name())

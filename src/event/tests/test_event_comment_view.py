@@ -1,116 +1,146 @@
-from django.contrib.auth imoprt get_user_model
+from django.contrib.auth import get_user_model
 from django.urls import reverse
 from django.test import TestCase
 from django.utils import timezone
+from django.utils.timezone import make_aware, localtime
+import datetime
 
 from rest_framework import status
-from rest_framework import APIClient
+from rest_framework.test import APIClient
 
-from core.models import EventComment
+from core.models import Event, EventComment
 
-from event.serializers import EventCommentSerializer
+def detail_url(event_id):
+    """Return detail event comment URL"""
+    return reverse('event:eventComment', args=[event_id])
 
-EVENT_COMMENT_URL = reverse('event:event-comment')
-CREATE_EVENT_COMMENT_URL = reverse('event:create-event-comment')
-
-def detail_url(event_comment_id):
-    """Return event comment detail URL"""
-    return reverse('event:update-comment-detail', args=[event_comment_id])
+def delete_url(event_id, comment_id):
+    """Return delete event comment URL"""
+    return reverse('event:deleteComment', args=[event_id, comment_id])
 
 def sample_user(**params):
     """Create and return a sample user"""
     return get_user_model().objects.create_user(**params)
 
-def sample_event(user, **params):
-    """Create and return a sample comment"""
+def sample_event(user):
+    """Create and return a sample event"""
     default = {
-        'title': 'test title',
+        'title':'test title',
         'description': 'test description',
         'image': None,
-        'event_time': timezone.now,
+        'event_time':make_aware(datetime.datetime.now())
+        .strftime('%Y-%m-%d %H:%M:%S'),
         'address': 'test address',
-        'fee': '500'
+        'fee': 500,
+        'status': '1',
     }
-    defaults.update(params)
 
-    return EventComment.object.create(event=event, organizer=user,
-     comment=comment, **default)
+    return Event.objects.create(organizer=user, **default)
 
 def sample_event_comment(event, user, comment='test comment', **params):
-    """Create and return a sample comment"""
-    return EventComment.object.create(event=event, user=user, comment=comment,
-    **params)
+    """Create and return a sample event comment"""
+    default = {
+        'event': event,
+        'user': user,
+        'comment': comment,
+    }
+    default.update(params)
+
+    return EventComment.objects.create(**default)
 
 def get_event_comment_by_json(**params):
+
     event_comment = EventComment.objects.get(
-        event=params['event'],
-        user=params['user'],
-        update_at=params['update_at'],
+        id=params['id']
     )
-
     expected_json_dict = {
-        '1':
-            'event': event_comment.event,
-            'user': event_comment.user,
-            'comment': useevent_commentr.comment,
-            'update_at': event_comment.update_at,
-            'is_active': event_comment.is_active
+        'id': event_comment.id,
+        'user': {
+            'first_name': event_comment.user.first_name,
+            'is_active': event_comment.user.is_active,
+            'icon': None
+        },
+        'comment': event_comment.comment,
+        'brief_updated_at': localtime(event_comment.updated_at).strftime('%Y-%m-%d %H:%M:%S')
     }
-
     return expected_json_dict
 
 class PublicEventCommentApiTests(TestCase):
     """Test that publcly available event comments API"""
 
     def setUp(self):
-        self.user = sample_user(email='test@matsuda.com', password='testpass')
-        self.event = sample_event([self.user.id])
-        sample_event_comment([self.event.id], [self.user.id])
-        sample_event_comment([self.event.id], [self.user.id])
-
+        self.user = sample_user(
+            email='test@matsuda.com',
+            password='testpass',
+            first_name='test'
+        )
+        self.event = sample_event(self.user)
+        self.event_comment = sample_event_comment(self.event, self.user)
+        self.deleted_comment = sample_event_comment(self.event, self.user)
+        self.deleted_comment.delete()
+        self.deleted_comment.refresh_from_db()
         self.client = APIClient()
 
     def test_retrieve_event_comment_success(self):
         """Test retrieving event comments"""
-
-        res = self.client.get(EVENT_COMMENT_URL)
+        url = detail_url(self.event.id)
+        res = self.client.get(url)
         self.assertEqual(res.status_code, status.HTTP_200_OK)
 
-        event_comment = EventComment.all().order_by('-update_at')
-        expected_json_dict = {
-            '1':
-                'event': event_comment.event,
-                'user': event_comment.user,
+        event_comments = EventComment.objects.filter(is_active=True).order_by('updated_at')
+        expected_json_dict_list = []
+        for event_comment in event_comments:
+            expected_json_dict = {
+                'id': event_comment.id,
+                'event': event_comment.event.id,
+                'user': event_comment.user.id,
+                'first_name': event_comment.user.first_name,
+                'icon': event_comment.user.get_icon_url,
                 'comment': event_comment.comment,
-                'update_at': event_comment.update_at,
-                'is_active': event_comment.is_active,
-            '2':
-                'event': event_comment.event,
-                'user': event_comment.user,
-                'comment': event_comment.comment,
-                'update_at': event_comment.update_at,
-                'is_active': event_comment.is_active,
-        }
+                'brief_updated_at': event_comment.get_brief_updated_at
+            }
+            expected_json_dict_list.append(expected_json_dict)
 
-        self.assertJSONEqual(res.content, expected_json_dict)
+        expected_json ={
+            "count":len(event_comments),
+            "next":None,
+            "previous":None,
+            "results":expected_json_dict_list
+        }
+        self.assertJSONEqual(res.content, expected_json)
+
+    def test_not_retrieve_deleted_comments(self):
+        """Test not retrieving deleted comments"""
+        url = detail_url(self.event.id)
+        res = self.client.get(url)
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+
+        expected_json_dict = {
+            'id': self.event_comment.id,
+            'event': self.event_comment.event.id,
+            'user': self.event_comment.user.id,
+            'first_name': self.event_comment.user.first_name,
+            'icon': self.event_comment.user.get_icon_url,
+            'comment': self.event_comment.comment,
+            'brief_updated_at': self.event_comment.get_brief_updated_at
+        }
+        self.assertIn(expected_json_dict, list(res.data['results']))
+        self.assertEqual(dict(res.data['results'][0]), expected_json_dict)
+
 
     def test_create_event_comment_for_unauthorized_user(self):
         """Test creating a new event comment"""
         payload = {
-            'event': [self.event.id],
-            'user': [self.user.id],
             'comment': 'testcomment',
         }
-        res = self.client.post(CREATE_EVENT_COMMENT_URL, payload)
+        url = detail_url(self.event.id)
+        res = self.client.post(url, payload)
         self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
 
-    def test_partial_update_event_comment_for_unauthorized_user(self):
-        """Test partial updating the event comment for authenticated user"""
-        payload = {
-            'is_active': False
-        }
-        url = detail_url(self.event_comment.id)
-        res = self.client.patch(url, payload)
+    def test_delete_event_comment_for_unauthorized_user(self):
+        """Test delete an event comment for authenticated user"""
+        url = delete_url(self.event.id, self.event_comment.id)
+        res = self.client.delete(url)
         self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
 
 
@@ -119,38 +149,69 @@ class PrivateEventCommentApiTests(TestCase):
 
     def setUp(self):
         self.client = APIClient()
-        self.user = sample_user(email='test@matsuda.com', password='testpass')
-        self.event = sample_event([self.user.id])
-        self.event_comment = sample_event_comment(
-            [self.event.id],
-            [self.user.id]
+        self.organizer = sample_user(
+            email='test@matsuda.com',
+            password='testpass',
+            first_name='test'
         )
-        self.client.force_authenticate(self.user)
+        self.comment_user = sample_user(
+            email='test2@matsuda.com',
+            password='testpass2',
+            first_name='testtest'
+        )
+        self.event = sample_event(self.organizer)
+        self.private_event = sample_event(self.organizer)
+        self.private_event.status = '0'
+        self.private_event.save()
+        self.organizer_comment = sample_event_comment(self.event, self.organizer)
+        self.event_comment = sample_event_comment(self.event, self.comment_user)
+        self.client.force_authenticate(self.organizer)
 
     def test_create_event_comment_successful(self):
         """Test creating a new event comment"""
+        str_comment = 'test_create_event_comment_successful'
         payload = {
-            'event': [self.event.id],
-            'user': [self.user.id],
-            'comment': 'testcomment',
+            'comment': str_comment,
         }
-        res = self.client.post(CREATE_EVENT_COMMENT_URL, payload)
+        url = detail_url(self.event.id)
+        res = self.client.post(url, payload)
         self.assertEqual(res.status_code, status.HTTP_201_CREATED)
 
-        expected_json_dict = get_event_comment_by_json(**res.data)
+        new_event_comment = EventComment.objects.latest('updated_at')
+        self.assertEqual(new_event_comment.comment, str_comment)
 
-        self.assertJSONEqual(res.content, expected_json_dict)
-
-    def test_partial_update_event_comment(self):
-        """Test partial updating the event comment for authenticated user"""
+    def test_not_create_event_comment_to_private_event(self):
+        """Test not creating a new comment to private event"""
         payload = {
-            'is_active': False
+            'comment': 'testcomment',
         }
-        url = detail_url(self.event_comment.id)
-        res = self.client.patch(url, payload)
+        url = detail_url(self.private_event.id)
+        res = self.client.post(url, payload)
+        self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
 
-        self.event_comment.refesh_from_db()
+    def test_not_create_event_comment_to_deleted_event(self):
+        """Test not creating a new comment to deleted event"""
+        self.event.delete()
 
-        expected_json_dict = get_event_comment_by_json(**res.data)
+        payload = {
+            'comment': 'testcomment',
+        }
+        url = detail_url(self.event.id)
+        res = self.client.post(url, payload)
+        self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
 
-        self.assertJSONEqual(res.content, expected_json_dict)
+    def test_delete_event_comment(self):
+        """Test delete the event comment by authenticated user"""
+        url = delete_url(self.event.id, self.organizer_comment.id)
+        res = self.client.delete(url)
+        self.assertEqual(res.status_code, status.HTTP_204_NO_CONTENT)
+
+        self.organizer_comment.refresh_from_db()
+
+        self.assertFalse(self.organizer_comment.is_active)
+
+    def test_not_delete_event_comment_for_anyone(self):
+        """Test not delete an event comment by not suitable user"""
+        url = delete_url(self.event.id, self.event_comment.id)
+        res = self.client.delete(url)
+        self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
