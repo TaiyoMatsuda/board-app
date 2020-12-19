@@ -6,3 +6,4 @@ mysqlclient==2.0.1
 pillow==7.1.0
 pytest-django==3.10.0
 flake8==3.7.9
+six=1.15.0
