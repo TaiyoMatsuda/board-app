@@ -8,6 +8,8 @@ from django.urls import reverse
 from django.test import TestCase
 from django.utils import timezone
 from django.utils.timezone import make_aware
+from datetime import timedelta
+
 import datetime
 
 from rest_framework import status
@@ -112,11 +114,36 @@ class PublicParticipantApiTests(TestCase):
         ]
         self.assertJSONEqual(res.content, expected_json_dict)
 
+    def test_retrieve_maximum_ten_events_success(self):
+        """Test retrieving mzximum ten events"""
+        count= 0
+        while count < 10:
+            sample_event(organizer=self.organizer)
+            count += 1
+
+        res = self.client.get(EVENT_URL)
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(res.data), 10)
+
+    # def test_retrieving_events_for_a_day_successful(self):
+    #     """Test retrieving events for a day"""
+    #     sample_event(
+    #         organizer=self.organizer,
+    #         event_time=make_aware(datetime.datetime.now() + datetime.timedelta(days=2))
+    #     )
+    #     today = datetime.date.today()
+    #     tomorrow = today + timedelta(days=1)
+    #     breakpoint()
+    #     res = self.client.get(EVENT_URL, {'event_time__gt':today, 'event_time__lt':tomorrow})
+    #     self.assertEqual(res.status_code, status.HTTP_200_OK)
+    #     self.assertEqual(len(res.data), 2)
+
     # def test_retrieve_event_success(self):
     #     """Test retrieving event"""
     #     url = detail_url(self.second_event.id)
-    #     res = self.client.get(url)
     #     breakpoint()
+    #     res = self.client.get(url)
+    #
     #     self.assertEqual(res.status_code, status.HTTP_200_OK)
     #
     #     event = Event.object.get(event_id=[self.first_event.id])

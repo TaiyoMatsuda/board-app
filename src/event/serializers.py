@@ -68,7 +68,7 @@ class EventSerializer(serializers.ModelSerializer):
             'participant_count', 'brief_updated_at'
         )
         extra_kwargs = {
-            'organizer': {'write_only': True},
+            'organizer': {'write_only': True, 'required': False},
             'fee': {'default': 0},
         }
 
@@ -76,7 +76,53 @@ class EventSerializer(serializers.ModelSerializer):
         return event.get_image_url
 
     def get_organizer_icon(self, event):
-        user = get_user_model().objects.get(pk=event.organizer)
+        user = get_user_model().objects.get(pk=event.organizer.id)
+        return user.get_icon_url
+
+    def get_participant_count(self, event):
+        participant = Participant.objects.filter(event_id=event.id, status= '1', is_active=True)
+        return participant.count()
+
+    def get_brief_updated_at(sefl, event):
+        return event.get_brief_updated_at
+
+
+class RetrieveEventSerializer(serializers.ModelSerializer):
+    """Serialize for Event object"""
+    organizer_first_name = serializers.ReadOnlyField(source="organizer.first_name")
+    organizer_icon = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Event
+        fields = (
+            'id', 'title', 'description', 'organizer', 'organizer_first_name',
+            'organizer_icon', 'image', 'event_time', 'address', 'fee', 'status',
+            # 'event_comment_list', 'participant_list',
+            # 'participant_count', 'brief_updated_at'
+        )
+
+    # organizer_id = serializers.ReadOnlyField(source="organizer.id")
+
+    # image = serializers.SerializerMethodField()
+    # event_comment_list = ListCreateEventCommentSerializer(read_only=True)
+    # participant_list = ListCreateParticipantSerializer(read_only=True)
+    # participant_count = serializers.SerializerMethodField()
+    # brief_updated_at = serializers.SerializerMethodField()
+    #
+    # class Meta:
+    #     model = Event
+    #     fields = (
+    #         'id', 'title', 'description', 'organizer_id', 'organizer_first_name',
+    #         'organizer_icon', 'image', 'event_time', 'address', 'fee', 'status',
+    #         'event_comment_list', 'participant_list',
+    #         'participant_count', 'brief_updated_at'
+    #     )
+    #
+    def get_image(self, event):
+        return event.get_image_url
+
+    def get_organizer_icon(self, event):
+        user = get_user_model().objects.get(pk=event.organizer.id)
         return user.get_icon_url
 
     def get_participant_count(self, event):

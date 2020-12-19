@@ -4,7 +4,7 @@ from rest_framework import views, generics, viewsets, mixins, filters, status
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.pagination import PageNumberPagination
-from django_filters.rest_framework import DjangoFilterBackend
+from django_filters import rest_framework as filters
 from django.shortcuts import get_object_or_404
 
 from core.models import EventComment, Participant, Event
@@ -34,12 +34,6 @@ class EventCommentListSetPagination(PageNumberPagination):
     page_size = 15
     page_size_query_param = 'page_size'
     max_page_size = 100
-
-
-class EventListSetPagination(PageNumberPagination):
-    page_size = 10
-    page_size_query_param = 'page_size'
-    max_page_size = 10000000
 
 
 class ListCreateParticipantView(generics.ListCreateAPIView):
@@ -130,7 +124,7 @@ class EventCommentView(generics.GenericAPIView,
             'user': self.request.user.id,
             'comment': request.data['comment']
         }
-        serializer = serializers.ListCreateEventCommentSerializer(data=data)
+        serializer = self.get_serializer(data=data)
         if serializer.is_valid():
             serializer.save()
             return Response(status=status.HTTP_201_CREATED)
@@ -145,16 +139,32 @@ class EventCommentView(generics.GenericAPIView,
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
+class EventFilter(filters.FilterSet):
+
+    event_time__gt = filters.DateTimeFilter(name="event_time", lookup_expr='gt')
+    event_time__lt = filters.DateTimeFilter(name="event_time", lookup_expr='lt')
+
+    class Meta:
+        model = Event
+        fields = ['event_time__gt', 'event_time__lt']
+
 class EventViewSet(viewsets.ModelViewSet):
     """Manage Event in the event"""
-    pagination_class = EventListSetPagination
     queryset = Event.objects.all()
+    filter_class = EventFilter
+
+    def get_queryset(self):
+        if self.action == 'list':
+            return Event.objects.filter(is_active=True)[0:10]
+        return Event.objects.filter(is_active=True)
 
     def get_serializer_class(self):
         if self.action == 'list':
             return serializers.BriefEventSerializer
-
-        return serializers.EventSerializer
+        elif self.action == 'retrieve':
+            return serializers.RetrieveEventSerializer
+        else:
+            return serializers.EventSerializer
 
     def get_permissions(self):
         """
@@ -175,7 +185,7 @@ class EventViewSet(viewsets.ModelViewSet):
         return obj
 
     def list(self, request):
-        serializer = self.get_serializer(instance=self.queryset, many=True)
+        serializer = self.get_serializer(instance=self.get_queryset(), many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def create(self, request):
@@ -196,7 +206,24 @@ class EventViewSet(viewsets.ModelViewSet):
 
     def retrieve(self, request, pk=None):
         event = self.get_object()
-        serializer = self.get_serializer(event)
+        event_comments = EventComment.objects.filter(is_active=True, event=event.id)
+        participants = Participant.objects.filter(is_active=True, event=event.id)
+        data = {
+            'title': event.title,
+            'description': event.description,
+            'organizer': event.organizer.id,
+            'image': event.image,
+            'event_time': event.event_time,
+            'address': event.address,
+            'fee': event.fee,
+            'status': event.status,
+            'event_comment_list': event_comments,
+            'participant_list': participants,
+            'participant_count': participants.count(),
+        }
+        serializer = self.get_serializer(instance=event)
+        breakpoint()
+        #serializer.is_valid(raise_exception=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def partial_update(self, request, pk=None):
