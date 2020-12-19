@@ -96,13 +96,24 @@ DATABASES = {
     #     'ENGINE': 'django.db.backends.sqlite3',
     #     'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     # }
-    'default': env.db()
-}
-if '/code/.tox/py38/bin/pytest' in sys.argv:
-    DATABASES['default'] = {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': 'test_database',
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'board',
+        'USER': 'root',
+        'PASSWORD': 'a',
+        'HOST': 'db',
+        'PORT': 3306,
+        'TEST': {
+            'NAME': 'test_database'
+        }
     }
+    # 'default': env.db()
+}
+# if '/code/.tox/py38/bin/pytest' in sys.argv:
+#     DATABASES['default'] = {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': 'test_database',
+#     }
 
 
 # Password validation
