@@ -24,13 +24,10 @@ env.read_env(os.path.join(BASE_DIR,'.env'))
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-# SECRET_KEY = env('SECRET_KEY', str)
-SECRET_KEY = '7(y3n(48^@$n@7^v)zvyidtz9fpt_$3k!sr1kx26tgap*39t_s'
+SECRET_KEY = env('SECRET_KEY', str)
 # SECURITY WARNING: don't run with debug turned on in production!
-# DEBUG = env('DEBUG')
-DEBUG = True
-#ALLOWED_HOSTS = ALLOWED_HOSTS=['*']
-ALLOWED_HOSTS = ['*']
+DEBUG = env('DEBUG')
+ALLOWED_HOSTS = env('ALLOWED_HOSTS')
 
 # Application definition
 
@@ -91,23 +88,13 @@ WSGI_APPLICATION = 'app.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
+
 DATABASES = {
     # 'default': {
     #     'ENGINE': 'django.db.backends.sqlite3',
     #     'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     # }
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'board',
-        'USER': 'root',
-        'PASSWORD': 'a',
-        'HOST': 'db',
-        'PORT': 3306,
-        'TEST': {
-            'NAME': 'test_database'
-        }
-    }
-    # 'default': env.db()
+    'default': env.db()
 }
 if '/code/.tox/py38/bin/pytest' in sys.argv:
     DATABASES['default'] = {

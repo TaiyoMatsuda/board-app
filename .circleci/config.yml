@@ -7,9 +7,8 @@ executors:
       - image: circleci/python:3.8.1
       - image: circleci/mysql:5.7
         environment:
-          MYSQL_DATABASE: board
-          MYSQL_USER: user
-          MYSQL_ALLOW_EMPTY_PASSWORD: yes
+           - MYSQL_ALLOW_EMPTY_PASSWORD: 'true'
+           - MYSQL_ROOT_HOST: '%'
 
 jobs:
   build-and-test:
