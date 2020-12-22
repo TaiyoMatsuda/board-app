@@ -94,7 +94,18 @@ DATABASES = {
     #     'ENGINE': 'django.db.backends.sqlite3',
     #     'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     # }
-    'default': env.db()
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'board',
+        'USER': 'user',
+        'PASSWORD': '',
+        'HOST': '127.0.0.1',
+        'PORT': 3306,
+        'OPTIONS': {
+            'charset': 'utf8mb4',
+        },
+    }
+    #'default': env.db()
 }
 # if '/code/.tox/py38/bin/pytest' in sys.argv:
 #     DATABASES['default'] = {
