@@ -17,8 +17,6 @@ from rest_framework.test import APIClient
 
 from core.models import Event
 
-from event.serializers import EventSerializer
-
 EVENT_URL = reverse('event:event-list')
 
 def detail_url(event_id):
@@ -91,7 +89,9 @@ class PublicParticipantApiTests(TestCase):
 
     def test_retrieve_event_list_success(self):
         """Test retrieving event list"""
-        res = self.client.get(EVENT_URL)
+        today = datetime.date.today()
+        tomorrow = today + timedelta(days=1)
+        res = self.client.get(EVENT_URL, {'start':today, 'end':tomorrow})
         self.assertEqual(res.status_code, status.HTTP_200_OK)
 
         event = Event.objects.all().order_by('-event_time')
@@ -121,93 +121,91 @@ class PublicParticipantApiTests(TestCase):
             sample_event(organizer=self.organizer)
             count += 1
 
-        res = self.client.get(EVENT_URL)
+        today = datetime.date.today()
+        tomorrow = today + timedelta(days=1)
+        res = self.client.get(EVENT_URL, {'start':today, 'end':tomorrow})
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertEqual(len(res.data), 10)
 
-    # def test_retrieving_events_for_a_day_successful(self):
-    #     """Test retrieving events for a day"""
-    #     sample_event(
-    #         organizer=self.organizer,
-    #         event_time=make_aware(datetime.datetime.now() + datetime.timedelta(days=2))
-    #     )
-    #     today = datetime.date.today()
-    #     tomorrow = today + timedelta(days=1)
-    #     breakpoint()
-    #     res = self.client.get(EVENT_URL, {'event_time__gt':today, 'event_time__lt':tomorrow})
-    #     self.assertEqual(res.status_code, status.HTTP_200_OK)
-    #     self.assertEqual(len(res.data), 2)
+    def test_retrieving_events_for_a_day_successful(self):
+        """Test retrieving events for a day"""
+        sample_event(
+            organizer=self.organizer,
+            event_time=make_aware(datetime.datetime.now() + datetime.timedelta(days=2))
+        )
+        today = datetime.date.today()
+        tomorrow = today + timedelta(days=1)
+        res = self.client.get(EVENT_URL, {'start':today, 'end':tomorrow})
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(res.data), 2)
+
+    def test_not_retrieving_events_by_wrong_query_parameters_name(self):
+        """Test not retrieving events by wrong query parameter name"""
+        sample_event(
+            organizer=self.organizer,
+            event_time=make_aware(datetime.datetime.now() + datetime.timedelta(days=2))
+        )
+        today = datetime.date.today()
+        tomorrow = today + timedelta(days=1)
+        res = self.client.get(EVENT_URL, {'test':today, 'test':tomorrow})
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_not_retrieving_events_by_wrong_type_query_parameters(self):
+        """Test not retrieving events by wrong type query parameters"""
+        sample_event(
+            organizer=self.organizer,
+            event_time=make_aware(datetime.datetime.now() + datetime.timedelta(days=2))
+        )
+        res = self.client.get(EVENT_URL, {'start':'test', 'end':'test'})
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_not_retrieving_events_by_wrong_query_parameters_number(self):
+        """Test not retrieving events by wrong query parameters number"""
+        sample_event(
+            organizer=self.organizer,
+            event_time=make_aware(datetime.datetime.now() + datetime.timedelta(days=2))
+        )
+        today = datetime.date.today()
+        res = self.client.get(EVENT_URL, {'start':today})
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
 
     # def test_retrieve_event_success(self):
     #     """Test retrieving event"""
     #     url = detail_url(self.second_event.id)
-    #     breakpoint()
     #     res = self.client.get(url)
     #
     #     self.assertEqual(res.status_code, status.HTTP_200_OK)
     #
-    #     event = Event.object.get(event_id=[self.first_event.id])
-    #
-    #     eventt_list = []
-    #     for event in eventt_list:
-    #         event_dict = {
-    #             'event_id': event.id,
-    #             'title': event.title,
-    #             'description': event.description,
-    #             'organizer_id': event.organizer_id,
-    #             'organizer_first_name': event.organizer_first_name,
-    #             'organizer_icon': event.organizer_icon,
-    #             'image': event.image,
-    #             'event_time': event.event_time,
-    #             'address': event.address,
-    #             'fee': event.fee,
-    #             # 'event_comment_list': {
-    #             #     'event_comment_id': event.event_comment.id
-    #             #     'user': event.event_comment.user,
-    #             #     'first_name': event_comment.user.first_name,
-    #             #     'icon': None,
-    #             #     'comment': event_comment.user.comment,
-    #             #     'brief_updated_at': localtime(event_comment.updated_at).strftime('%Y-%m-%d %H:%M:%S')
-    #             # },
-    #             # 'participant_list': {
-    #             #     'user_id': event.participant.user_id,
-    #             #     'first_name': event.participant.first_name,
-    #             #     'icon': None
-    #             # },
-    #             'participant_count': event.participant_count,
-    #             'brief_updated_at': localtime(event_comment.updated_at).strftime('%Y-%m-%d %H:%M:%S')
-    #         }
-    #         event_comment_list.append(event_comment_dict)
-    #
-    #     # participant_list = []
-    #     # for participant in participant_list:
-    #     #     participant_dict = {
-    #     #         'user': {
-    #     #             '': participant.user,
-    #     #             '':
-    #     #         },
-    #     #         'is_active': participant.is_active,
-    #     #         'updated_at': participant.updated_at,
-    #     #     }
-    #     #     participant_list.appent(participant_dict)
-    #     expected_json_dict = [
-    #         {
-    #             'id': event.id,
-    #             'title': event.title,
-    #             'description': event.description,
-    #             'organizer': {
-    #                 'first_name': event.user.first_name,
-    #                 'is_active': event.user.is_active,
-    #                 'icon': ''
-    #             },
-    #             'event_time': str(localtime(event_comment.updated_at)).replace(' ', 'T'),
-    #             'address': event.address,
-    #             'fee': event.fee,
-    #             'event_comment': event_comment_list,
-    #             'participant': participant_list
-    #         }
-    #     ]
-    #
+    #     event = Event.objects.get(id=self.second_event.id)
+    #     breakpoint()
+    #     expected_json_dict = {
+    #         'id': event.id,
+    #         'title': event.title,
+    #         'description': event.description,
+    #         'organizer': event.organizer_id,
+    #         'organizer_first_name': event.organizer_first_name,
+    #         'organizer_icon': event.organizer_icon,
+    #         'image': event.image,
+    #         'event_time': event.event_time,
+    #         'address': event.address,
+    #         'fee': event.fee,
+    #         'status': event.status,
+    #         # 'event_comment_list': {
+    #         #     'event_comment_id': event.event_comment.id,
+    #         #     'user': event.event_comment.user,
+    #         #     'first_name': event_comment.user.first_name,
+    #         #     'icon': None,
+    #         #     'comment': event_comment.user.comment,
+    #         #     'brief_updated_at': localtime(event_comment.updated_at).strftime('%Y-%m-%d %H:%M:%S')
+    #         # },
+    #         # 'participant_list': {
+    #         #     'user_id': event.participant.user_id,
+    #         #     'first_name': event.participant.first_name,
+    #         #     'icon': None
+    #         # },
+    #         # 'participant_count': event.participant_count,
+    #         # 'brief_updated_at': localtime(event_comment.updated_at).strftime('%Y-%m-%d %H:%M:%S')
+    #     }
     #     self.assertJSONEqual(res.content, expected_json_dict)
 
     def test_create_event_for_unauthorized_user(self):
@@ -278,6 +276,21 @@ class PrivateParticipantApiTests(TestCase):
         }
         res = self.client.post(EVENT_URL, payload)
         self.assertEqual(res.status_code, status.HTTP_201_CREATED)
+
+    def test_not_creating_event_by_tourist(self):
+        """Test not creating a new event by tourist"""
+        self.client.force_authenticate(self.user_one)
+        payload = {
+            'title': 'test title',
+            'description': 'test description',
+            'image': '',
+            'event_time': make_aware(datetime.datetime.now()),
+            'address': 'test address',
+            'fee': 500,
+            'status': '1'
+        }
+        res = self.client.post(EVENT_URL, payload)
+        self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_logically_delete_event(self):
         """Test logically delete an event for authenticated user"""
