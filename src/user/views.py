@@ -1,4 +1,5 @@
 from rest_framework import generics, viewsets, mixins, authentication, permissions, status
+from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.settings import api_settings
@@ -18,7 +19,6 @@ class UserViewSet(viewsets.GenericViewSet,
                   mixins.DestroyModelMixin
                   ):
     """Manage User"""
-    serializer_class = serializers.UserSerializer
     queryset = User.objects.filter(is_active=True)
 
     # def get_permissions(self):
@@ -29,11 +29,41 @@ class UserViewSet(viewsets.GenericViewSet,
     #         permission_classes = [IsAuthenticatedOrReadOnly]
     #
     #     return [permission() for permission in permission_classes]
+    def get_serializer_class(self):
+        if self.action == 'create':
+            return serializers.CreateUserSerializer
+        if self.action == 'email':
+            return serializers.UserEmailSerializer
+        if self.action == 'password':
+            return serializers.CreateUserSerializer
+        return serializers.UserSerializer
 
     def get_object(self):
         obj = get_object_or_404(self.get_queryset(), pk=self.kwargs["pk"])
         self.check_object_permissions(self.request, obj)
         return obj
+
+    @action(methods=['patch'],
+            detail=True,
+            permission_classes=[IsUserOwnerOnly]
+            )
+    def email(self, request, pk=None):
+        user = self.get_object()
+        breakpoint()
+        serializer = self.get_serializer(instance=user, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(status=status.HTTP_200_OK)
+
+    @action(methods=['patch'], detail=True)
+    def password(self, request, pk=None):
+        user = self.get_object()
+        breakpoint()
+        serializer = self.get_serializer(instance=user, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        return Response(status=status.HTTP_200_OK)
 
     def create(self, request):
         serializer = self.get_serializer(data=request.data)
@@ -51,7 +81,6 @@ class UserViewSet(viewsets.GenericViewSet,
         serializer = self.get_serializer(instance=user, data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
         serializer.save()
-
         return Response(status=status.HTTP_200_OK)
 
     def destroy(self, request, pk=None):

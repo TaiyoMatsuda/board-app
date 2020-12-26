@@ -10,8 +10,9 @@ router.register('', views.UserViewSet)
 app_name = 'user'
 
 urlpatterns = [
-    path('<int:pk>/email', views.UpdateUserEmailView.as_view(), name='user_email'),
-    path('<int:pk>/password', views.UserViewSet),
+    path('<int:pk>/event', views.UserViewSet),
+    # path('<int:pk>/email', views.UpdateUserEmailView.as_view(), name='user_email'),
+    # path('<int:pk>/password', views.UserViewSet),
     path('token/', views.CreateTokenView.as_view(), name='token'),
     path('', include(router.urls))
 ]

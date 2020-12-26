@@ -1,11 +1,12 @@
 from rest_framework.decorators import api_view, permission_classes, action
 from rest_framework.response import Response
-from rest_framework import views, generics, viewsets, mixins, filters, status
+from rest_framework import views, generics, viewsets, mixins, status
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.pagination import PageNumberPagination
-from django_filters import rest_framework as filters
 from django.shortcuts import get_object_or_404
+
+import datetime
 
 from core.models import EventComment, Participant, Event
 from core.permissions import IsEventAttributeOwnerOnly, IsEventOwnerOnly, IsGuideOnly, IsValidEvent
@@ -139,23 +140,17 @@ class EventCommentView(generics.GenericAPIView,
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-class EventFilter(filters.FilterSet):
-
-    event_time__gt = filters.DateTimeFilter(name="event_time", lookup_expr='gt')
-    event_time__lt = filters.DateTimeFilter(name="event_time", lookup_expr='lt')
-
-    class Meta:
-        model = Event
-        fields = ['event_time__gt', 'event_time__lt']
-
 class EventViewSet(viewsets.ModelViewSet):
     """Manage Event in the event"""
     queryset = Event.objects.all()
-    filter_class = EventFilter
 
     def get_queryset(self):
         if self.action == 'list':
-            return Event.objects.filter(is_active=True)[0:10]
+            start = self.request.query_params['start'] + ' 00:00:00'
+            end = self.request.query_params['end'] + ' 23:59:59'
+            return Event.objects.filter(is_active=True,
+                                        event_time__range=(start,end))[0:10]
+
         return Event.objects.filter(is_active=True)
 
     def get_serializer_class(self):
@@ -164,7 +159,7 @@ class EventViewSet(viewsets.ModelViewSet):
         elif self.action == 'retrieve':
             return serializers.RetrieveEventSerializer
         else:
-            return serializers.EventSerializer
+            return serializers.CreateUpdateEventSerializer
 
     def get_permissions(self):
         """
@@ -185,6 +180,19 @@ class EventViewSet(viewsets.ModelViewSet):
         return obj
 
     def list(self, request):
+        query_params = self.request.query_params
+        if len(query_params) != 2:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+        if 'start' not in query_params or 'end' not in query_params:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            datetime.datetime.strptime(query_params['start'], "%Y-%m-%d")
+            datetime.datetime.strptime(query_params['end'], "%Y-%m-%d")
+        except ValueError:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
         serializer = self.get_serializer(instance=self.get_queryset(), many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -206,24 +214,7 @@ class EventViewSet(viewsets.ModelViewSet):
 
     def retrieve(self, request, pk=None):
         event = self.get_object()
-        event_comments = EventComment.objects.filter(is_active=True, event=event.id)
-        participants = Participant.objects.filter(is_active=True, event=event.id)
-        data = {
-            'title': event.title,
-            'description': event.description,
-            'organizer': event.organizer.id,
-            'image': event.image,
-            'event_time': event.event_time,
-            'address': event.address,
-            'fee': event.fee,
-            'status': event.status,
-            'event_comment_list': event_comments,
-            'participant_list': participants,
-            'participant_count': participants.count(),
-        }
         serializer = self.get_serializer(instance=event)
-        breakpoint()
-        #serializer.is_valid(raise_exception=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def partial_update(self, request, pk=None):
