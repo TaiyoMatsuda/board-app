@@ -23,6 +23,8 @@ jobs:
             # Add '127.0.0.1 db' to /etc/host file. Then 'db' is used as a value of 'DB_HOST' name.
             echo 127.0.0.1 db | sudo tee -a /etc/hosts
       - run:
+          environment:
+            DB_HOST: db
           command: |
             cd ./src
             tox
