@@ -213,6 +213,7 @@ class PublicParticipantApiTests(TestCase):
         payload = {
             'title': 'test title',
             'description': 'test description',
+            'image': '',
             'organizer_id': self.organizer.id,
             'event_time': make_aware(datetime.datetime.now())
             .strftime('%Y-%m-%d %H:%M:%S'),
