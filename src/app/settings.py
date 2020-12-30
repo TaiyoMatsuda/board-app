@@ -97,11 +97,18 @@ DATABASES = {
     # 'default': os.environ['DATABASE_URL']
     'default': env.db()
 }
-# if '/code/.tox/py38/bin/pytest' in sys.argv:
-#     DATABASES['default'] = {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': 'test_database',
-#     }
+
+if DEBUG:
+    DATABASES['default'] = {
+        # 'ENGINE': 'django.db.backends.sqlite3',
+        # 'NAME': 'test_database',
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'board',
+        'USER': 'root',
+        'PASSWORD': 'rootpass',
+        'HOST': '127.0.0.1',
+        'PORT': '3306',
+    }
 
 
 # Password validation

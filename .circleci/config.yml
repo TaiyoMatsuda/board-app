@@ -8,8 +8,10 @@ executors:
       - image: circleci/mysql:5.7
         environment:
           MYSQL_DATABASE: board
-          MYSQL_USER: user
-          #MYSQL_ROOT_HOST: '%'
+          #MYSQL_USER: user
+          MYSQL_USER: root
+          MYSQL_ROOT_PASSWORD: 'rootpass'
+          MYSQL_ROOT_HOST: '%'
           MYSQL_ALLOW_EMPTY_PASSWORD: yes
 
 jobs:
