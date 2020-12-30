@@ -67,15 +67,15 @@ class PublicUserApiTests(TestCase):
         expected_json_dict = get_user_by_json(**res.data)
         self.assertJSONEqual(res.content, expected_json_dict)
 
-    def test_retrieve_user_event(self):
-        """Test retrieving user events"""
-        url = event_url(self.existed_user.id)
-        breakpoint()
-        res = self.client.get(url)
-        self.assertEqual(res.status_code, status.HTTP_200_OK)
-
-        expected_json_dict = get_user_by_json(**res.data)
-        self.assertJSONEqual(res.content, expected_json_dict)
+    # def test_retrieve_user_event(self):
+    #     """Test retrieving user events"""
+    #     url = event_url(self.existed_user.id)
+    #     breakpoint()
+    #     res = self.client.get(url)
+    #     self.assertEqual(res.status_code, status.HTTP_200_OK)
+    #
+    #     expected_json_dict = get_user_by_json(**res.data)
+    #     self.assertJSONEqual(res.content, expected_json_dict)
 
     def test_create_valid_user_success(self):
         """Test creating user with valid payload is successful"""
