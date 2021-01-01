@@ -12,6 +12,10 @@ services:
       MYSQL_USER: user
       MYSQL_PASSWORD: password
       TZ: 'Asia/Tokyo'
+    tty: true
+    stdin_open: true
+    privileged: true
+
 
   nginx:
     image: nginx:1.17.8
@@ -23,6 +27,9 @@ services:
       - ./static:/static
     depends_on:
       - web
+    tty: true
+    stdin_open: true
+    privileged: true
 
   web:
     build: .
@@ -34,3 +41,6 @@ services:
     depends_on:
       - db
     command: uwsgi --ini /code/app/uwsgi.ini
+    tty: true
+    stdin_open: true
+    privileged: true

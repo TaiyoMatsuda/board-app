@@ -1,5 +1,7 @@
 Django==3.0.8
 djangorestframework==3.11.0
+django-environ==0.4.5
+django-filter==2.4.0
 mysqlclient==2.0.1
 uwsgi==2.0.18
 flake8==3.7.9

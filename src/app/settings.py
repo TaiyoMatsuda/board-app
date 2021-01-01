@@ -11,22 +11,23 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 """
 
 import os
+import environ
+import sys
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
+env = environ.Env(DEBUG=(bool,False))
+env.read_env(os.path.join(BASE_DIR,'.env'))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '7(y3n(48^@$n@7^v)zvyidtz9fpt_$3k!sr1kx26tgap*39t_s'
-
+SECRET_KEY = env('SECRET_KEY', str)
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-
-ALLOWED_HOSTS = ['*']
-
+DEBUG = env('DEBUG')
+ALLOWED_HOSTS = env('ALLOWED_HOSTS')
 
 # Application definition
 
@@ -37,11 +38,22 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django_filters',
     'rest_framework',
     'rest_framework.authtoken',
     'core',
     'user',
+    'event',
 ]
+
+REST_FRAMEWORK = {
+    #'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.TokenAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+    ),
+
+}
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -82,19 +94,21 @@ DATABASES = {
     #     'ENGINE': 'django.db.backends.sqlite3',
     #     'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     # }
+    # 'default': os.environ['DATABASE_URL']
+    'default': env.db()
+}
 
-    'default': {
+if DEBUG:
+    DATABASES['default'] = {
+        # 'ENGINE': 'django.db.backends.sqlite3',
+        # 'NAME': 'test_database',
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'board',
         'USER': 'root',
-        'PASSWORD': 'a',
-        'HOST': 'db',
-        'PORT': 3306,
-        'TEST': {
-            'NAME': 'test_database'
-        }
+        'PASSWORD': 'rootpass',
+        'HOST': '127.0.0.1',
+        'PORT': '3306',
     }
-}
 
 
 # Password validation
