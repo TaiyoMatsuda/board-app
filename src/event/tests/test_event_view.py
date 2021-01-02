@@ -169,44 +169,30 @@ class PublicParticipantApiTests(TestCase):
         res = self.client.get(EVENT_URL, {'start':today})
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
 
-    # def test_retrieve_event_success(self):
-    #     """Test retrieving event"""
-    #     url = detail_url(self.second_event.id)
-    #     res = self.client.get(url)
-    #
-    #     self.assertEqual(res.status_code, status.HTTP_200_OK)
-    #
-    #     event = Event.objects.get(id=self.second_event.id)
-    #     breakpoint()
-    #     expected_json_dict = {
-    #         'id': event.id,
-    #         'title': event.title,
-    #         'description': event.description,
-    #         'organizer': event.organizer_id,
-    #         'organizer_first_name': event.organizer_first_name,
-    #         'organizer_icon': event.organizer_icon,
-    #         'image': event.image,
-    #         'event_time': event.event_time,
-    #         'address': event.address,
-    #         'fee': event.fee,
-    #         'status': event.status,
-    #         # 'event_comment_list': {
-    #         #     'event_comment_id': event.event_comment.id,
-    #         #     'user': event.event_comment.user,
-    #         #     'first_name': event_comment.user.first_name,
-    #         #     'icon': None,
-    #         #     'comment': event_comment.user.comment,
-    #         #     'brief_updated_at': localtime(event_comment.updated_at).strftime('%Y-%m-%d %H:%M:%S')
-    #         # },
-    #         # 'participant_list': {
-    #         #     'user_id': event.participant.user_id,
-    #         #     'first_name': event.participant.first_name,
-    #         #     'icon': None
-    #         # },
-    #         # 'participant_count': event.participant_count,
-    #         # 'brief_updated_at': localtime(event_comment.updated_at).strftime('%Y-%m-%d %H:%M:%S')
-    #     }
-    #     self.assertJSONEqual(res.content, expected_json_dict)
+    def test_retrieve_event_success(self):
+        """Test retrieving event"""
+        url = detail_url(self.second_event.id)
+        res = self.client.get(url)
+
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+
+        event = Event.objects.get(id=self.second_event.id)
+        organizer = get_user_model().objects.get(id=event.organizer_id)
+        expected_json_dict = {
+            'id': event.id,
+            'title': event.title,
+            'description': event.description,
+            'organizer': event.organizer_id,
+            'organizer_first_name': organizer.first_name,
+            'organizer_icon': organizer.get_icon_url,
+            'image': event.get_image_url,
+            'event_time': event.get_brief_event_time,
+            'address': event.address,
+            'fee': event.fee,
+            'status': event.status,
+            'brief_updated_at': event.get_brief_updated_at
+        }
+        self.assertJSONEqual(res.content, expected_json_dict)
 
     def test_create_event_for_unauthorized_user(self):
         """Test false creating a new event"""
