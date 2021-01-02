@@ -6,9 +6,14 @@ from PIL import Image
 from django.test import TestCase
 from django.contrib.auth import get_user_model
 from django.urls import reverse
+from django.utils.timezone import make_aware
+
+import datetime
 
 from rest_framework.test import APIClient
 from rest_framework import status
+
+from core.models import Event, Participant
 
 USER_URL = reverse('user:user-list')
 TOKEN_URL = reverse('user:token')
@@ -17,10 +22,6 @@ def detail_url(user_id):
     """Return user detail URL"""
     return reverse('user:user-detail', args=[user_id])
 
-def event_url(user_id):
-    """Return user event URL"""
-    return reverse('user:user-events', args=[user_id])
-
 def email_url(user_id):
     """Return user email URL"""
     return reverse('user:user-email', args=[user_id])
@@ -28,6 +29,14 @@ def email_url(user_id):
 def password_url(user_id):
     """Return user password URL"""
     return reverse('user:user-password', args=[user_id])
+
+def organized_event_url(user_id):
+    """Return organized event URL"""
+    return reverse('user:user-organizedEvents', args=[user_id])
+
+def joined_event_url(user_id):
+    """Return join event URL"""
+    return reverse('user:user-joinedEvents', args=[user_id])
 
 def create_user(**params):
     return get_user_model().objects.create_user(**params)
@@ -45,6 +54,31 @@ def get_user_by_json(**params):
 
     return expected_json_dict
 
+def sample_event(
+    organizer,
+    title='test title',
+    description='test description',
+    event_time=make_aware(datetime.datetime.now()),
+    address='test address',
+    fee=500
+    ):
+
+    """Create and return a sample event"""
+    default = {
+        'title': title,
+        'description': description,
+        'organizer': organizer,
+        'image': '',
+        'event_time': event_time.strftime('%Y-%m-%d %H:%M:%S'),
+        'address': address,
+        'fee': fee,
+    }
+    return Event.objects.create(**default)
+
+def sample_participant(event, user, **params):
+    """Create and return a sample participant"""
+    return Participant.objects.create(event=event, user=user, **params)
+
 
 class PublicUserApiTests(TestCase):
     """Test the users API (public)"""
@@ -55,6 +89,13 @@ class PublicUserApiTests(TestCase):
             email='existed_user@matsuda.com',
             password=self.password,
             first_name='existed'
+        )
+        self.existed_user.is_guide = True
+        self.existed_user.save()
+        self.event = sample_event(organizer=self.existed_user)
+        self.participant = sample_participant(
+            self.event,
+            self.existed_user
         )
         self.client = APIClient()
 
@@ -67,15 +108,41 @@ class PublicUserApiTests(TestCase):
         expected_json_dict = get_user_by_json(**res.data)
         self.assertJSONEqual(res.content, expected_json_dict)
 
-    # def test_retrieve_user_event(self):
-    #     """Test retrieving user events"""
-    #     url = event_url(self.existed_user.id)
-    #     breakpoint()
-    #     res = self.client.get(url)
-    #     self.assertEqual(res.status_code, status.HTTP_200_OK)
-    #
-    #     expected_json_dict = get_user_by_json(**res.data)
-    #     self.assertJSONEqual(res.content, expected_json_dict)
+    def test_retrieve_organized_event(self):
+        """Test retrieving organized events"""
+        url = organized_event_url(self.existed_user.id)
+        res = self.client.get(url)
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+
+        expected_json_dict = [
+            {
+                'id': self.event.id,
+                'title': self.event.title,
+                'image': self.event.get_image_url,
+                'event_time': self.event.event_time,
+                'address': self.event.address,
+                "participant_count":1
+            }
+        ]
+        self.assertJSONEqual(res.content, expected_json_dict)
+
+    def test_retrieve_joined_event(self):
+        """Test retrieving joined events"""
+        url = joined_event_url(self.existed_user.id)
+        res = self.client.get(url)
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+
+        expected_json_dict = [
+            {
+                'id': self.event.id,
+                'title': self.event.title,
+                'image': self.event.get_image_url,
+                'event_time': self.event.event_time,
+                'address': self.event.address,
+                "participant_count":1
+            }
+        ]
+        self.assertJSONEqual(res.content, expected_json_dict)
 
     def test_create_valid_user_success(self):
         """Test creating user with valid payload is successful"""

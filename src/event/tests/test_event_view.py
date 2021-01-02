@@ -94,7 +94,6 @@ class PublicParticipantApiTests(TestCase):
         res = self.client.get(EVENT_URL, {'start':today, 'end':tomorrow})
         self.assertEqual(res.status_code, status.HTTP_200_OK)
 
-        event = Event.objects.all().order_by('-event_time')
         expected_json_dict = [
             {
                 'id': self.first_event.id,

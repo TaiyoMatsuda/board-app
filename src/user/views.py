@@ -6,7 +6,7 @@ from rest_framework.settings import api_settings
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from django.shortcuts import get_object_or_404
 
-from core.models import User, Event
+from core.models import User, Event, Participant
 from core.permissions import IsUserOwnerOnly
 
 from user import serializers
@@ -37,7 +37,7 @@ class UserViewSet(viewsets.GenericViewSet,
             return serializers.UserEmailSerializer
         if self.action == 'password':
             return serializers.UserPasswordSerializer
-        if self.action == 'events':
+        if self.action == 'organizedEvents' or self.action == 'joinedEvents':
             return BriefEventSerializer
         return serializers.UserSerializer
 
@@ -74,23 +74,18 @@ class UserViewSet(viewsets.GenericViewSet,
         return Response(status=status.HTTP_200_OK)
 
     @action(methods=['get'], detail=True)
-    def events(self, request, pk=None):
+    def organizedEvents(self, request, pk=None):
         user_id = self.request.parser_context['kwargs']['pk']
-        organized_event = Event.objects.filter(organizer=user_id, is_active=True)[0:10]
-        events = {
-            'organizer_event': organized_event
-        }
-        if user_id == self.request.user.id:
-            joined_event_id = Participant.objects.filter(user=user_id,
-                                                            status=1,
-                                                            is_active=True)
-            joined_event = Event.objects.filter(id__in=joined_event_id,
-                                                    is_active=True)[0:10]
-            events['joined_event'] = joined_event
+        organized_events = Event.objects.filter(organizer=user_id, is_active=True)[0:10]
+        serializer = self.get_serializer(instance=organized_events, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
-        breakpoint()
-        serializer = self.get_serializer(instance=events, many=True)
-
+    @action(methods=['get'], detail=True)
+    def joinedEvents(self, request, pk=None):
+        user_id = self.request.parser_context['kwargs']['pk']
+        joined_event_id = Participant.objects.filter(user=user_id, status=1, is_active=True)
+        joined_events = Event.objects.filter(id__in=joined_event_id, is_active=True)[0:10]
+        serializer = self.get_serializer(instance=joined_events, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def create(self, request):
