@@ -106,12 +106,12 @@ if DEBUG:
         # 'PASSWORD': os.environ.get('MYSQL_PASSWORD', 'rootpass'),
         # 'HOST': os.environ.get('MYSQL_HOST', '127.0.0.1'),
         # 'PORT': os.environ.get('MYSQL_PORT', '3306')
-        'ENGINE': os.environ.get('MYSQL_ENGINE'),
-        'NAME': os.environ.get('MYSQL_NAME'),
-        'USER': os.environ.get('MYSQL_USER'),
-        'PASSWORD': os.environ.get('MYSQL_PASSWORD'),
-        'HOST': os.environ.get('MYSQL_HOST'),
-        'PORT': os.environ.get('MYSQL_PORT')
+        'ENGINE': str(os.environ.get('MYSQL_ENGINE')),
+        'NAME': str(os.environ.get('MYSQL_NAME')),
+        'USER': str(os.environ.get('MYSQL_USER')),
+        'PASSWORD': str(os.environ.get('MYSQL_PASSWORD')),
+        'HOST': str(os.environ.get('MYSQL_HOST')),
+        'PORT': str(os.environ.get('MYSQL_PORT'))
     }
 
 
