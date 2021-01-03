@@ -101,21 +101,31 @@ WSGI_APPLICATION = 'app.wsgi.application'
 if '/code/.tox/py38/bin/pytest' in sys.argv:
     DATABASES = {
         'default': {
-            # 'ENGINE': os.environ.get('MYSQL_ENGINE', 'django.db.backends.sqlite3'),
-            # 'NAME': os.environ.get('MYSQL_NAME', 'test_database'),
+            'ENGINE': os.environ.get('MYSQL_ENGINE', 'django.db.backends.sqlite3'),
+            'NAME': os.environ.get('MYSQL_NAME', 'test_database'),
         # 'USER': os.environ.get('MYSQL_USER', 'root'),
         # 'PASSWORD': os.environ.get('MYSQL_PASSWORD', 'rootpass'),
         # 'HOST': os.environ.get('MYSQL_HOST', '127.0.0.1'),
         # 'PORT': os.environ.get('MYSQL_PORT', '3306')
-            'ENGINE': str(os.environ.get('MYSQL_ENGINE')),
-            'NAME': str(os.environ.get('MYSQL_NAME')),
-            'USER': str(os.environ.get('MYSQL_USER')),
-            'PASSWORD': str(os.environ.get('MYSQL_PASSWORD')),
-            'HOST': str(os.environ.get('MYSQL_HOST')),
-            'PORT': str(os.environ.get('MYSQL_PORT'))
+            # 'ENGINE': str(os.environ.get('MYSQL_ENGINE')),
+            # 'NAME': str(os.environ.get('MYSQL_NAME')),
+            # 'USER': str(os.environ.get('MYSQL_USER')),
+            # 'PASSWORD': str(os.environ.get('MYSQL_PASSWORD')),
+            # 'HOST': str(os.environ.get('MYSQL_HOST')),
+            # 'PORT': str(os.environ.get('MYSQL_PORT'))
         }
     }
 
+DATABASES = {
+    'default': {
+        'ENGINE': str(os.environ.get('MYSQL_ENGINE')),
+        'NAME': str(os.environ.get('MYSQL_NAME')),
+        'USER': str(os.environ.get('MYSQL_USER')),
+        'PASSWORD': str(os.environ.get('MYSQL_PASSWORD')),
+        'HOST': str(os.environ.get('MYSQL_HOST')),
+        'PORT': str(os.environ.get('MYSQL_PORT'))
+    }
+}
 
 # Password validation
 # https://docs.djangoproject.com/en/3.0/ref/settings/#auth-password-validators
