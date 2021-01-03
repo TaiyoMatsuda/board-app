@@ -98,7 +98,7 @@ DATABASES = {
     'default': env.db()
 }
 
-if DEBUG:
+if '/code/.tox/py38/bin/pytest' in sys.argv:
     DATABASES = {
         'default': {
         # 'ENGINE': os.environ.get('MYSQL_ENGINE', 'django.db.backends.sqlite3'),
