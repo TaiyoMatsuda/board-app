@@ -100,14 +100,18 @@ DATABASES = {
 
 if DEBUG:
     DATABASES['default'] = {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': 'test_database',
-        # 'ENGINE': 'django.db.backends.mysql',
-        # 'NAME': 'board',
-        # 'USER': 'root',
-        # 'PASSWORD': 'rootpass',
-        # 'HOST': '127.0.0.1',
-        # 'PORT': '3306',
+        # 'ENGINE': os.environ.get('MYSQL_ENGINE', 'django.db.backends.sqlite3'),
+        # 'NAME': os.environ.get('MYSQL_NAME', 'test_database'),
+        # 'USER': os.environ.get('MYSQL_USER', 'root'),
+        # 'PASSWORD': os.environ.get('MYSQL_PASSWORD', 'rootpass'),
+        # 'HOST': os.environ.get('MYSQL_HOST', '127.0.0.1'),
+        # 'PORT': os.environ.get('MYSQL_PORT', '3306')
+        'ENGINE': os.environ.get('MYSQL_ENGINE'),
+        'NAME': os.environ.get('MYSQL_NAME'),
+        'USER': os.environ.get('MYSQL_USER'),
+        'PASSWORD': os.environ.get('MYSQL_PASSWORD'),
+        'HOST': os.environ.get('MYSQL_HOST'),
+        'PORT': os.environ.get('MYSQL_PORT')
     }
 
 
