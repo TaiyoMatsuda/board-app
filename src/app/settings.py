@@ -118,12 +118,12 @@ if '/code/.tox/py38/bin/pytest' in sys.argv:
 
 DATABASES = {
     'default': {
-        'ENGINE': str(os.environ.get('MYSQL_ENGINE')),
-        'NAME': str(os.environ.get('MYSQL_NAME')),
-        'USER': str(os.environ.get('MYSQL_USER')),
-        'PASSWORD': str(os.environ.get('MYSQL_PASSWORD')),
-        'HOST': str(os.environ.get('MYSQL_HOST')),
-        'PORT': str(os.environ.get('MYSQL_PORT'))
+        'ENGINE': os.environ['MYSQL_ENGINE'],
+        'NAME': os.environ['MYSQL_NAME'],
+        'USER': os.environ['MYSQL_USER'],
+        'PASSWORD': os.environ['MYSQL_PASSWORD'],
+        'HOST': os.environ['MYSQL_HOST'],
+        'PORT': os.environ['MYSQL_PORT'],
     }
 }
 
