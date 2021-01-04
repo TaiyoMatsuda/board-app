@@ -142,7 +142,6 @@ class PublicUserApiTests(TestCase):
                 "participant_count":1
             }
         ]
-        breakpoint()
         self.assertJSONEqual(res.content, expected_json_dict)
 
     def test_create_valid_user_success(self):
