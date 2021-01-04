@@ -111,7 +111,7 @@ if '/code/.tox/py38/bin/pytest' in sys.argv:
         }
     }
 
-if env.get_value('CIRCLECI'):
+if os.environ.get('CIRCLECI'):
     DATABASES = {
         'default': {
             'ENGINE': str(env.get_value('MYSQL_ENGINE')),
