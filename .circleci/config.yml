@@ -28,12 +28,12 @@ jobs:
       - run:
           environment:
             DB_HOST: db
-            MYSQL_ENGINE: django.db.backends.mysql
-            MYSQL_NAME: board
-            MYSQL_USER: root
-            MYSQL_PASSWORD: rootpass
+            MYSQL_ENGINE: 'django.db.backends.mysql'
+            MYSQL_NAME: 'board'
+            MYSQL_USER: 'root'
+            MYSQL_PASSWORD: 'rootpass'
             MYSQL_HOST: db
-            MYSQL_PORT: 3306
+            MYSQL_PORT: '3306'
           command: |
             cd ./src
             tox
