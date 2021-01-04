@@ -111,17 +111,17 @@ if '/code/.tox/py38/bin/pytest' in sys.argv:
         }
     }
 
-
-DATABASES = {
-    'default': {
-        'ENGINE': str(os.environ.get('MYSQL_ENGINE')),
-        'NAME': str(os.environ.get('MYSQL_NAME')),
-        'USER': str(os.environ.get('MYSQL_USER')),
-        'PASSWORD': str(os.environ.get('MYSQL_PASSWORD')),
-        'HOST': str(os.environ.get('MYSQL_HOST')),
-        'PORT': str(os.environ.get('MYSQL_PORT')),
+if env.get_value('CIRCLECI', default=True):
+    DATABASES = {
+        'default': {
+            'ENGINE': str(env.get_value('MYSQL_ENGINE')),
+            'NAME': str(env.get_value('MYSQL_NAME')),
+            'USER': str(env.get_value('MYSQL_USER')),
+            'PASSWORD': str(env.get_value('MYSQL_PASSWORD')),
+            'HOST': str(env.get_value('MYSQL_HOST')),
+            'PORT': str(env.get_value('MYSQL_PORT')),
+        }
     }
-}
 
 # Password validation
 # https://docs.djangoproject.com/en/3.0/ref/settings/#auth-password-validators
