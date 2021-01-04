@@ -32,12 +32,6 @@ jobs:
             echo ALLOWED_HOSTS=['*'] >> ~/board-app/src/.env
             echo DATABASE_URL=${DATABASE_URL} >> ~/board-app/src/.env
             echo MODE=${MODE} >> ~/board-app/src/.env
-            echo MYSQL_ENGINE=${MYSQL_ENGINE} >> ~/board-app/src/.env
-            echo MYSQL_NAME=${MYSQL_NAME} >> ~/board-app/src/.env
-            echo MYSQL_USER=${MYSQL_USER} >> ~/board-app/src/.env
-            echo MYSQL_PASSWORD=${MYSQL_PASSWORD} >> ~/board-app/src/.env
-            echo MYSQL_HOST=${MYSQL_HOST} >> ~/board-app/src/.env
-            echo MYSQL_PORT=${MYSQL_PORT} >> ~/board-app/src/.env
       - run:
           environment:
             DB_HOST: db
