@@ -6,12 +6,12 @@ executors:
     docker:
       - image: circleci/python:3.8.1
         environment:
-          MYSQL_ENGINE: 'django.db.backends.mysql'
-          MYSQL_NAME: 'board'
-          MYSQL_USER: 'root'
-          MYSQL_PASSWORD: 'rootpass'
-          MYSQL_HOST: '127.0.0.1'
-          MYSQL_PORT: '3306'
+          MYSQL_ENGINE: django.db.backends.mysql
+          MYSQL_NAME: board
+          MYSQL_USER: root
+          MYSQL_PASSWORD: rootpass
+          MYSQL_HOST: 127.0.0.1
+          MYSQL_PORT: 3306
       - image: circleci/mysql:5.7
         environment:
           MYSQL_DATABASE: board
