@@ -10,7 +10,7 @@ executors:
           MYSQL_DATABASE: board
           #MYSQL_USER: user
           MYSQL_USER: root
-          MYSQL_ROOT_PASSWORD: 'rootpass'
+          MYSQL_ROOT_PASSWORD: rootpass
           MYSQL_ROOT_HOST: '%'
           MYSQL_ALLOW_EMPTY_PASSWORD: yes
 
@@ -27,7 +27,13 @@ jobs:
             echo 127.0.0.1 db | sudo tee -a /etc/hosts
       - run:
           environment:
-            DB_HOST: db
+            DB_HOST: django.db.backends.mysql
+            MYSQL_ENGINE: db
+            MYSQL_NAME: board
+            MYSQL_USER: root
+            MYSQL_PASSWORD: rootpass
+            MYSQL_HOST: db
+            MYSQL_PORT: 3306
           command: |
             cd ./src
             tox
