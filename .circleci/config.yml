@@ -6,12 +6,12 @@ executors:
     docker:
       - image: circleci/python:3.8.1
         environment:
-          MYSQL_ENGINE: $MYSQL_ENGINE
-          MYSQL_NAME: $MYSQL_NAME
-          MYSQL_USER: $MYSQL_USER
-          MYSQL_PASSWORD: $MYSQL_PASSWORD
-          MYSQL_HOST: $MYSQL_HOST
-          MYSQL_PORT: $MYSQL_PORT
+          MYSQL_ENGINE: ${MYSQL_ENGINE}
+          MYSQL_NAME: ${MYSQL_NAME}
+          MYSQL_USER: ${MYSQL_USER}
+          MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+          MYSQL_HOST: ${MYSQL_HOST}
+          MYSQL_PORT: ${MYSQL_PORT}
       - image: circleci/mysql:5.7
         environment:
           MYSQL_DATABASE: board
