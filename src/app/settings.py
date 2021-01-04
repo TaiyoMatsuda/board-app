@@ -102,18 +102,7 @@ if '/code/.tox/py38/bin/pytest' in sys.argv:
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
             'NAME': 'test_database'
-            # 'ENGINE': str(os.environ.get('MYSQL_ENGINE', 'django.db.backends.sqlite3')),
-            # 'NAME': str(os.environ.get('MYSQL_NAME', 'test_database')),
-            # 'USER': str(os.environ.get('MYSQL_USER')),
-            # 'PASSWORD': str(os.environ.get('MYSQL_PASSWORD')),
-            # 'HOST': str(os.environ.get('MYSQL_HOST')),
-            # 'PORT': str(os.environ.get('MYSQL_PORT'))
         }
-    }
-
-if env.get_value('CIRCLECI', default=True):
-    DATABASES = {
-        'default': env.db()
     }
 
 # Password validation
