@@ -33,8 +33,6 @@ jobs:
             echo DATABASE_URL=${DATABASE_URL} >> ~/board-app/src/.env
             echo MODE=${MODE} >> ~/board-app/src/.env
       - run:
-          environment:
-            DB_HOST: db
           command: |
             cd ./src
             tox
