@@ -37,22 +37,14 @@ def sample_event(user):
 
     return Event.objects.create(organizer=user, **default)
 
-def sample_event_comment(event, user, comment='test comment', **params):
+def sample_event_comment(event, user, comment='test comment'):
     """Create and return a sample event comment"""
-    default = {
-        'event': event,
-        'user': user,
-        'comment': comment,
-    }
-    default.update(params)
-
+    default = {'event': event, 'user': user, 'comment': comment}
     return EventComment.objects.create(**default)
 
 def get_event_comment_by_json(**params):
 
-    event_comment = EventComment.objects.get(
-        id=params['id']
-    )
+    event_comment = EventComment.objects.get(id=params['id'])
     expected_json_dict = {
         'id': event_comment.id,
         'user': {

@@ -114,17 +114,41 @@ class PublicUserApiTests(TestCase):
         res = self.client.get(url)
         self.assertEqual(res.status_code, status.HTTP_200_OK)
 
-        expected_json_dict = [
-            {
-                'id': self.event.id,
-                'title': self.event.title,
-                'image': self.event.get_image_url,
-                'event_time': self.event.event_time,
-                'address': self.event.address,
-                "participant_count":1
-            }
-        ]
+        expected_json_dict = {
+            "count":1,
+            "next":None,
+            "previous":None,
+            "results":[
+                {
+                    'id': self.event.id,
+                    'title': self.event.title,
+                    'image': self.event.get_image_url,
+                    'event_time': self.event.event_time,
+                    'address': self.event.address,
+                    "participant_count":1
+                }
+            ]
+        }
         self.assertJSONEqual(res.content, expected_json_dict)
+
+    def test_retrieve_organized_event_pagination(self):
+        """Test retrieving organized events"""
+        count= 0
+        while count < 10:
+            sample_participant(
+                sample_event(organizer=self.existed_user),
+                self.existed_user
+            )
+            count += 1
+
+        url = organized_event_url(self.existed_user.id)
+        res = self.client.get(url)
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(res.data['results']), 10)
+
+        res = self.client.get(url, {'page':2})
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(res.data['results']), 1)
 
     def test_retrieve_joined_event(self):
         """Test retrieving joined events"""
@@ -132,18 +156,38 @@ class PublicUserApiTests(TestCase):
         res = self.client.get(url)
         self.assertEqual(res.status_code, status.HTTP_200_OK)
 
-        expected_json_dict = [
-            {
-                'id': self.event.id,
-                'title': self.event.title,
-                'image': self.event.get_image_url,
-                'event_time': self.event.event_time,
-                'address': self.event.address,
-                "participant_count":1
-            }
-        ]
-        breakpoint()
+        expected_json_dict = {
+            "count":1,
+            "next":None,
+            "previous":None,
+            "results":[
+                {
+                    'id': self.event.id,
+                    'title': self.event.title,
+                    'image': self.event.get_image_url,
+                    'event_time': self.event.event_time,
+                    'address': self.event.address,
+                    "participant_count":1
+                }
+            ]
+        }
         self.assertJSONEqual(res.content, expected_json_dict)
+
+    def test_retrieve_joined_event_pagination(self):
+        """Test retrieving joined events"""
+        count= 0
+        while count < 10:
+            sample_event(organizer=self.existed_user)
+            count += 1
+
+        url = organized_event_url(self.existed_user.id)
+        res = self.client.get(url)
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(res.data['results']), 10)
+
+        res = self.client.get(url, {'page':2})
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(res.data['results']), 1)
 
     def test_create_valid_user_success(self):
         """Test creating user with valid payload is successful"""
