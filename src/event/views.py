@@ -14,12 +14,23 @@ from core.permissions import IsEventAttributeOwnerOnly, IsEventOwnerOnly, IsGuid
 from event import serializers
 
 
+class EventListSetPagination(PageNumberPagination):
+    page_size = 30
+    page_size_query_param = 'page_size'
+
+
 class EventCommentListSetPagination(PageNumberPagination):
     page_size = 15
     page_size_query_param = 'page_size'
 
 
+class UnlimitedtPagination(PageNumberPagination):
+    page_size = None
+    page_size_query_param = 'page_size'
+
+
 class ListCreateParticipantView(generics.ListCreateAPIView):
+    pagination_class = UnlimitedtPagination
     serializer_class = serializers.ListCreateParticipantSerializer
     permission_classes = [IsAuthenticatedOrReadOnly]
 
@@ -122,6 +133,7 @@ class EventCommentView(generics.GenericAPIView,
 
 class EventViewSet(viewsets.ModelViewSet):
     """Manage Event in the event"""
+    pagination_class = EventListSetPagination
     queryset = Event.objects.all()
 
     def get_queryset(self):
@@ -129,7 +141,7 @@ class EventViewSet(viewsets.ModelViewSet):
             start = self.request.query_params['start'] + ' 00:00:00'
             end = self.request.query_params['end'] + ' 23:59:59'
             return Event.objects.filter(is_active=True,
-                                        event_time__range=(start,end))[0:10]
+                                        event_time__range=(start,end))
 
         return Event.objects.filter(is_active=True)
 
@@ -173,7 +185,13 @@ class EventViewSet(viewsets.ModelViewSet):
         except ValueError:
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
-        serializer = self.get_serializer(instance=self.get_queryset(), many=True)
+        events = self.get_queryset()
+        page = self.paginate_queryset(events)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(instance=events, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def create(self, request):

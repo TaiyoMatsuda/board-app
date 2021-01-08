@@ -13,10 +13,6 @@ from core.permissions import IsUserOwnerOnly
 from user import serializers
 from event.serializers import BriefEventSerializer
 
-class UserEventListPagination(PageNumberPagination):
-    page_size = 10
-    page_size_query_param = 'page_size'
-
 
 class UserViewSet(viewsets.ModelViewSet):
     """Manage User"""
@@ -91,18 +87,13 @@ class UserViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(instance=events, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    @action(methods=['get'], detail=True, pagination_class = UserEventListPagination)
+    @action(methods=['get'], detail=True)
     def organizedEvents(self, request, pk=None):
         return self.list(request)
 
-    @action(methods=['get'], detail=True, pagination_class = UserEventListPagination)
+    @action(methods=['get'], detail=True)
     def joinedEvents(self, request, pk=None):
         return self.list(request)
-        joined_event_id = Participant.objects.filter(user=user_id, status=1, is_active=True)
-        joined_events = Event.objects.filter(id__in=joined_event_id, is_active=True)
-        serializer = self.get_serializer(instance=joined_events, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-        #return self.list(request, *args, **kwargs)
 
     def create(self, request):
         serializer = self.get_serializer(data=request.data)
