@@ -274,38 +274,38 @@ class PrivateUserApiTests(TestCase):
         self.user.refresh_from_db()
         self.assertEqual(res.status_code, status.HTTP_200_OK)
 
-        # updated_user = get_user_model().objects.latest('updated_at')
-        # self.assertEqual(password, updated_user.password)
+        updated_user = get_user_model().objects.latest('updated_at')
+        self.assertEqual(password, updated_user.password)
 
-#     def test_full_update_user_profile(self):
-#         """Test full updating the user profile for authenticated user"""
-#         change_first_name = 'firstname'
-#         change_family_name = 'family_name'
-#         change_introduction = 'introduction'
-#         with tempfile.NamedTemporaryFile(suffix='.jpg') as ntf:
-#             img = Image.new('RGB', (10, 10))
-#             img.save(ntf, format='JPEG')
-#             ntf.seek(0)
-#             payload = {
-#                 'first_name': change_first_name,
-#                 'family_name': change_family_name,
-#                 'introduction': change_introduction,
-#                 'icon': ntf,
-#                 'is_guide': True,
-#             }
-#             url = detail_url(self.user.id)
-#             res = self.client.patch(url, payload, format='multipart')
+    def test_full_update_user_profile(self):
+        """Test full updating the user profile for authenticated user"""
+        change_first_name = 'firstname'
+        change_family_name = 'family_name'
+        change_introduction = 'introduction'
+        with tempfile.NamedTemporaryFile(suffix='.jpg') as ntf:
+            img = Image.new('RGB', (10, 10))
+            img.save(ntf, format='JPEG')
+            ntf.seek(0)
+            payload = {
+                'first_name': change_first_name,
+                'family_name': change_family_name,
+                'introduction': change_introduction,
+                'icon': ntf,
+                'is_guide': True,
+            }
+            url = detail_url(self.user.id)
+            res = self.client.patch(url, payload, format='multipart')
 
-#         self.assertEqual(res.status_code, status.HTTP_200_OK)
-#         self.user.refresh_from_db()
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.user.refresh_from_db()
 
-#         self.assertEqual(self.user.first_name, change_first_name)
-#         self.assertEqual(self.user.family_name, change_family_name)
-#         self.assertEqual(self.user.introduction, change_introduction)
-#         self.assertTrue(self.user.is_guide)
-#         self.assertTrue(os.path.exists(self.user.icon.path))
+        self.assertEqual(self.user.first_name, change_first_name)
+        self.assertEqual(self.user.family_name, change_family_name)
+        self.assertEqual(self.user.introduction, change_introduction)
+        self.assertTrue(self.user.is_guide)
+        self.assertTrue(os.path.exists(self.user.icon.path))
 
-#         self.user.icon.delete()
+        self.user.icon.delete()
 
     def test_upload_image_bad_request(self):
         """Test uploading an invalid image"""
