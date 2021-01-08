@@ -93,7 +93,7 @@ class PublicEventCommentApiTests(TestCase):
             }
             expected_json_dict_list.append(expected_json_dict)
 
-        expected_json ={
+        expected_json = {
             "count":len(event_comments),
             "next":None,
             "previous":None,

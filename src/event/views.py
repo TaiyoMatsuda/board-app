@@ -173,16 +173,12 @@ class EventViewSet(viewsets.ModelViewSet):
 
     def list(self, request):
         query_params = self.request.query_params
-        if len(query_params) != 2:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
-
-        if 'start' not in query_params or 'end' not in query_params:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
-
         try:
             datetime.datetime.strptime(query_params['start'], "%Y-%m-%d")
             datetime.datetime.strptime(query_params['end'], "%Y-%m-%d")
         except ValueError:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        except KeyError:
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
         events = self.get_queryset()

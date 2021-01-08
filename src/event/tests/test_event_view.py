@@ -94,7 +94,7 @@ class PublicParticipantApiTests(TestCase):
         res = self.client.get(EVENT_URL, {'start':today, 'end':tomorrow})
         self.assertEqual(res.status_code, status.HTTP_200_OK)
 
-        expected_json_dict = [
+        expected_json_dict_list = [
             {
                 'id': self.first_event.id,
                 'title': self.first_event.title,
@@ -111,12 +111,18 @@ class PublicParticipantApiTests(TestCase):
                 'participant_count': 0
             }
         ]
-        self.assertJSONEqual(res.content, expected_json_dict)
+        expected_json = {
+            "count":2,
+            "next":None,
+            "previous":None,
+            "results":expected_json_dict_list
+        }
+        self.assertJSONEqual(res.content, expected_json)
 
-    def test_retrieve_maximum_ten_events_success(self):
-        """Test retrieving mzximum ten events"""
+    def test_retrieve_event_pagination_success(self):
+        """Test retrieving event with pagination"""
         count= 0
-        while count < 10:
+        while count < 30:
             sample_event(organizer=self.organizer)
             count += 1
 
@@ -124,7 +130,11 @@ class PublicParticipantApiTests(TestCase):
         tomorrow = today + timedelta(days=1)
         res = self.client.get(EVENT_URL, {'start':today, 'end':tomorrow})
         self.assertEqual(res.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(res.data), 10)
+        self.assertEqual(len(res.data['results']), 30)
+
+        res = self.client.get(EVENT_URL, {'start':today, 'end':tomorrow, 'page':2})
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(res.data['results']), 2)
 
     def test_retrieving_events_for_a_day_successful(self):
         """Test retrieving events for a day"""
@@ -136,7 +146,7 @@ class PublicParticipantApiTests(TestCase):
         tomorrow = today + timedelta(days=1)
         res = self.client.get(EVENT_URL, {'start':today, 'end':tomorrow})
         self.assertEqual(res.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(res.data), 2)
+        self.assertEqual(len(res.data['results']), 2)
 
     def test_not_retrieving_events_by_wrong_query_parameters_name(self):
         """Test not retrieving events by wrong query parameter name"""
