@@ -50,7 +50,6 @@ class UpdateParticipantSerializer(serializers.ModelSerializer):
 
 class CreateUpdateEventSerializer(serializers.ModelSerializer):
     """Serialize for Event object"""
-    image = serializers.SerializerMethodField()
 
     class Meta:
         model = Event
@@ -62,9 +61,6 @@ class CreateUpdateEventSerializer(serializers.ModelSerializer):
             'organizer': {'write_only': True, 'required': False},
             'fee': {'default': 0},
         }
-
-    def get_image(self, event):
-        return event.get_image_url
 
 
 class RetrieveEventSerializer(serializers.ModelSerializer):

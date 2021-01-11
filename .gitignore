@@ -129,3 +129,5 @@ dmypy.json
 .pyre/
 
 atom-amd64.deb
+
+dbdata

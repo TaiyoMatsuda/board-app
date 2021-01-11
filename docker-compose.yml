@@ -6,6 +6,8 @@ services:
     image: mysql:5.7
     ports:
       - "3306:3306"
+    volumes:
+      - ./dbdata:/var/lib/mysql
     environment:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: board
@@ -15,7 +17,6 @@ services:
     tty: true
     stdin_open: true
     privileged: true
-
 
   nginx:
     image: nginx:1.17.8
@@ -44,3 +45,7 @@ services:
     tty: true
     stdin_open: true
     privileged: true
+
+volumes:
+    dbdata:
+      driver: local
