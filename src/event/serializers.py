@@ -48,8 +48,8 @@ class UpdateParticipantSerializer(serializers.ModelSerializer):
         model = Participant
         fields = ('status',)
 
-class CreateUpdateEventSerializer(serializers.ModelSerializer):
-    """Serialize for Event object"""
+class CreateEventSerializer(serializers.ModelSerializer):
+    """Serialize for create event"""
 
     class Meta:
         model = Event
@@ -58,7 +58,20 @@ class CreateUpdateEventSerializer(serializers.ModelSerializer):
             'address', 'fee', 'status'
         )
         extra_kwargs = {
-            'organizer': {'write_only': True, 'required': False},
+            'fee': {'default': 0},
+        }
+
+
+class UpdateEventSerializer(serializers.ModelSerializer):
+    """Serialize for update event"""
+
+    class Meta:
+        model = Event
+        fields = (
+            'id', 'title', 'description', 'image', 'event_time', 'address',
+            'fee', 'status'
+        )
+        extra_kwargs = {
             'fee': {'default': 0},
         }
 

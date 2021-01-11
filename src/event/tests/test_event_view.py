@@ -264,6 +264,7 @@ class PrivateParticipantApiTests(TestCase):
         payload = {
             'title': 'test title',
             'description': 'test description',
+            'organizer': self.organizer.id,
             'image': '',
             'event_time': make_aware(datetime.datetime.now()),
             'address': 'test address',

@@ -150,8 +150,10 @@ class EventViewSet(viewsets.ModelViewSet):
             return serializers.BriefEventSerializer
         elif self.action == 'retrieve':
             return serializers.RetrieveEventSerializer
+        elif self.action == 'create':
+            return serializers.CreateEventSerializer
         else:
-            return serializers.CreateUpdateEventSerializer
+            return serializers.UpdateEventSerializer
 
     def get_permissions(self):
         """
@@ -191,17 +193,10 @@ class EventViewSet(viewsets.ModelViewSet):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def create(self, request):
-        data = {
-            'title': request.data['title'],
-            'description': request.data['description'],
-            'organizer': self.request.user.id,
-            'image': request.data['image'],
-            'event_time': request.data['event_time'],
-            'address': request.data['address'],
-            'fee': request.data['fee'],
-            'status': request.data['status'],
-        }
-        serializer = self.get_serializer(data=data)
+        if request.data['organizer'] != str(self.request.user.id) :
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+        serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(status=status.HTTP_201_CREATED)
@@ -213,17 +208,10 @@ class EventViewSet(viewsets.ModelViewSet):
 
     def partial_update(self, request, pk=None):
         event = self.get_object()
-        data = {
-            'title': request.data['title'],
-            'description': request.data['description'],
-            'organizer': self.request.user.id,
-            'image': request.data['image'],
-            'event_time': request.data['event_time'],
-            'address': request.data['address'],
-            'fee': request.data['fee'],
-            'status': request.data['status'],
-        }
-        serializer = self.get_serializer(instance=event, data=data)
+        if event.organizer.id != self.request.user.id :
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+        serializer = self.get_serializer(instance=event, data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
 
