@@ -10,7 +10,7 @@ from rest_framework.test import APIClient
 
 from core.models import Event
 
-from event.serializers import CreateUpdateEventSerializer
+from event.serializers import CreateEventSerializer
 
 def sample_user(**params):
     """Create and return a sample user"""
@@ -22,7 +22,7 @@ def sample_event(user):
         'title': 'test title',
         'description': 'test description',
         'organizer': user,
-        'image': '',
+        'image': None,
         'event_time': make_aware(datetime.datetime.now())
         .strftime('%Y-%m-%d %H:%M:%S'),
         'address': 'test address',
@@ -51,13 +51,13 @@ class PrivateEventApiTests(TestCase):
             'title': 'test title',
             'description': 'test description',
             'organizer': self.organizer.id,
-            'image': '',
+            'image': None,
             'event_time': make_aware(datetime.datetime.now())
             .strftime('%Y-%m-%d %H:%M:%S'),
             'address': 'test address',
             'fee': 500,
         }
-        serializer = CreateUpdateEventSerializer(data=payload)
+        serializer = CreateEventSerializer(data=payload)
         self.assertEqual(serializer.is_valid(), True)
 
     def test_validatet_too_long_title(self):
@@ -66,13 +66,13 @@ class PrivateEventApiTests(TestCase):
             'title': 'test title' * 500 ,
             'description': 'test description',
             'organizer': self.organizer.id,
-            'image': '',
+            'image': None,
             'event_time': make_aware(datetime.datetime.now())
             .strftime('%Y-%m-%d %H:%M:%S'),
             'address': 'test address',
             'fee': 500,
         }
-        serializer = CreateUpdateEventSerializer(data=payload)
+        serializer = CreateEventSerializer(data=payload)
 
         self.assertEqual(serializer.is_valid(), False)
         self.assertCountEqual(serializer.errors.keys(), ['title'])
@@ -83,13 +83,13 @@ class PrivateEventApiTests(TestCase):
             'title': '',
             'description': 'test description',
             'organizer': self.organizer.id,
-            'image': '',
+            'image': None,
             'event_time': make_aware(datetime.datetime.now())
             .strftime('%Y-%m-%d %H:%M:%S'),
             'address': 'test address',
             'fee': 500,
         }
-        serializer = CreateUpdateEventSerializer(data=payload)
+        serializer = CreateEventSerializer(data=payload)
 
         self.assertEqual(serializer.is_valid(), False)
         self.assertCountEqual(serializer.errors.keys(), ['title'])
@@ -106,7 +106,7 @@ class PrivateEventApiTests(TestCase):
             'address': 'test address',
             'fee': 500,
         }
-        serializer = CreateUpdateEventSerializer(data=payload)
+        serializer = CreateEventSerializer(data=payload)
 
         self.assertEqual(serializer.is_valid(), False)
         self.assertCountEqual(serializer.errors.keys(), ['description'])
@@ -117,13 +117,13 @@ class PrivateEventApiTests(TestCase):
             'title': 'test title',
             'description': 'test description',
             'organizer': self.organizer.id,
-            'image': '',
+            'image': None,
             'event_time': make_aware(datetime.datetime.now())
             .strftime('%Y-%m-%d %H:%M:%S'),
             'address': 'test address' * 500,
             'fee': 500,
         }
-        serializer = CreateUpdateEventSerializer(data=payload)
+        serializer = CreateEventSerializer(data=payload)
 
         self.assertEqual(serializer.is_valid(), False)
         self.assertCountEqual(serializer.errors.keys(), ['address'])
@@ -134,13 +134,13 @@ class PrivateEventApiTests(TestCase):
             'title': 'test title',
             'description': 'test description',
             'organizer': self.organizer.id,
-            'image': '',
+            'image': None,
             'event_time': make_aware(datetime.datetime.now())
             .strftime('%Y-%m-%d %H:%M:%S'),
             'address': '',
             'fee': 500,
         }
-        serializer = CreateUpdateEventSerializer(data=payload)
+        serializer = CreateEventSerializer(data=payload)
         self.assertEqual(serializer.is_valid(), False)
         self.assertCountEqual(serializer.errors.keys(), ['address'])
 
@@ -150,13 +150,13 @@ class PrivateEventApiTests(TestCase):
             'title': 'test title',
             'description': 'test description',
             'organizer': self.organizer.id,
-            'image': '',
+            'image': None,
             'event_time': make_aware(datetime.datetime.now())
             .strftime('%Y-%m-%d %H:%M:%S'),
             'address': 'test address',
             'fee': 500000000000,
         }
-        serializer = CreateUpdateEventSerializer(data=payload)
+        serializer = CreateEventSerializer(data=payload)
 
         self.assertEqual(serializer.is_valid(), False)
         self.assertCountEqual(serializer.errors.keys(), ['fee'])
@@ -167,13 +167,13 @@ class PrivateEventApiTests(TestCase):
             'title': 'test title',
             'description': 'test description',
             'organizer': self.organizer.id,
-            'image': '',
+            'image': None,
             'event_time': make_aware(datetime.datetime.now())
             .strftime('%Y-%m-%d %H:%M:%S'),
             'address': 'test address',
             'fee': '５００',
         }
-        serializer = CreateUpdateEventSerializer(data=payload)
+        serializer = CreateEventSerializer(data=payload)
 
         self.assertEqual(serializer.is_valid(), True)
 
@@ -183,10 +183,10 @@ class PrivateEventApiTests(TestCase):
             'title': 'test title',
             'description': 'test description',
             'organizer': self.organizer.id,
-            'image': '',
+            'image': None,
             'event_time': make_aware(datetime.datetime.now())
             .strftime('%Y-%m-%d %H:%M:%S'),
             'address': 'test address',
         }
-        serializer = CreateUpdateEventSerializer(data=payload)
+        serializer = CreateEventSerializer(data=payload)
         self.assertEqual(serializer.is_valid(), True)

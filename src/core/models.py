@@ -208,6 +208,7 @@ class Participant(models.Model):
     class Meta:
         db_table = 't_participant'
         ordering = ['updated_at']
+        unique_together = ("event", "user")
 
     STATUS = (
         ('0', 'Cancel'),
