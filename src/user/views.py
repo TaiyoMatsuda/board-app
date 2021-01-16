@@ -11,7 +11,6 @@ from core.models import User, Event, Participant
 from core.permissions import IsUserOwnerOnly
 
 from user import serializers
-from event.serializers import BriefEventSerializer
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -36,7 +35,7 @@ class UserViewSet(viewsets.ModelViewSet):
         if self.action == 'password':
             return serializers.UserPasswordSerializer
         if self.action == 'organizedEvents' or self.action == 'joinedEvents':
-            return BriefEventSerializer
+            return serializers.UserEventsSerializer
         return serializers.UserSerializer
 
     def get_object(self):
@@ -102,6 +101,11 @@ class UserViewSet(viewsets.ModelViewSet):
         return Response(status=status.HTTP_201_CREATED)
 
     def update(self, request, *args, **kwargs):
+        if 'email' in request.data.keys():
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        if 'password' in request.data.keys():
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
         user = self.get_object()
         serializer = self.get_serializer(instance=user, data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)

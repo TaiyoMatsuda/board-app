@@ -10,7 +10,7 @@ from django.urls import reverse
 from rest_framework.test import APIClient
 from rest_framework import status
 
-from user.serializers import UserSerializer, AuthTokenSerializer
+from user.serializers import UserSerializer, AuthTokenSerializer, UserPasswordSerializer
 
 
 class PublicUserApiTests(TestCase):
@@ -19,16 +19,16 @@ class PublicUserApiTests(TestCase):
     def setUp(self):
         self.client = APIClient()
 
-#     def test_password_too_short(self):
-#         """Test that the password must be more than 5 characters"""
-#         payload = {
-#             'email': 'test@matsuda.com',
-#             'password': 'pw'
-#         }
-#         serializer = UserSerializer(data=payload)
+    def test_password_too_short(self):
+        """Test that the password must be more than 5 characters"""
+        payload = {
+            'email': 'test@matsuda.com',
+            'password': 'pw'
+        }
+        serializer = UserPasswordSerializer(data=payload)
 
-#         self.assertEqual(serializer.is_valid(), False)
-#         self.assertCountEqual(serializer.errors.keys(), ['password'])
+        self.assertEqual(serializer.is_valid(), False)
+        self.assertCountEqual(serializer.errors.keys(), ['password'])
 
     def test_create_token_missing_email_field(self):
         """Test that email is required"""

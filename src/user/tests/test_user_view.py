@@ -307,6 +307,20 @@ class PrivateUserApiTests(TestCase):
 
         self.user.icon.delete()
 
+    def test_update_email_bad_request(self):
+        """Test updating email with wrong method"""
+        url = detail_url(self.user.id)
+        res = self.client.patch(url, {'email':'badrequest'})
+
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_update_password_bad_request(self):
+        """Test updating password with wrong method"""
+        url = detail_url(self.user.id)
+        res = self.client.patch(url, {'password':'badrequest'})
+
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+
     def test_upload_image_bad_request(self):
         """Test uploading an invalid image"""
         url = detail_url(self.user.id)

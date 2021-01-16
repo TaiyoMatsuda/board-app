@@ -32,9 +32,7 @@ class ListCreateParticipantSerializer(serializers.ModelSerializer):
     class Meta:
         model = Participant
         fields = ('event', 'user', 'first_name', 'icon')
-        extra_kwargs = {
-            'event': {'write_only': True}
-        }
+        extra_kwargs = {'event': {'write_only': True}}
 
     def get_icon(self, participant):
         user = get_user_model().objects.get(pk=participant.user_id)
@@ -57,9 +55,7 @@ class CreateEventSerializer(serializers.ModelSerializer):
             'id', 'title', 'description', 'organizer', 'image', 'event_time',
             'address', 'fee', 'status'
         )
-        extra_kwargs = {
-            'fee': {'default': 0},
-        }
+        extra_kwargs = {'fee': {'default': 0},}
 
 
 class UpdateEventSerializer(serializers.ModelSerializer):
@@ -107,7 +103,7 @@ class RetrieveEventSerializer(serializers.ModelSerializer):
 
 
 class BriefEventSerializer(serializers.ModelSerializer):
-    """Serialize for Event object"""
+    """Serialize for brief event object"""
     image = serializers.SerializerMethodField()
     event_time = serializers.SerializerMethodField()
     participant_count = serializers.SerializerMethodField()
