@@ -72,6 +72,7 @@ def sample_event(
         'event_time': event_time.strftime('%Y-%m-%d %H:%M:%S'),
         'address': address,
         'fee': fee,
+        'status': 1,
     }
     return Event.objects.create(**default)
 
@@ -135,10 +136,7 @@ class PublicUserApiTests(TestCase):
         """Test retrieving organized events"""
         count= 0
         while count < 10:
-            sample_participant(
-                sample_event(organizer=self.existed_user),
-                self.existed_user
-            )
+            sample_event(organizer=self.existed_user)
             count += 1
 
         url = organized_event_url(self.existed_user.id)
@@ -177,10 +175,13 @@ class PublicUserApiTests(TestCase):
         """Test retrieving joined events"""
         count= 0
         while count < 10:
-            sample_event(organizer=self.existed_user)
+            sample_participant(
+                sample_event(organizer=self.existed_user),
+                self.existed_user
+            )
             count += 1
 
-        url = organized_event_url(self.existed_user.id)
+        url = joined_event_url(self.existed_user.id)
         res = self.client.get(url)
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertEqual(len(res.data['results']), 10)

@@ -75,8 +75,8 @@ class UserViewSet(viewsets.ModelViewSet):
         if self.action == 'organizedEvents':
             events = Event.objects.filter(organizer=user_id, is_active=True)
         elif self.action == 'joinedEvents':
-            joined_event_id = Participant.objects.filter(user=user_id, status=1, is_active=True)
-            events = Event.objects.filter(id__in=joined_event_id, is_active=True)
+            joined_event_ids = Participant.objects.filter(user=user_id, status=1, is_active=True).values_list('event_id', flat=True)
+            events = Event.objects.filter(id__in=joined_event_ids, status=1, is_active=True)
 
         page = self.paginate_queryset(events)
         if page is not None:
