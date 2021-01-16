@@ -196,6 +196,17 @@ class PrivateParticipantApiTests(TestCase):
         res = self.client.post(url)
         self.assertEqual(res.status_code, status.HTTP_201_CREATED)
 
+    def test_not_create_the_same_participant(self):
+        """Test not creating the same participant"""
+        self.client.force_authenticate(self.new_organizer)
+
+        url = listCreate_url(self.event.id)
+        res = self.client.post(url)
+        self.assertEqual(res.status_code, status.HTTP_201_CREATED)
+
+        res = self.client.post(url)
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+
     def test_not_create_participant_in_private_event(self):
         """Test not creating a new participant in private event"""
         self.client.force_authenticate(self.new_organizer)

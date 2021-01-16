@@ -14,13 +14,23 @@ from core.permissions import IsEventAttributeOwnerOnly, IsEventOwnerOnly, IsGuid
 from event import serializers
 
 
+class EventListSetPagination(PageNumberPagination):
+    page_size = 30
+    page_size_query_param = 'page_size'
+
+
 class EventCommentListSetPagination(PageNumberPagination):
     page_size = 15
     page_size_query_param = 'page_size'
-    max_page_size = 100
+
+
+class UnlimitedtPagination(PageNumberPagination):
+    page_size = None
+    page_size_query_param = 'page_size'
 
 
 class ListCreateParticipantView(generics.ListCreateAPIView):
+    pagination_class = UnlimitedtPagination
     serializer_class = serializers.ListCreateParticipantSerializer
     permission_classes = [IsAuthenticatedOrReadOnly]
 
@@ -123,6 +133,7 @@ class EventCommentView(generics.GenericAPIView,
 
 class EventViewSet(viewsets.ModelViewSet):
     """Manage Event in the event"""
+    pagination_class = EventListSetPagination
     queryset = Event.objects.all()
 
     def get_queryset(self):
@@ -130,7 +141,7 @@ class EventViewSet(viewsets.ModelViewSet):
             start = self.request.query_params['start'] + ' 00:00:00'
             end = self.request.query_params['end'] + ' 23:59:59'
             return Event.objects.filter(is_active=True,
-                                        event_time__range=(start,end))[0:10]
+                                        event_time__range=(start,end))
 
         return Event.objects.filter(is_active=True)
 
@@ -139,8 +150,10 @@ class EventViewSet(viewsets.ModelViewSet):
             return serializers.BriefEventSerializer
         elif self.action == 'retrieve':
             return serializers.RetrieveEventSerializer
+        elif self.action == 'create':
+            return serializers.CreateEventSerializer
         else:
-            return serializers.CreateUpdateEventSerializer
+            return serializers.UpdateEventSerializer
 
     def get_permissions(self):
         """
@@ -162,33 +175,28 @@ class EventViewSet(viewsets.ModelViewSet):
 
     def list(self, request):
         query_params = self.request.query_params
-        if len(query_params) != 2:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
-
-        if 'start' not in query_params or 'end' not in query_params:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
-
         try:
             datetime.datetime.strptime(query_params['start'], "%Y-%m-%d")
             datetime.datetime.strptime(query_params['end'], "%Y-%m-%d")
         except ValueError:
             return Response(status=status.HTTP_400_BAD_REQUEST)
+        except KeyError:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
 
-        serializer = self.get_serializer(instance=self.get_queryset(), many=True)
+        events = self.get_queryset()
+        page = self.paginate_queryset(events)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(instance=events, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def create(self, request):
-        data = {
-            'title': request.data['title'],
-            'description': request.data['description'],
-            'organizer': self.request.user.id,
-            'image': request.data['image'],
-            'event_time': request.data['event_time'],
-            'address': request.data['address'],
-            'fee': request.data['fee'],
-            'status': request.data['status'],
-        }
-        serializer = self.get_serializer(data=data)
+        if request.data['organizer'] != str(self.request.user.id) :
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+        serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(status=status.HTTP_201_CREATED)
@@ -200,17 +208,10 @@ class EventViewSet(viewsets.ModelViewSet):
 
     def partial_update(self, request, pk=None):
         event = self.get_object()
-        data = {
-            'title': request.data['title'],
-            'description': request.data['description'],
-            'organizer': self.request.user.id,
-            'image': request.data['image'],
-            'event_time': request.data['event_time'],
-            'address': request.data['address'],
-            'fee': request.data['fee'],
-            'status': request.data['status'],
-        }
-        serializer = self.get_serializer(instance=event, data=data)
+        if event.organizer.id != self.request.user.id :
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+        serializer = self.get_serializer(instance=event, data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
 

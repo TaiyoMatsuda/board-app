@@ -94,8 +94,7 @@ class PublicParticipantApiTests(TestCase):
         res = self.client.get(EVENT_URL, {'start':today, 'end':tomorrow})
         self.assertEqual(res.status_code, status.HTTP_200_OK)
 
-        event = Event.objects.all().order_by('-event_time')
-        expected_json_dict = [
+        expected_json_dict_list = [
             {
                 'id': self.first_event.id,
                 'title': self.first_event.title,
@@ -112,12 +111,18 @@ class PublicParticipantApiTests(TestCase):
                 'participant_count': 0
             }
         ]
-        self.assertJSONEqual(res.content, expected_json_dict)
+        expected_json = {
+            "count":2,
+            "next":None,
+            "previous":None,
+            "results":expected_json_dict_list
+        }
+        self.assertJSONEqual(res.content, expected_json)
 
-    def test_retrieve_maximum_ten_events_success(self):
-        """Test retrieving mzximum ten events"""
+    def test_retrieve_event_pagination_success(self):
+        """Test retrieving event with pagination"""
         count= 0
-        while count < 10:
+        while count < 30:
             sample_event(organizer=self.organizer)
             count += 1
 
@@ -125,7 +130,11 @@ class PublicParticipantApiTests(TestCase):
         tomorrow = today + timedelta(days=1)
         res = self.client.get(EVENT_URL, {'start':today, 'end':tomorrow})
         self.assertEqual(res.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(res.data), 10)
+        self.assertEqual(len(res.data['results']), 30)
+
+        res = self.client.get(EVENT_URL, {'start':today, 'end':tomorrow, 'page':2})
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(res.data['results']), 2)
 
     def test_retrieving_events_for_a_day_successful(self):
         """Test retrieving events for a day"""
@@ -137,7 +146,7 @@ class PublicParticipantApiTests(TestCase):
         tomorrow = today + timedelta(days=1)
         res = self.client.get(EVENT_URL, {'start':today, 'end':tomorrow})
         self.assertEqual(res.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(res.data), 2)
+        self.assertEqual(len(res.data['results']), 2)
 
     def test_not_retrieving_events_by_wrong_query_parameters_name(self):
         """Test not retrieving events by wrong query parameter name"""
@@ -169,44 +178,30 @@ class PublicParticipantApiTests(TestCase):
         res = self.client.get(EVENT_URL, {'start':today})
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
 
-    # def test_retrieve_event_success(self):
-    #     """Test retrieving event"""
-    #     url = detail_url(self.second_event.id)
-    #     res = self.client.get(url)
-    #
-    #     self.assertEqual(res.status_code, status.HTTP_200_OK)
-    #
-    #     event = Event.objects.get(id=self.second_event.id)
-    #     breakpoint()
-    #     expected_json_dict = {
-    #         'id': event.id,
-    #         'title': event.title,
-    #         'description': event.description,
-    #         'organizer': event.organizer_id,
-    #         'organizer_first_name': event.organizer_first_name,
-    #         'organizer_icon': event.organizer_icon,
-    #         'image': event.image,
-    #         'event_time': event.event_time,
-    #         'address': event.address,
-    #         'fee': event.fee,
-    #         'status': event.status,
-    #         # 'event_comment_list': {
-    #         #     'event_comment_id': event.event_comment.id,
-    #         #     'user': event.event_comment.user,
-    #         #     'first_name': event_comment.user.first_name,
-    #         #     'icon': None,
-    #         #     'comment': event_comment.user.comment,
-    #         #     'brief_updated_at': localtime(event_comment.updated_at).strftime('%Y-%m-%d %H:%M:%S')
-    #         # },
-    #         # 'participant_list': {
-    #         #     'user_id': event.participant.user_id,
-    #         #     'first_name': event.participant.first_name,
-    #         #     'icon': None
-    #         # },
-    #         # 'participant_count': event.participant_count,
-    #         # 'brief_updated_at': localtime(event_comment.updated_at).strftime('%Y-%m-%d %H:%M:%S')
-    #     }
-    #     self.assertJSONEqual(res.content, expected_json_dict)
+    def test_retrieve_event_success(self):
+        """Test retrieving event"""
+        url = detail_url(self.second_event.id)
+        res = self.client.get(url)
+
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+
+        event = Event.objects.get(id=self.second_event.id)
+        organizer = get_user_model().objects.get(id=event.organizer_id)
+        expected_json_dict = {
+            'id': event.id,
+            'title': event.title,
+            'description': event.description,
+            'organizer': event.organizer_id,
+            'organizer_first_name': organizer.first_name,
+            'organizer_icon': organizer.get_icon_url,
+            'image': event.get_image_url,
+            'event_time': event.get_brief_event_time,
+            'address': event.address,
+            'fee': event.fee,
+            'status': event.status,
+            'brief_updated_at': event.get_brief_updated_at
+        }
+        self.assertJSONEqual(res.content, expected_json_dict)
 
     def test_create_event_for_unauthorized_user(self):
         """Test false creating a new event"""
@@ -269,6 +264,7 @@ class PrivateParticipantApiTests(TestCase):
         payload = {
             'title': 'test title',
             'description': 'test description',
+            'organizer': self.organizer.id,
             'image': '',
             'event_time': make_aware(datetime.datetime.now()),
             'address': 'test address',

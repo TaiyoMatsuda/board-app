@@ -10,7 +10,7 @@ from django.utils.translation import gettext_lazy as _
 
 from django.utils import timezone
 from django.utils.timezone import localtime
-
+from django.contrib.staticfiles.storage import staticfiles_storage
 
 def user_icon_file_path(instance, filename):
     """Generate file path for new user icon"""
@@ -80,6 +80,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     EMAIL_FIELD = 'email'
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []
+    DEFAULT_ICON_PATH = "/images/no_user_image.png"
 
     class Meta:
         db_table = 'm_user'
@@ -93,7 +94,7 @@ class User(AbstractBaseUser, PermissionsMixin):
         if self.icon and hasattr(self.icon, 'url'):
             return self.icon.url
         else:
-            return "/static/images/no_user_image.png"
+            return staticfiles_storage.url(self.DEFAULT_ICON_PATH)
 
     def delete(self):
         """Logical delete the user"""
@@ -140,6 +141,8 @@ class Event(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     is_active = models.BooleanField(default=True)
 
+    DEFAULT_IMAGE_PATH = "/images/no_event_image.png"
+
     def __str__(self):
         return self.title
 
@@ -148,7 +151,7 @@ class Event(models.Model):
         if self.image and hasattr(self.image, 'url'):
             return self.image.url
         else:
-            return "/static/images/no_event_image.png"
+            return staticfiles_storage.url(self.DEFAULT_IMAGE_PATH)
 
     @property
     def get_brief_event_time(self):
@@ -208,6 +211,7 @@ class Participant(models.Model):
     class Meta:
         db_table = 't_participant'
         ordering = ['updated_at']
+        unique_together = ("event", "user")
 
     STATUS = (
         ('0', 'Cancel'),

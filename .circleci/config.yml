@@ -8,9 +8,8 @@ executors:
       - image: circleci/mysql:5.7
         environment:
           MYSQL_DATABASE: board
-          #MYSQL_USER: user
           MYSQL_USER: root
-          MYSQL_ROOT_PASSWORD: 'rootpass'
+          MYSQL_ROOT_PASSWORD: rootpass
           MYSQL_ROOT_HOST: '%'
           MYSQL_ALLOW_EMPTY_PASSWORD: yes
 
@@ -26,8 +25,14 @@ jobs:
             # Add '127.0.0.1 db' to /etc/host file. Then 'db' is used as a value of 'DB_HOST' name.
             echo 127.0.0.1 db | sudo tee -a /etc/hosts
       - run:
-          environment:
-            DB_HOST: db
+          name: set environment variable
+          command: |
+            echo SECRET_KEY=${SECRET_KEY} > ~/board-app/src/.env
+            echo DEBUG=${DEBUG} >> ~/board-app/src/.env
+            echo ALLOWED_HOSTS=['*'] >> ~/board-app/src/.env
+            echo DATABASE_URL=${DATABASE_URL} >> ~/board-app/src/.env
+            echo MODE=${MODE} >> ~/board-app/src/.env
+      - run:
           command: |
             cd ./src
             tox

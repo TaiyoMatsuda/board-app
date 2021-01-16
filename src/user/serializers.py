@@ -2,7 +2,8 @@ from django.contrib.auth import get_user_model, authenticate
 from django.utils.translation import ugettext_lazy as _
 
 from rest_framework import serializers
-from event.serializers import BriefEventSerializer
+
+from core.models import Participant, Event
 
 class CreateUserSerializer(serializers.ModelSerializer):
     """Serializer for the users object"""
@@ -49,11 +50,27 @@ class UserPasswordSerializer(serializers.ModelSerializer):
         extra_kwargs = {'password': {'write_only': True, 'min_length': 5}}
 
 
-class UserEventsSerializer(serializers.Serializer):
-    """Serializer for the users object"""
+class UserEventsSerializer(serializers.ModelSerializer):
+    """Serialize for brief event object"""
+    image = serializers.SerializerMethodField()
+    event_time = serializers.SerializerMethodField()
+    participant_count = serializers.SerializerMethodField()
 
     class Meta:
-        list_serializer_class = BriefEventSerializer
+        model = Event
+        fields = (
+            'id', 'title', 'image', 'event_time', 'address', 'participant_count'
+        )
+
+    def get_image(self, event):
+        return event.get_image_url
+
+    def get_event_time(self, event):
+        return event.get_brief_event_time
+
+    def get_participant_count(self, event):
+        participant = Participant.objects.filter(event_id=event.id, status= '1', is_active=True)
+        return participant.count()
 
 
 class AuthTokenSerializer(serializers.Serializer):

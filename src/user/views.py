@@ -3,33 +3,30 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.settings import api_settings
-from rest_framework.permissions import IsAuthenticatedOrReadOnly
+from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly
+from rest_framework.pagination import PageNumberPagination
 from django.shortcuts import get_object_or_404
 
-from core.models import User, Event
+from core.models import User, Event, Participant
 from core.permissions import IsUserOwnerOnly
 
 from user import serializers
-from event.serializers import BriefEventSerializer
 
 
-class UserViewSet(viewsets.GenericViewSet,
-                  mixins.RetrieveModelMixin,
-                  mixins.CreateModelMixin,
-                  mixins.UpdateModelMixin,
-                  mixins.DestroyModelMixin
-                  ):
+class UserViewSet(viewsets.ModelViewSet):
     """Manage User"""
     queryset = User.objects.filter(is_active=True)
 
-    # def get_permissions(self):
-    #     """
-    #     Instantiates and returns the list of permissions that this view requires.
-    #     """
-    #     if self.action == 'update' or self.action == 'delete':
-    #         permission_classes = [IsAuthenticatedOrReadOnly]
-    #
-    #     return [permission() for permission in permission_classes]
+    def get_permissions(self):
+        """Return appropriate permission class"""
+        if self.request.method == 'POST':
+            permission_classes = [AllowAny]
+        elif self.request.method == 'PATCH' or self.request.method == 'DELETE':
+            permission_classes = [IsUserOwnerOnly]
+        else:
+            permission_classes = [IsAuthenticatedOrReadOnly]
+        return [permission() for permission in permission_classes]
+
     def get_serializer_class(self):
         if self.action == 'create':
             return serializers.CreateUserSerializer
@@ -37,8 +34,8 @@ class UserViewSet(viewsets.GenericViewSet,
             return serializers.UserEmailSerializer
         if self.action == 'password':
             return serializers.UserPasswordSerializer
-        if self.action == 'events':
-            return BriefEventSerializer
+        if self.action == 'organizedEvents' or self.action == 'joinedEvents':
+            return serializers.UserEventsSerializer
         return serializers.UserSerializer
 
     def get_object(self):
@@ -73,25 +70,29 @@ class UserViewSet(viewsets.GenericViewSet,
 
         return Response(status=status.HTTP_200_OK)
 
-    @action(methods=['get'], detail=True)
-    def events(self, request, pk=None):
+    def list(self, request, *args, **kwargs):
         user_id = self.request.parser_context['kwargs']['pk']
-        organized_event = Event.objects.filter(organizer=user_id, is_active=True)[0:10]
-        events = {
-            'organizer_event': organized_event
-        }
-        if user_id == self.request.user.id:
-            joined_event_id = Participant.objects.filter(user=user_id,
-                                                            status=1,
-                                                            is_active=True)
-            joined_event = Event.objects.filter(id__in=joined_event_id,
-                                                    is_active=True)[0:10]
-            events['joined_event'] = joined_event
+        if self.action == 'organizedEvents':
+            events = Event.objects.filter(organizer=user_id, is_active=True)
+        elif self.action == 'joinedEvents':
+            joined_event_ids = Participant.objects.filter(user=user_id, status=1, is_active=True).values_list('event_id', flat=True)
+            events = Event.objects.filter(id__in=joined_event_ids, status=1, is_active=True)
 
-        breakpoint()
+        page = self.paginate_queryset(events)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
         serializer = self.get_serializer(instance=events, many=True)
-
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+    @action(methods=['get'], detail=True)
+    def organizedEvents(self, request, pk=None):
+        return self.list(request)
+
+    @action(methods=['get'], detail=True)
+    def joinedEvents(self, request, pk=None):
+        return self.list(request)
 
     def create(self, request):
         serializer = self.get_serializer(data=request.data)
@@ -100,6 +101,11 @@ class UserViewSet(viewsets.GenericViewSet,
         return Response(status=status.HTTP_201_CREATED)
 
     def update(self, request, *args, **kwargs):
+        if 'email' in request.data.keys():
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        if 'password' in request.data.keys():
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
         user = self.get_object()
         serializer = self.get_serializer(instance=user, data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
