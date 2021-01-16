@@ -10,7 +10,7 @@ from django.utils.translation import gettext_lazy as _
 
 from django.utils import timezone
 from django.utils.timezone import localtime
-
+from django.contrib.staticfiles.storage import staticfiles_storage
 
 def user_icon_file_path(instance, filename):
     """Generate file path for new user icon"""
@@ -80,6 +80,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     EMAIL_FIELD = 'email'
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []
+    DEFAULT_ICON_PATH = "/images/no_user_image.png"
 
     class Meta:
         db_table = 'm_user'
@@ -93,7 +94,7 @@ class User(AbstractBaseUser, PermissionsMixin):
         if self.icon and hasattr(self.icon, 'url'):
             return self.icon.url
         else:
-            return "/static/images/no_user_image.png"
+            return staticfiles_storage.url(self.DEFAULT_ICON_PATH)
 
     def delete(self):
         """Logical delete the user"""

@@ -8,8 +8,3 @@ ADD ./dockerfile_requirements.txt /code/
 RUN pip install --upgrade pip && \
     pip install -r dockerfile_requirements.txt
 ADD . /code/
-
-RUN mkdir -p /vol/web/media
-RUN mkdir -p /vol/web/static
-RUN chmod -R 777 /vol
-RUN chmod -R 777 /vol/web
