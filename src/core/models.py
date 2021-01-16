@@ -141,6 +141,8 @@ class Event(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     is_active = models.BooleanField(default=True)
 
+    DEFAULT_IMAGE_PATH = "/images/no_event_image.png"
+
     def __str__(self):
         return self.title
 
@@ -149,7 +151,7 @@ class Event(models.Model):
         if self.image and hasattr(self.image, 'url'):
             return self.image.url
         else:
-            return "/static/images/no_event_image.png"
+            return staticfiles_storage.url(self.DEFAULT_IMAGE_PATH)
 
     @property
     def get_brief_event_time(self):
