@@ -195,13 +195,18 @@ class PublicUserApiTests(TestCase):
         res = self.client.get(url)
         self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
 
-    def test_false_update_user_profile_by_unauthorized_user(self):
+    def test_update_user_profile_by_unauthorized_user(self):
         """Test false updating the user profile by unauthorized user"""
         url = detail_url(self.existed_user.id)
         res = self.client.patch(url, {'first_name': 'firstname'})
 
         self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
 
+    def test_delete_event_by_unauthorized_user(self):
+        """Test false logically deleting the user by unauthenticated user"""
+        url = detail_url(self.existed_user.id)
+        res = self.client.delete(url)
+        self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
 
 class PrivateUserApiTests(TestCase):
     """Test API requests that require authentication"""
@@ -285,15 +290,30 @@ class PrivateUserApiTests(TestCase):
 
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
 
+    def test_delete_event_by_another_user(self):
+        """Test false logically deleting the user by another user"""
+        url = detail_url(self.user.id)
+        res = self.client.delete(url)
+        self.assertEqual(res.status_code, status.HTTP_204_NO_CONTENT)
+        self.user.refresh_from_db()
+
+        self.assertFalse(self.user.is_active)
+
     def test_retrieve_user_email_by_another_user(self):
         """Test false retrieving user e-mail by another user"""
         url = email_url(self.another_user.id)
         res = self.client.get(url)
         self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
 
-    def test_false_update_user_profile_by_another_user(self):
+    def test_update_user_profile_by_another_user(self):
         """Test false updating the user profile by another user"""
         url = detail_url(self.another_user.id)
         res = self.client.patch(url, {'first_name': 'firstname'})
 
+        self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_delete_event_by_another_user(self):
+        """Test false logically deleting the user by another user"""
+        url = detail_url(self.another_user.id)
+        res = self.client.delete(url)
         self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
