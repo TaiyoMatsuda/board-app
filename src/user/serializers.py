@@ -41,15 +41,6 @@ class UserEmailSerializer(serializers.ModelSerializer):
         fields = ('email',)
 
 
-class UserPasswordSerializer(serializers.ModelSerializer):
-    """Serializer for the users object"""
-
-    class Meta:
-        model = get_user_model()
-        fields = ('password',)
-        extra_kwargs = {'password': {'write_only': True, 'min_length': 5}}
-
-
 class UserEventsSerializer(serializers.ModelSerializer):
     """Serialize for brief event object"""
     image = serializers.SerializerMethodField()

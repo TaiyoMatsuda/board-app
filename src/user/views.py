@@ -1,4 +1,4 @@
-from rest_framework import generics, viewsets, mixins, authentication, permissions, status
+from rest_framework import viewsets, mixins, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.authtoken.views import ObtainAuthToken
@@ -32,8 +32,6 @@ class UserViewSet(viewsets.ModelViewSet):
             return serializers.CreateUserSerializer
         if self.action == 'email':
             return serializers.UserEmailSerializer
-        if self.action == 'password':
-            return serializers.UserPasswordSerializer
         if self.action == 'organizedEvents' or self.action == 'joinedEvents':
             return serializers.UserEventsSerializer
         return serializers.UserSerializer
