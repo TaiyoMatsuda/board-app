@@ -51,25 +51,6 @@ class UserViewSet(viewsets.ModelViewSet):
         serializer.save()
         return Response(status=status.HTTP_200_OK)
 
-    @action(methods=['patch'], detail=True, permission_classes=[IsUserOwnerOnly])
-    def password(self, request, pk=None):
-        if len(request.data) != 2:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
-
-        if 'old_password' not in request.data or 'new_password' not in request.data:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
-
-        user = self.get_object()
-        if user.password != request.data['old_password']:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
-
-        data = {'password': request.data['new_password']}
-        serializer = self.get_serializer(instance=user, data=data, partial=True)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-
-        return Response(status=status.HTTP_200_OK)
-
     def list(self, request, *args, **kwargs):
         user_id = self.request.parser_context['kwargs']['pk']
         if self.action == 'organizedEvents':

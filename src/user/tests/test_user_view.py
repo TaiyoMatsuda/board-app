@@ -263,21 +263,6 @@ class PrivateUserApiTests(TestCase):
         updated_user = get_user_model().objects.latest('updated_at')
         self.assertEqual(email, updated_user.email)
 
-    def test_update_user_password(self):
-        """Test success updating the user e-mail"""
-        url = password_url(self.user.id)
-        password = 'newPassword'
-        payload = {
-          "old_password": self.user.password,
-          "new_password": password
-        }
-        res = self.client.patch(url, payload)
-        self.user.refresh_from_db()
-        self.assertEqual(res.status_code, status.HTTP_200_OK)
-
-        updated_user = get_user_model().objects.latest('updated_at')
-        self.assertEqual(password, updated_user.password)
-
     def test_full_update_user_profile(self):
         """Test full updating the user profile for authenticated user"""
         change_first_name = 'firstname'
