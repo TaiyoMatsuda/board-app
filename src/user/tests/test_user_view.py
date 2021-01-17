@@ -189,6 +189,19 @@ class PublicUserApiTests(TestCase):
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertEqual(len(res.data['results']), 1)
 
+    def test_retrieve_user_email_by_unauthorized_user(self):
+        """Test false retrieving user e-mail by unauthorized user"""
+        url = email_url(self.existed_user.id)
+        res = self.client.get(url)
+        self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_false_update_user_profile_by_unauthorized_user(self):
+        """Test false updating the user profile by unauthorized user"""
+        url = detail_url(self.existed_user.id)
+        res = self.client.patch(url, {'first_name': 'firstname'})
+
+        self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
+
 
 class PrivateUserApiTests(TestCase):
     """Test API requests that require authentication"""
@@ -198,8 +211,19 @@ class PrivateUserApiTests(TestCase):
             email='test@matsuda.com',
             password='testpass'
         )
+        self.another_user = create_user(
+            email='test1@matsuda.com',
+            password='testpass'
+        )
         self.client = APIClient()
         self.client.force_authenticate(user=self.user)
+
+    def test_retrieve_user_email(self):
+        """Test success retrive user e-mail"""
+        url = email_url(self.user.id)
+        res = self.client.get(url)
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(res.data['email'], self.user.email)
 
     def test_update_user_email(self):
         """Test success updating the user e-mail"""
@@ -260,3 +284,16 @@ class PrivateUserApiTests(TestCase):
         res = self.client.patch(url, {'icon':'notimage'}, format='multipart')
 
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_retrieve_user_email_by_another_user(self):
+        """Test false retrieving user e-mail by another user"""
+        url = email_url(self.another_user.id)
+        res = self.client.get(url)
+        self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_false_update_user_profile_by_another_user(self):
+        """Test false updating the user profile by another user"""
+        url = detail_url(self.another_user.id)
+        res = self.client.patch(url, {'first_name': 'firstname'})
+
+        self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)

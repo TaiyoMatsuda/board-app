@@ -2,7 +2,7 @@ from rest_framework import viewsets, mixins, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.settings import api_settings
-from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly
+from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly, IsAuthenticated
 from rest_framework.pagination import PageNumberPagination
 from django.shortcuts import get_object_or_404
 
@@ -21,12 +21,15 @@ class UserViewSet(viewsets.GenericViewSet,
 
     def get_permissions(self):
         """Return appropriate permission class"""
+        permission_classes = [IsAuthenticatedOrReadOnly]
         if self.request.method == 'POST':
             permission_classes = [AllowAny]
         elif self.request.method == 'PATCH' or self.request.method == 'DELETE':
             permission_classes = [IsUserOwnerOnly]
-        else:
-            permission_classes = [IsAuthenticatedOrReadOnly]
+
+        if self.action == 'email':
+            permission_classes = [IsUserOwnerOnly]
+
         return [permission() for permission in permission_classes]
 
     def get_serializer_class(self):
@@ -41,9 +44,13 @@ class UserViewSet(viewsets.GenericViewSet,
         self.check_object_permissions(self.request, obj)
         return obj
 
-    @action(methods=['patch'], detail=True, permission_classes=[IsUserOwnerOnly])
+    @action(methods=['get','patch'], detail=True)
     def email(self, request, pk=None):
         user = self.get_object()
+        if self.request.method == "GET":
+            serializer = self.get_serializer(instance=user)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
         serializer = self.get_serializer(instance=user, data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
         serializer.save()
