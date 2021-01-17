@@ -190,58 +190,6 @@ class PublicUserApiTests(TestCase):
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertEqual(len(res.data['results']), 1)
 
-    def test_create_valid_user_success(self):
-        """Test creating user with valid payload is successful"""
-        email = 'test@matsuda.com'
-        payload = {
-            'email': email,
-            'password': 'testpass'
-        }
-        res = self.client.post(USER_URL, payload)
-        self.assertEqual(res.status_code, status.HTTP_201_CREATED)
-
-        user = get_user_model().objects.latest('created_at')
-        self.assertEqual(user.email, email)
-
-    def test_user_exists(self):
-        """Test creating a user that already exists fails"""
-        payload = {
-            'email': self.existed_user.email,
-            'password': self.existed_user.password
-        }
-        res = self.client.post(USER_URL, payload)
-        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
-
-    def test_create_token_for_user(self):
-        """Test that a token is created for the user"""
-        payload = {
-            'email': self.existed_user.email,
-            'password': self.password
-        }
-        res = self.client.post(TOKEN_URL, payload)
-        self.assertIn('token', res.data)
-        self.assertEqual(res.status_code, status.HTTP_200_OK)
-
-    def test_create_token_invalid_credentials(self):
-        """Test that token is not created if invaid credetials are given"""
-        payload = {
-            'email': self.existed_user.email,
-            'password': 'worng'
-        }
-        res = self.client.post(TOKEN_URL, payload)
-        self.assertNotIn('token', res.data)
-        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
-
-    def test_create_token_no_user(self):
-        """Test that token is not created if user doesn't exit"""
-        payload = {
-            'email': 'test@matsuda.com',
-            'password': 'testpass'
-        }
-        res = self.client.post(TOKEN_URL, payload)
-        self.assertNotIn('token', res.data)
-        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
-
 
 class PrivateUserApiTests(TestCase):
     """Test API requests that require authentication"""

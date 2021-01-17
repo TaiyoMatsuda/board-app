@@ -5,17 +5,6 @@ from rest_framework import serializers
 
 from core.models import Participant, Event
 
-class CreateUserSerializer(serializers.ModelSerializer):
-    """Serializer for the users object"""
-
-    class Meta:
-        model = get_user_model()
-        fields = ('email', 'password')
-
-    def create(self, validated_data):
-        """Create a new user with encrypted password and return it"""
-        return get_user_model().objects.create_user(**validated_data)
-
 
 class UserSerializer(serializers.ModelSerializer):
     """Serializer for the users object"""

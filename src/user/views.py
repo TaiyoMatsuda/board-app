@@ -13,7 +13,10 @@ from core.permissions import IsUserOwnerOnly
 from user import serializers
 
 
-class UserViewSet(viewsets.ModelViewSet):
+class UserViewSet(viewsets.GenericViewSet,
+                  mixins.RetrieveModelMixin,
+                  mixins.UpdateModelMixin,
+                  mixins.DestroyModelMixin):
     """Manage User"""
     queryset = User.objects.filter(is_active=True)
 
@@ -28,8 +31,6 @@ class UserViewSet(viewsets.ModelViewSet):
         return [permission() for permission in permission_classes]
 
     def get_serializer_class(self):
-        if self.action == 'create':
-            return serializers.CreateUserSerializer
         if self.action == 'email':
             return serializers.UserEmailSerializer
         if self.action == 'organizedEvents' or self.action == 'joinedEvents':
@@ -72,12 +73,6 @@ class UserViewSet(viewsets.ModelViewSet):
     @action(methods=['get'], detail=True)
     def joinedEvents(self, request, pk=None):
         return self.list(request)
-
-    def create(self, request):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response(status=status.HTTP_201_CREATED)
 
     def update(self, request, *args, **kwargs):
         if 'email' in request.data.keys():
