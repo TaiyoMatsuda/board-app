@@ -36,7 +36,6 @@ services:
     build: .
     volumes:
       - ./src:/code
-      - ./media:/media
       - ./static:/static
     expose:
       - "8000"
