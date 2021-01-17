@@ -10,7 +10,7 @@ from django.urls import reverse
 from rest_framework.test import APIClient
 from rest_framework import status
 
-from user.serializers import UserSerializer, AuthTokenSerializer
+from user.serializers import UserSerializer
 
 
 class PublicUserApiTests(TestCase):
@@ -18,36 +18,3 @@ class PublicUserApiTests(TestCase):
 
     def setUp(self):
         self.client = APIClient()
-
-    def test_create_token_missing_email_field(self):
-        """Test that email is required"""
-        payload = {
-            'email': 'one',
-            'password': 'password'
-        }
-        serializer = AuthTokenSerializer(data=payload)
-
-        self.assertEqual(serializer.is_valid(), False)
-        self.assertCountEqual(serializer.errors.keys(), ['email'])
-
-    def test_create_token_missing_password_field(self):
-        """Test that password is required"""
-        payload = {
-            'email': 'test@matsuda.com',
-            'password': ''
-        }
-        serializer = AuthTokenSerializer(data=payload)
-
-        self.assertEqual(serializer.is_valid(), False)
-        self.assertCountEqual(serializer.errors.keys(), ['password'])
-
-    def test_create_token_non_field(self):
-        """Test that field is invalid"""
-        payload = {
-            'email': 'test@matsuda.com',
-            'password': 'password'
-        }
-        serializer = AuthTokenSerializer(data=payload)
-
-        self.assertEqual(serializer.is_valid(), False)
-        self.assertCountEqual(serializer.errors.keys(), ['non_field_errors'])

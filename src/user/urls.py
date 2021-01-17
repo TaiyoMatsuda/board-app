@@ -16,6 +16,6 @@ urlpatterns = [
     path('logout/', LogoutView.as_view(), name='rest_logout'),
     path('password/change/', PasswordChangeView.as_view(), name='rest_password_change'),
     path('registration/', include('rest_auth.registration.urls')),
-    path('token/', views.CreateTokenView.as_view(), name='token'),
+    # path('token/', views.CreateTokenView.as_view(), name='token'),
     path('', include(router.urls))
 ]

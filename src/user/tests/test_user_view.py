@@ -16,7 +16,6 @@ from rest_framework import status
 from core.models import Event, Participant
 
 USER_URL = reverse('user:user-list')
-TOKEN_URL = reverse('user:token')
 
 def detail_url(user_id):
     """Return user detail URL"""

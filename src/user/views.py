@@ -1,7 +1,6 @@
 from rest_framework import viewsets, mixins, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.settings import api_settings
 from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly
 from rest_framework.pagination import PageNumberPagination
@@ -91,9 +90,3 @@ class UserViewSet(viewsets.GenericViewSet,
         event = self.get_object()
         event.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
-
-
-class CreateTokenView(ObtainAuthToken):
-    """Create a new auth token for user"""
-    serializer_class = serializers.AuthTokenSerializer
-    renderer_classes = api_settings.DEFAULT_RENDERER_CLASSES
