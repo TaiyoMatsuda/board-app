@@ -85,7 +85,7 @@ class UserViewSet(viewsets.GenericViewSet,
             return Response(status=status.HTTP_400_BAD_REQUEST)
         if 'password' in request.data.keys():
             return Response(status=status.HTTP_400_BAD_REQUEST)
-
+        
         user = self.get_object()
         serializer = self.get_serializer(instance=user, data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)

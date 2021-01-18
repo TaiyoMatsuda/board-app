@@ -1,12 +1,10 @@
 from django.contrib.auth import get_user_model
-from django.urls import reverse
 from django.test import TestCase
 from django.utils import timezone
 from django.utils.timezone import make_aware
 import datetime
 
 from rest_framework import status
-from rest_framework.test import APIClient
 
 from core.models import Event, EventComment
 
@@ -42,11 +40,10 @@ def sample_event_comment(event, user, comment='test comment', **params):
     return EventComment.objects.create(**default)
 
 
-class PrivateEventCommentApiTests(TestCase):
-    """Test the authorized user Event comment API"""
+class EventCommentSerializerApiTests(TestCase):
+    """Test event comment serializer API"""
 
     def setUp(self):
-        self.client = APIClient()
         self.organaizer = sample_user(
             email='organaizer@matsuda.com',
             password='testpass'
@@ -56,7 +53,6 @@ class PrivateEventCommentApiTests(TestCase):
             self.event,
             self.organaizer
         )
-        self.client.force_authenticate(self.organaizer)
 
     def test_create_event_comment_successful(self):
         """Test create a new event comment"""
@@ -66,8 +62,7 @@ class PrivateEventCommentApiTests(TestCase):
             'comment': 'test comment'
         }
         serializer = ListCreateEventCommentSerializer(data=payload)
-
-        self.assertEqual(serializer.is_valid(), True)
+        self.assertTrue(serializer.is_valid())
 
     def test_event_comment_too_long_comment(self):
         """Test fail creating a new event comment because of long comment"""
@@ -77,8 +72,7 @@ class PrivateEventCommentApiTests(TestCase):
             'comment': 'test comment' * 100
         }
         serializer = ListCreateEventCommentSerializer(data=payload)
-
-        self.assertEqual(serializer.is_valid(), False)
+        self.assertFalse(serializer.is_valid())
         self.assertCountEqual(serializer.errors.keys(), ['comment'])
 
     def test_create_event_comment_blank(self):
@@ -89,5 +83,5 @@ class PrivateEventCommentApiTests(TestCase):
             'comment': ''
         }
         serializer = ListCreateEventCommentSerializer(data=payload)
-        self.assertEqual(serializer.is_valid(), False)
+        self.assertFalse(serializer.is_valid())
         self.assertCountEqual(serializer.errors.keys(), ['comment'])

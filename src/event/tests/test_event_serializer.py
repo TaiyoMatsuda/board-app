@@ -1,12 +1,10 @@
 from django.contrib.auth import get_user_model
-from django.urls import reverse
 from django.test import TestCase
 from django.utils import timezone
 from django.utils.timezone import make_aware, localtime
 import datetime
 
 from rest_framework import status
-from rest_framework.test import APIClient
 
 from core.models import Event
 
@@ -32,18 +30,15 @@ def sample_event(user):
     return Event.objects.create(**default)
 
 
-class PrivateEventApiTests(TestCase):
-    """Test the authorized user Event API"""
+class EventSerializerApiTests(TestCase):
+    """Test event serializer API"""
 
     def setUp(self):
-        self.client = APIClient()
         self.organizer = sample_user(
             email='organizer@matsuda.com',
             password='testpass'
         )
         self.event = sample_event(self.organizer)
-
-        self.client.force_authenticate(self.organizer)
 
     def test_validate_event_successful(self):
         """Test validate event fields successful"""
@@ -58,7 +53,7 @@ class PrivateEventApiTests(TestCase):
             'fee': 500,
         }
         serializer = CreateEventSerializer(data=payload)
-        self.assertEqual(serializer.is_valid(), True)
+        self.assertTrue(serializer.is_valid())
 
     def test_validatet_too_long_title(self):
         """Test validate too long title"""
@@ -74,7 +69,7 @@ class PrivateEventApiTests(TestCase):
         }
         serializer = CreateEventSerializer(data=payload)
 
-        self.assertEqual(serializer.is_valid(), False)
+        self.assertFalse(serializer.is_valid())
         self.assertCountEqual(serializer.errors.keys(), ['title'])
 
     def test_validate_blank_title(self):
@@ -91,7 +86,7 @@ class PrivateEventApiTests(TestCase):
         }
         serializer = CreateEventSerializer(data=payload)
 
-        self.assertEqual(serializer.is_valid(), False)
+        self.assertFalse(serializer.is_valid())
         self.assertCountEqual(serializer.errors.keys(), ['title'])
 
     def test_validate_too_long_description(self):
@@ -108,7 +103,7 @@ class PrivateEventApiTests(TestCase):
         }
         serializer = CreateEventSerializer(data=payload)
 
-        self.assertEqual(serializer.is_valid(), False)
+        self.assertFalse(serializer.is_valid())
         self.assertCountEqual(serializer.errors.keys(), ['description'])
 
     def test_validatet_too_long_address(self):
@@ -125,7 +120,7 @@ class PrivateEventApiTests(TestCase):
         }
         serializer = CreateEventSerializer(data=payload)
 
-        self.assertEqual(serializer.is_valid(), False)
+        self.assertFalse(serializer.is_valid())
         self.assertCountEqual(serializer.errors.keys(), ['address'])
 
     def test_validate_blank_address(self):
@@ -141,7 +136,7 @@ class PrivateEventApiTests(TestCase):
             'fee': 500,
         }
         serializer = CreateEventSerializer(data=payload)
-        self.assertEqual(serializer.is_valid(), False)
+        self.assertFalse(serializer.is_valid())
         self.assertCountEqual(serializer.errors.keys(), ['address'])
 
     def test_validate_too_long_fee(self):
@@ -158,7 +153,7 @@ class PrivateEventApiTests(TestCase):
         }
         serializer = CreateEventSerializer(data=payload)
 
-        self.assertEqual(serializer.is_valid(), False)
+        self.assertFalse(serializer.is_valid())
         self.assertCountEqual(serializer.errors.keys(), ['fee'])
 
     def test_validate_full_width_fee(self):
@@ -175,7 +170,7 @@ class PrivateEventApiTests(TestCase):
         }
         serializer = CreateEventSerializer(data=payload)
 
-        self.assertEqual(serializer.is_valid(), True)
+        self.assertTrue(serializer.is_valid())
 
     def test_validate_blank_fee(self):
         """Test validate blank fee"""
@@ -189,4 +184,4 @@ class PrivateEventApiTests(TestCase):
             'address': 'test address',
         }
         serializer = CreateEventSerializer(data=payload)
-        self.assertEqual(serializer.is_valid(), True)
+        self.assertTrue(serializer.is_valid())
