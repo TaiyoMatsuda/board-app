@@ -5,60 +5,149 @@ from PIL import Image
 
 from django.test import TestCase
 from django.contrib.auth import get_user_model
-from django.urls import reverse
+from django.utils.timezone import make_aware, localtime
+import datetime
 
-from rest_framework.test import APIClient
 from rest_framework import status
 
-from user.serializers import UserSerializer, AuthTokenSerializer, UserPasswordSerializer
+from user.serializers import UserSerializer, UserEmailSerializer, UserEventsSerializer
+from core.models import Event
 
+def sample_user(**params):
+    """Create and return a sample user"""
+    return get_user_model().objects.create_user(**params)
 
-class PublicUserApiTests(TestCase):
-    """Test the users API (public)"""
+def sample_event(user):
+    """Create and return a sample comment"""
+    default = {
+        'title': 'test title',
+        'description': 'test description',
+        'organizer': user,
+        'image': None,
+        'event_time': '2021-01-18 00:34:39',
+        'address': 'test address',
+        'fee': 500,
+    }
+
+    return Event.objects.create(**default)
+
+class UserSerializerApiTests(TestCase):
+    """Test user serializer API"""
 
     def setUp(self):
-        self.client = APIClient()
+        self.email = 'organizer@matsuda.com'
+        self.organizer = sample_user(
+            email=self.email,
+            password='testpass'
+        )
+        self.organizer.first_name = 'firstname'
+        self.organizer.family_name = 'family_name'
+        self.organizer.introduction = 'introduction'
+        self.organizer.is_guide = True
+        self.organizer.save()
 
-    def test_password_too_short(self):
-        """Test that the password must be more than 5 characters"""
-        payload = {
-            'email': 'test@matsuda.com',
-            'password': 'pw'
+        self.event = sample_event(self.organizer)
+
+    def test_retrieve_user_successful(self):
+        """Test retrieve user fields successful"""
+        serializer = UserSerializer(instance=self.organizer)
+        expected_dict = {
+            'id': self.organizer.id,
+            'first_name': self.organizer.first_name,
+            'family_name': self.organizer.family_name,
+            'introduction': self.organizer.introduction,
+            'icon_url': '/static/images/no_user_image.png',
+            'is_guide': self.organizer.is_guide
         }
-        serializer = UserPasswordSerializer(data=payload)
+        self.assertEqual(serializer.data, expected_dict)
 
-        self.assertEqual(serializer.is_valid(), False)
-        self.assertCountEqual(serializer.errors.keys(), ['password'])
+    def test_update_user_successful(self):
+        """Test update user fields successful"""
+        data = {'is_guide': False}
+        serializer = UserSerializer(instance=self.organizer, data=data)
+        self.assertTrue(serializer.is_valid())
 
-    def test_create_token_missing_email_field(self):
-        """Test that email is required"""
-        payload = {
-            'email': 'one',
-            'password': 'password'
-        }
-        serializer = AuthTokenSerializer(data=payload)
+        serializer.save()
+        self.assertEqual(serializer.data['is_guide'], data['is_guide'])
 
-        self.assertEqual(serializer.is_valid(), False)
+    def test_long_user_first_name_validate(self):
+        """Test retrieve user fields successful"""
+        long_first_name = "long_first_name " * 500
+        data = {'first_name': long_first_name}
+        serializer = UserSerializer(instance=self.organizer, data=data)
+        self.assertFalse(serializer.is_valid())
+        self.assertCountEqual(serializer.errors.keys(), ['first_name'])
+
+    def test_long_user_family_name_validate(self):
+        """Test retrieve user fields successful"""
+        long_family_name = "long_family_name " * 500
+        data = {'family_name': long_family_name}
+        serializer = UserSerializer(instance=self.organizer, data=data)
+        self.assertFalse(serializer.is_valid())
+        self.assertCountEqual(serializer.errors.keys(), ['family_name'])
+
+    def test_long_introduction_validate(self):
+        """Test retrieve user fields successful"""
+        long_introduction = "logn_introduction " * 500
+        data = {'introduction': long_introduction}
+        serializer = UserSerializer(instance=self.organizer, data=data)
+        self.assertFalse(serializer.is_valid())
+        self.assertCountEqual(serializer.errors.keys(), ['introduction'])
+
+    def test_not_updating_user_icon_validate(self):
+        """Test retrieve user fields successful"""
+        data = {'icon': 1}
+        serializer = UserSerializer(instance=self.organizer, data=data)
+        self.assertFalse(serializer.is_valid())
+        self.assertCountEqual(serializer.errors.keys(), ['icon'])
+
+    def test_not_updating_is_guide_with_not_boolean(self):
+        """Test updating is_guide with not boolean"""
+        data = {'is_guide': 'test'}
+        serializer = UserSerializer(instance=self.organizer, data=data)
+        self.assertFalse(serializer.is_valid())
+        self.assertCountEqual(serializer.errors.keys(), ['is_guide'])
+
+    def test_updating_other_field_with_userserialize(self):
+        """Test not updating other fields"""
+        data = {'email': 'organizer_changed@matsuda.com'}
+        serializer = UserSerializer(instance=self.organizer, data=data)
+        self.assertTrue(serializer.is_valid())
+        serializer.save()
+        self.assertEqual(self.organizer.email, self.email)
+
+    def test_retrieve_user_email_successful(self):
+        """Test retrieving user email successful"""
+        serializer = UserEmailSerializer(instance=self.organizer)
+        expected_dict = {'email': 'organizer@matsuda.com'}
+        self.assertEqual(serializer.data, expected_dict)
+
+    def test_update_user_email_successful(self):
+        """Test validate user email successful"""
+        data = {'email': 'organizer_changed@matsuda.com'}
+        serializer = UserEmailSerializer(instance=self.organizer, data=data)
+        self.assertTrue(serializer.is_valid())
+
+        serializer.save()
+        self.assertEqual(serializer.data, data)
+
+    def test_update_user_email_with_not_email_format(self):
+        """Test validate user email false with not email format"""
+        data = {'email': 'organizer_changed'}
+        serializer = UserEmailSerializer(instance=self.organizer, data=data)
+        self.assertFalse(serializer.is_valid())
         self.assertCountEqual(serializer.errors.keys(), ['email'])
 
-    def test_create_token_missing_password_field(self):
-        """Test that password is required"""
-        payload = {
-            'email': 'test@matsuda.com',
-            'password': ''
+    def test_retrieve_user_events_successful(self):
+        """Test retrieve user events successful"""
+        events = Event.objects.filter(organizer=self.organizer.id, is_active=True)
+        serializer = UserEventsSerializer(instance=events, many=True)
+        expected_dict = {
+            'id': self.event.id,
+            'title': 'test title',
+            'image': '/static/images/no_event_image.png',
+            'event_time': '2021-01-18 00:34:39',
+            'address': 'test address',
+            'participant_count': 0
         }
-        serializer = AuthTokenSerializer(data=payload)
-
-        self.assertEqual(serializer.is_valid(), False)
-        self.assertCountEqual(serializer.errors.keys(), ['password'])
-
-    def test_create_token_non_field(self):
-        """Test that field is invalid"""
-        payload = {
-            'email': 'test@matsuda.com',
-            'password': 'password'
-        }
-        serializer = AuthTokenSerializer(data=payload)
-
-        self.assertEqual(serializer.is_valid(), False)
-        self.assertCountEqual(serializer.errors.keys(), ['non_field_errors'])
+        self.assertEqual(dict(serializer.data[0]), expected_dict)

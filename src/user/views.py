@@ -1,9 +1,8 @@
-from rest_framework import generics, viewsets, mixins, authentication, permissions, status
+from rest_framework import viewsets, mixins, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.settings import api_settings
-from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly
+from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly, IsAuthenticated
 from rest_framework.pagination import PageNumberPagination
 from django.shortcuts import get_object_or_404
 
@@ -13,27 +12,29 @@ from core.permissions import IsUserOwnerOnly
 from user import serializers
 
 
-class UserViewSet(viewsets.ModelViewSet):
+class UserViewSet(viewsets.GenericViewSet,
+                  mixins.RetrieveModelMixin,
+                  mixins.UpdateModelMixin,
+                  mixins.DestroyModelMixin):
     """Manage User"""
     queryset = User.objects.filter(is_active=True)
 
     def get_permissions(self):
         """Return appropriate permission class"""
+        permission_classes = [IsAuthenticatedOrReadOnly]
         if self.request.method == 'POST':
             permission_classes = [AllowAny]
         elif self.request.method == 'PATCH' or self.request.method == 'DELETE':
             permission_classes = [IsUserOwnerOnly]
-        else:
-            permission_classes = [IsAuthenticatedOrReadOnly]
+
+        if self.action == 'email':
+            permission_classes = [IsUserOwnerOnly]
+
         return [permission() for permission in permission_classes]
 
     def get_serializer_class(self):
-        if self.action == 'create':
-            return serializers.CreateUserSerializer
         if self.action == 'email':
             return serializers.UserEmailSerializer
-        if self.action == 'password':
-            return serializers.UserPasswordSerializer
         if self.action == 'organizedEvents' or self.action == 'joinedEvents':
             return serializers.UserEventsSerializer
         return serializers.UserSerializer
@@ -43,31 +44,16 @@ class UserViewSet(viewsets.ModelViewSet):
         self.check_object_permissions(self.request, obj)
         return obj
 
-    @action(methods=['patch'], detail=True, permission_classes=[IsUserOwnerOnly])
+    @action(methods=['get','patch'], detail=True)
     def email(self, request, pk=None):
         user = self.get_object()
+        if self.request.method == "GET":
+            serializer = self.get_serializer(instance=user)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
         serializer = self.get_serializer(instance=user, data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
         serializer.save()
-        return Response(status=status.HTTP_200_OK)
-
-    @action(methods=['patch'], detail=True, permission_classes=[IsUserOwnerOnly])
-    def password(self, request, pk=None):
-        if len(request.data) != 2:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
-
-        if 'old_password' not in request.data or 'new_password' not in request.data:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
-
-        user = self.get_object()
-        if user.password != request.data['old_password']:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
-
-        data = {'password': request.data['new_password']}
-        serializer = self.get_serializer(instance=user, data=data, partial=True)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-
         return Response(status=status.HTTP_200_OK)
 
     def list(self, request, *args, **kwargs):
@@ -94,18 +80,12 @@ class UserViewSet(viewsets.ModelViewSet):
     def joinedEvents(self, request, pk=None):
         return self.list(request)
 
-    def create(self, request):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response(status=status.HTTP_201_CREATED)
-
     def update(self, request, *args, **kwargs):
         if 'email' in request.data.keys():
             return Response(status=status.HTTP_400_BAD_REQUEST)
         if 'password' in request.data.keys():
             return Response(status=status.HTTP_400_BAD_REQUEST)
-
+        
         user = self.get_object()
         serializer = self.get_serializer(instance=user, data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
@@ -117,9 +97,3 @@ class UserViewSet(viewsets.ModelViewSet):
         event = self.get_object()
         event.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
-
-
-class CreateTokenView(ObtainAuthToken):
-    """Create a new auth token for user"""
-    serializer_class = serializers.AuthTokenSerializer
-    renderer_classes = api_settings.DEFAULT_RENDERER_CLASSES

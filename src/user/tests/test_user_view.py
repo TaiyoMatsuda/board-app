@@ -16,7 +16,6 @@ from rest_framework import status
 from core.models import Event, Participant
 
 USER_URL = reverse('user:user-list')
-TOKEN_URL = reverse('user:token')
 
 def detail_url(user_id):
     """Return user detail URL"""
@@ -190,58 +189,24 @@ class PublicUserApiTests(TestCase):
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertEqual(len(res.data['results']), 1)
 
-    def test_create_valid_user_success(self):
-        """Test creating user with valid payload is successful"""
-        email = 'test@matsuda.com'
-        payload = {
-            'email': email,
-            'password': 'testpass'
-        }
-        res = self.client.post(USER_URL, payload)
-        self.assertEqual(res.status_code, status.HTTP_201_CREATED)
+    def test_retrieve_user_email_by_unauthorized_user(self):
+        """Test false retrieving user e-mail by unauthorized user"""
+        url = email_url(self.existed_user.id)
+        res = self.client.get(url)
+        self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
 
-        user = get_user_model().objects.latest('created_at')
-        self.assertEqual(user.email, email)
+    def test_update_user_profile_by_unauthorized_user(self):
+        """Test false updating the user profile by unauthorized user"""
+        url = detail_url(self.existed_user.id)
+        res = self.client.patch(url, {'first_name': 'firstname'})
 
-    def test_user_exists(self):
-        """Test creating a user that already exists fails"""
-        payload = {
-            'email': self.existed_user.email,
-            'password': self.existed_user.password
-        }
-        res = self.client.post(USER_URL, payload)
-        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
 
-    def test_create_token_for_user(self):
-        """Test that a token is created for the user"""
-        payload = {
-            'email': self.existed_user.email,
-            'password': self.password
-        }
-        res = self.client.post(TOKEN_URL, payload)
-        self.assertIn('token', res.data)
-        self.assertEqual(res.status_code, status.HTTP_200_OK)
-
-    def test_create_token_invalid_credentials(self):
-        """Test that token is not created if invaid credetials are given"""
-        payload = {
-            'email': self.existed_user.email,
-            'password': 'worng'
-        }
-        res = self.client.post(TOKEN_URL, payload)
-        self.assertNotIn('token', res.data)
-        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
-
-    def test_create_token_no_user(self):
-        """Test that token is not created if user doesn't exit"""
-        payload = {
-            'email': 'test@matsuda.com',
-            'password': 'testpass'
-        }
-        res = self.client.post(TOKEN_URL, payload)
-        self.assertNotIn('token', res.data)
-        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
-
+    def test_delete_event_by_unauthorized_user(self):
+        """Test false logically deleting the user by unauthenticated user"""
+        url = detail_url(self.existed_user.id)
+        res = self.client.delete(url)
+        self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
 
 class PrivateUserApiTests(TestCase):
     """Test API requests that require authentication"""
@@ -251,8 +216,19 @@ class PrivateUserApiTests(TestCase):
             email='test@matsuda.com',
             password='testpass'
         )
+        self.another_user = create_user(
+            email='test1@matsuda.com',
+            password='testpass'
+        )
         self.client = APIClient()
         self.client.force_authenticate(user=self.user)
+
+    def test_retrieve_user_email(self):
+        """Test success retrive user e-mail"""
+        url = email_url(self.user.id)
+        res = self.client.get(url)
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(res.data['email'], self.user.email)
 
     def test_update_user_email(self):
         """Test success updating the user e-mail"""
@@ -262,21 +238,6 @@ class PrivateUserApiTests(TestCase):
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         updated_user = get_user_model().objects.latest('updated_at')
         self.assertEqual(email, updated_user.email)
-
-    def test_update_user_password(self):
-        """Test success updating the user e-mail"""
-        url = password_url(self.user.id)
-        password = 'newPassword'
-        payload = {
-          "old_password": self.user.password,
-          "new_password": password
-        }
-        res = self.client.patch(url, payload)
-        self.user.refresh_from_db()
-        self.assertEqual(res.status_code, status.HTTP_200_OK)
-
-        updated_user = get_user_model().objects.latest('updated_at')
-        self.assertEqual(password, updated_user.password)
 
     def test_full_update_user_profile(self):
         """Test full updating the user profile for authenticated user"""
@@ -328,3 +289,31 @@ class PrivateUserApiTests(TestCase):
         res = self.client.patch(url, {'icon':'notimage'}, format='multipart')
 
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_delete_event_by_another_user(self):
+        """Test false logically deleting the user by another user"""
+        url = detail_url(self.user.id)
+        res = self.client.delete(url)
+        self.assertEqual(res.status_code, status.HTTP_204_NO_CONTENT)
+        self.user.refresh_from_db()
+
+        self.assertFalse(self.user.is_active)
+
+    def test_retrieve_user_email_by_another_user(self):
+        """Test false retrieving user e-mail by another user"""
+        url = email_url(self.another_user.id)
+        res = self.client.get(url)
+        self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_update_user_profile_by_another_user(self):
+        """Test false updating the user profile by another user"""
+        url = detail_url(self.another_user.id)
+        res = self.client.patch(url, {'first_name': 'firstname'})
+
+        self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_delete_event_by_another_user(self):
+        """Test false logically deleting the user by another user"""
+        url = detail_url(self.another_user.id)
+        res = self.client.delete(url)
+        self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)

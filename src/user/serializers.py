@@ -5,17 +5,6 @@ from rest_framework import serializers
 
 from core.models import Participant, Event
 
-class CreateUserSerializer(serializers.ModelSerializer):
-    """Serializer for the users object"""
-
-    class Meta:
-        model = get_user_model()
-        fields = ('email', 'password')
-
-    def create(self, validated_data):
-        """Create a new user with encrypted password and return it"""
-        return get_user_model().objects.create_user(**validated_data)
-
 
 class UserSerializer(serializers.ModelSerializer):
     """Serializer for the users object"""
@@ -41,15 +30,6 @@ class UserEmailSerializer(serializers.ModelSerializer):
         fields = ('email',)
 
 
-class UserPasswordSerializer(serializers.ModelSerializer):
-    """Serializer for the users object"""
-
-    class Meta:
-        model = get_user_model()
-        fields = ('password',)
-        extra_kwargs = {'password': {'write_only': True, 'min_length': 5}}
-
-
 class UserEventsSerializer(serializers.ModelSerializer):
     """Serialize for brief event object"""
     image = serializers.SerializerMethodField()
@@ -71,29 +51,3 @@ class UserEventsSerializer(serializers.ModelSerializer):
     def get_participant_count(self, event):
         participant = Participant.objects.filter(event_id=event.id, status= '1', is_active=True)
         return participant.count()
-
-
-class AuthTokenSerializer(serializers.Serializer):
-    """Serializer for the user authentication object"""
-    email = serializers.EmailField()
-    password = serializers.CharField(
-        style={'input_type': 'password'},
-        trim_whitespace=False
-    )
-
-    def validate(self, attrs):
-        """Validate and authenticate the user"""
-        email = attrs.get('email')
-        password = attrs.get('password')
-
-        user = authenticate(
-            request=self.context.get('request'),
-            username=email,
-            password=password
-        )
-        if not user:
-            msg = _('Unable to authenticate with provided credentials')
-            raise serializers.ValidationError(msg, code='authentication')
-
-        attrs['user'] = user
-        return attrs
