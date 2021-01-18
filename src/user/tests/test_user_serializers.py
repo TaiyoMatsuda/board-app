@@ -143,7 +143,7 @@ class UserSerializerApiTests(TestCase):
         events = Event.objects.filter(organizer=self.organizer.id, is_active=True)
         serializer = UserEventsSerializer(instance=events, many=True)
         expected_dict = {
-            'id': self.organizer.id,
+            'id': self.event.id,
             'title': 'test title',
             'image': '/static/images/no_event_image.png',
             'event_time': '2021-01-18 00:34:39',
