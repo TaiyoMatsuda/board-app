@@ -32,7 +32,6 @@ class UnlimitedtPagination(PageNumberPagination):
 class ListCreateParticipantView(generics.ListCreateAPIView):
     pagination_class = UnlimitedtPagination
     serializer_class = serializers.ListCreateParticipantSerializer
-    permission_classes = [IsAuthenticatedOrReadOnly]
 
     def get_queryset(self):
         return Participant.objects.filter(event=self.kwargs['pk'],status='1',is_active=True).order_by('updated_at')
@@ -61,7 +60,6 @@ class ListCreateParticipantView(generics.ListCreateAPIView):
 class UpdateParticipantView(generics.UpdateAPIView):
     queryset = Participant.objects.all()
     serializer_class = serializers.UpdateParticipantSerializer
-    permission_classes = [IsAuthenticatedOrReadOnly]
 
     def patch(self, request, *args, **kwargs):
         participant = get_object_or_404(self.queryset, event=kwargs['pk'], user=request.user.id)
