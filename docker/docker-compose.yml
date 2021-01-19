@@ -1,0 +1,51 @@
+version: "3"
+
+services:
+
+  db:
+    image: mysql:5.7
+    ports:
+      - "3306:3306"
+    volumes:
+      - ../dbdata:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: board
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+      TZ: 'Asia/Tokyo'
+    tty: true
+    stdin_open: true
+    privileged: true
+
+  nginx:
+    image: nginx:1.17.8
+    ports:
+      - "8000:8000"
+    volumes:
+      - ../nginx/conf:/etc/nginx/conf.d
+      - ../nginx/uwsgi_params:/etc/nginx/uwsgi_params
+      - ../static:/static
+    depends_on:
+      - api
+    tty: true
+    stdin_open: true
+    privileged: true
+
+  api:
+    build: ./api
+    volumes:
+      - ../src/api:/code
+      - ../static:/static
+    expose:
+      - "8000"
+    depends_on:
+      - db
+    command: uwsgi --ini /code/app/uwsgi.ini
+    tty: true
+    stdin_open: true
+    privileged: true
+
+volumes:
+    dbdata:
+      driver: local
