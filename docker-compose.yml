@@ -27,15 +27,15 @@ services:
       - ./nginx/uwsgi_params:/etc/nginx/uwsgi_params
       - ./static:/static
     depends_on:
-      - web
+      - api
     tty: true
     stdin_open: true
     privileged: true
 
-  web:
+  api:
     build: .
     volumes:
-      - ./src:/code
+      - ./src/api:/code
       - ./static:/static
     expose:
       - "8000"

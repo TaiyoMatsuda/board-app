@@ -27,14 +27,14 @@ jobs:
       - run:
           name: set environment variable
           command: |
-            echo SECRET_KEY=${SECRET_KEY} > ~/board-app/src/.env
-            echo DEBUG=${DEBUG} >> ~/board-app/src/.env
-            echo ALLOWED_HOSTS=['*'] >> ~/board-app/src/.env
-            echo DATABASE_URL=${DATABASE_URL} >> ~/board-app/src/.env
-            echo MODE=${MODE} >> ~/board-app/src/.env
+            echo SECRET_KEY=${SECRET_KEY} > ~/board-app/src/api/.env
+            echo DEBUG=${DEBUG} >> ~/board-app/src/api/.env
+            echo ALLOWED_HOSTS=['*'] >> ~/board-app/src/api/.env
+            echo DATABASE_URL=${DATABASE_URL} >> ~/board-app/src/api/.env
+            echo MODE=${MODE} >> ~/board-app/src/api/.env
       - run:
           command: |
-            cd ./src
+            cd ./src/api
             tox
 
 workflows:
