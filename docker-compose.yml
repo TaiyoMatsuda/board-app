@@ -7,7 +7,7 @@ services:
     ports:
       - "3306:3306"
     volumes:
-      - ../dbdata:/var/lib/mysql
+      - ./dbdata:/var/lib/mysql
     environment:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: board
@@ -23,9 +23,9 @@ services:
     ports:
       - "8000:8000"
     volumes:
-      - ../nginx/conf:/etc/nginx/conf.d
-      - ../nginx/uwsgi_params:/etc/nginx/uwsgi_params
-      - ../static:/static
+      - ./nginx/conf:/etc/nginx/conf.d
+      - ./nginx/uwsgi_params:/etc/nginx/uwsgi_params
+      - ./static:/static
     depends_on:
       - api
     tty: true
@@ -33,10 +33,10 @@ services:
     privileged: true
 
   api:
-    build: ./api
+    build: .
     volumes:
-      - ../src/api:/code
-      - ../static:/static
+      - ./src/api:/code
+      - ./static:/static
     expose:
       - "8000"
     depends_on:
