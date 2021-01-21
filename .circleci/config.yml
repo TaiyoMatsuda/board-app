@@ -18,7 +18,7 @@ jobs:
     executor: board_app_django
     steps:
       - checkout
-      - run: pip install -r ./docker/api/dockerfile_requirements.txt
+      - run: pip install -r ./dockerfile_requirements.txt
       - run:
           name: add db host
           command: |
