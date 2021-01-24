@@ -1,18 +1,19 @@
 from django.contrib.auth import get_user_model
 from django.test import TestCase
-from django.utils import timezone
-from django.utils.timezone import make_aware, localtime
+from django.utils.timezone import make_aware
 import datetime
-
-from rest_framework import status
 
 from core.models import Event, Participant
 
-from event.serializers import ListCreateParticipantSerializer, UpdateParticipantSerializer
+from event.serializers import (
+    ListCreateParticipantSerializer, UpdateParticipantSerializer
+)
+
 
 def sample_user(**params):
     """Create and return a sample user"""
     return get_user_model().objects.create_user(**params)
+
 
 def sample_event(user):
     """Create and return a sample comment"""
@@ -28,6 +29,7 @@ def sample_event(user):
     }
 
     return Event.objects.create(**default)
+
 
 def sample_participant(event, user, **params):
     """Create and return a sample participant"""
@@ -55,13 +57,14 @@ class ParticipantSerializerApiTests(TestCase):
         self.event = sample_event(self.organizer_user)
 
         self.organizer = sample_participant(self.event, self.organizer_user)
-        self.participant = sample_participant(self.event, self.participant_user)
-
+        self.participant = sample_participant(
+            self.event, self.participant_user)
 
     def test_retrieve_participant_successful(self):
         """Test retrieving participant successful"""
         participants = Participant.objects.filter(event=self.event)
-        serializer = ListCreateParticipantSerializer(instance=participants, many=True)
+        serializer = ListCreateParticipantSerializer(
+            instance=participants, many=True)
 
         expected_dict_list = [
             {
@@ -70,8 +73,8 @@ class ParticipantSerializerApiTests(TestCase):
                 'icon': '/static/images/no_user_image.png'
             },
             {
-                'user': self.participant_user.id ,
-                'first_name': self.participant_user.first_name ,
+                'user': self.participant_user.id,
+                'first_name': self.participant_user.first_name,
                 'icon': '/static/images/no_user_image.png'
             }
         ]
@@ -135,13 +138,15 @@ class ParticipantSerializerApiTests(TestCase):
     def test_update_participant_status_successful(self):
         """Test updating participant status successful"""
         data = {'status': 0}
-        serializer = UpdateParticipantSerializer(instance=self.participant, data=data)
+        serializer = UpdateParticipantSerializer(
+            instance=self.participant, data=data)
         self.assertTrue(serializer.is_valid())
         serializer.save()
         self.assertEqual(int(serializer.data['status']), data['status'])
 
         data = {'status': 1}
-        serializer = UpdateParticipantSerializer(instance=self.participant, data=data)
+        serializer = UpdateParticipantSerializer(
+            instance=self.participant, data=data)
         self.assertTrue(serializer.is_valid())
         serializer.save()
         self.assertEqual(int(serializer.data['status']), data['status'])
@@ -149,21 +154,24 @@ class ParticipantSerializerApiTests(TestCase):
     def test_not_updating_participant_status_with_undesignated_number(self):
         """Test not updating participant status with undesignated number"""
         data = {'status': 2}
-        serializer = UpdateParticipantSerializer(instance=self.participant, data=data)
+        serializer = UpdateParticipantSerializer(
+            instance=self.participant, data=data)
         self.assertFalse(serializer.is_valid())
         self.assertCountEqual(serializer.errors.keys(), ['status'])
 
     def test_not_updating_participant_status_with_other_type(self):
         """Test not updating participant status with undesignated number"""
         data = {'status': '2'}
-        serializer = UpdateParticipantSerializer(instance=self.participant, data=data)
+        serializer = UpdateParticipantSerializer(
+            instance=self.participant, data=data)
         self.assertFalse(serializer.is_valid())
         self.assertCountEqual(serializer.errors.keys(), ['status'])
 
-    def test_updating_undesignated_field_with_UpdateParticipantSerializer(self):
-        """Test not updating participant is_active with UpdateParticipantSerializer"""
+    def test_updating_wrong_field_with_UpdateParticipantSerializer(self):
+        """Test not logically delting with UpdateParticipantSerializer"""
         data = {'is_active': False}
-        serializer = UpdateParticipantSerializer(instance=self.participant, data=data)
+        serializer = UpdateParticipantSerializer(
+            instance=self.participant, data=data)
         self.assertTrue(serializer.is_valid())
         serializer.save()
         self.assertTrue(self.participant.is_active)

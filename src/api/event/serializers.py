@@ -6,14 +6,17 @@ from core.models import EventComment, Participant, Event
 
 class ListCreateEventCommentSerializer(serializers.ModelSerializer):
     """Serializer for Participant objects"""
-    user = serializers.PrimaryKeyRelatedField(queryset=get_user_model().objects.all())
+    user = serializers.PrimaryKeyRelatedField(
+        queryset=get_user_model().objects.all()
+    )
     first_name = serializers.ReadOnlyField(source="user.first_name")
     icon = serializers.SerializerMethodField()
     brief_updated_at = serializers.SerializerMethodField()
 
     class Meta:
         model = EventComment
-        fields = ('id', 'event', 'user', 'first_name', 'icon', 'comment', 'brief_updated_at')
+        fields = ('id', 'event', 'user', 'first_name',
+                  'icon', 'comment', 'brief_updated_at')
 
     def get_icon(self, participant):
         user = get_user_model().objects.get(pk=participant.user_id)
@@ -25,7 +28,8 @@ class ListCreateEventCommentSerializer(serializers.ModelSerializer):
 
 class ListCreateParticipantSerializer(serializers.ModelSerializer):
     """Serializer for Participant objects"""
-    user = serializers.PrimaryKeyRelatedField(queryset=get_user_model().objects.all())
+    user = serializers.PrimaryKeyRelatedField(
+        queryset=get_user_model().objects.all())
     first_name = serializers.ReadOnlyField(source="user.first_name")
     icon = serializers.SerializerMethodField()
 
@@ -46,6 +50,7 @@ class UpdateParticipantSerializer(serializers.ModelSerializer):
         model = Participant
         fields = ('status',)
 
+
 class CreateEventSerializer(serializers.ModelSerializer):
     """Serialize for create event"""
 
@@ -55,7 +60,7 @@ class CreateEventSerializer(serializers.ModelSerializer):
             'id', 'title', 'description', 'organizer', 'image', 'event_time',
             'address', 'fee', 'status'
         )
-        extra_kwargs = {'fee': {'default': 0},}
+        extra_kwargs = {'fee': {'default': 0}, }
 
 
 class UpdateEventSerializer(serializers.ModelSerializer):
@@ -74,7 +79,8 @@ class UpdateEventSerializer(serializers.ModelSerializer):
 
 class RetrieveEventSerializer(serializers.ModelSerializer):
     """Serialize for Event object"""
-    organizer_first_name = serializers.ReadOnlyField(source="organizer.first_name")
+    organizer_first_name = serializers.ReadOnlyField(
+        source="organizer.first_name")
     organizer_icon = serializers.SerializerMethodField()
     image = serializers.SerializerMethodField()
     event_time = serializers.SerializerMethodField()
@@ -84,8 +90,8 @@ class RetrieveEventSerializer(serializers.ModelSerializer):
         model = Event
         fields = (
             'id', 'title', 'description', 'organizer', 'organizer_first_name',
-            'organizer_icon', 'image', 'event_time', 'address', 'fee', 'status',
-            'brief_updated_at'
+            'organizer_icon', 'image', 'event_time', 'address', 'fee',
+            'status', 'brief_updated_at'
         )
 
     def get_organizer_icon(self, event):
@@ -111,7 +117,8 @@ class BriefEventSerializer(serializers.ModelSerializer):
     class Meta:
         model = Event
         fields = (
-            'id', 'title', 'image', 'event_time', 'address', 'participant_count'
+            'id', 'title', 'image', 'event_time', 'address',
+            'participant_count'
         )
 
     def get_image(self, event):
@@ -121,5 +128,6 @@ class BriefEventSerializer(serializers.ModelSerializer):
         return event.get_brief_event_time
 
     def get_participant_count(self, event):
-        participant = Participant.objects.filter(event_id=event.id, status= '1', is_active=True)
+        participant = Participant.objects.filter(
+            event_id=event.id, status='1', is_active=True)
         return participant.count()

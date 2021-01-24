@@ -1,34 +1,37 @@
 from django.contrib.auth import get_user_model
 from django.urls import reverse
 from django.test import TestCase
-from django.utils import timezone
 from django.utils.timezone import make_aware, localtime
-import datetime, json
+import datetime
 
 from rest_framework import status
 from rest_framework.test import APIClient
 
 from core.models import Event, EventComment
 
+
 def detail_url(event_id):
     """Return detail event comment URL"""
     return reverse('event:eventComment', args=[event_id])
+
 
 def delete_url(event_id, comment_id):
     """Return delete event comment URL"""
     return reverse('event:deleteComment', args=[event_id, comment_id])
 
+
 def sample_user(**params):
     """Create and return a sample user"""
     return get_user_model().objects.create_user(**params)
 
+
 def sample_event(user):
     """Create and return a sample event"""
     default = {
-        'title':'test title',
+        'title': 'test title',
         'description': 'test description',
         'image': None,
-        'event_time':make_aware(datetime.datetime.now())
+        'event_time': make_aware(datetime.datetime.now())
         .strftime('%Y-%m-%d %H:%M:%S'),
         'address': 'test address',
         'fee': 500,
@@ -37,10 +40,12 @@ def sample_event(user):
 
     return Event.objects.create(organizer=user, **default)
 
+
 def sample_event_comment(event, user, comment='test comment'):
     """Create and return a sample event comment"""
     default = {'event': event, 'user': user, 'comment': comment}
     return EventComment.objects.create(**default)
+
 
 def get_event_comment_by_json(**params):
 
@@ -53,9 +58,11 @@ def get_event_comment_by_json(**params):
             'icon': None
         },
         'comment': event_comment.comment,
-        'brief_updated_at': localtime(event_comment.updated_at).strftime('%Y-%m-%d %H:%M:%S')
+        'brief_updated_at': localtime(event_comment.updated_at)
+        .strftime('%Y-%m-%d %H:%M:%S')
     }
     return expected_json_dict
+
 
 class PublicEventCommentApiTests(TestCase):
     """Test that publcly available event comments API"""
@@ -76,10 +83,11 @@ class PublicEventCommentApiTests(TestCase):
     def test_retrieve_event_comment_success(self):
         """Test retrieving event comments"""
         url = detail_url(self.event.id)
-        res = self.client.get(url, {'page':1})
+        res = self.client.get(url, {'page': 1})
         self.assertEqual(res.status_code, status.HTTP_200_OK)
 
-        event_comments = EventComment.objects.filter(is_active=True).order_by('updated_at')
+        event_comments = EventComment.objects.filter(
+            is_active=True).order_by('updated_at')
         expected_json_dict_list = []
         for event_comment in event_comments:
             expected_json_dict = {
@@ -94,43 +102,42 @@ class PublicEventCommentApiTests(TestCase):
             expected_json_dict_list.append(expected_json_dict)
 
         expected_json = {
-            "count":len(event_comments),
-            "next":None,
-            "previous":None,
-            "results":expected_json_dict_list
+            "count": len(event_comments),
+            "next": None,
+            "previous": None,
+            "results": expected_json_dict_list
         }
         self.assertJSONEqual(res.content, expected_json)
 
     def test_retrieve_event_comment_pagination_success(self):
         """Test retrieving event comments with pagination"""
-        count= 0
+        count = 0
         while count < 15:
             sample_event_comment(self.event, self.user)
             count += 1
 
         url = detail_url(self.event.id)
-        res = self.client.get(url, {'page':1})
+        res = self.client.get(url, {'page': 1})
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertEqual(len(res.data['results']), 15)
 
-        res = self.client.get(url, {'page':2})
+        res = self.client.get(url, {'page': 2})
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertEqual(len(res.data['results']), 1)
 
     def test_retrieve_event_comment_pagination_false(self):
         """Test retrieving event comments false with pagination"""
         url = detail_url(self.event.id)
-        res = self.client.get(url, {'page':0})
+        res = self.client.get(url, {'page': 0})
         self.assertEqual(res.status_code, status.HTTP_404_NOT_FOUND)
 
-        res = self.client.get(url, {'page':2})
+        res = self.client.get(url, {'page': 2})
         self.assertEqual(res.status_code, status.HTTP_404_NOT_FOUND)
-
 
     def test_not_retrieve_deleted_comments(self):
         """Test not retrieving deleted comments"""
         url = detail_url(self.event.id)
-        res = self.client.get(url, {'page':1})
+        res = self.client.get(url, {'page': 1})
         self.assertEqual(res.status_code, status.HTTP_200_OK)
 
         expected_json_dict = {
@@ -180,8 +187,10 @@ class PrivateEventCommentApiTests(TestCase):
         self.private_event = sample_event(self.organizer)
         self.private_event.status = '0'
         self.private_event.save()
-        self.organizer_comment = sample_event_comment(self.event, self.organizer)
-        self.event_comment = sample_event_comment(self.event, self.comment_user)
+        self.organizer_comment = sample_event_comment(
+            self.event, self.organizer)
+        self.event_comment = sample_event_comment(
+            self.event, self.comment_user)
         self.client.force_authenticate(self.organizer)
 
     def test_create_event_comment_successful(self):

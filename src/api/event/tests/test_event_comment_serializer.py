@@ -1,18 +1,17 @@
 from django.contrib.auth import get_user_model
 from django.test import TestCase
-from django.utils import timezone
 from django.utils.timezone import make_aware
 import datetime
-
-from rest_framework import status
 
 from core.models import Event, EventComment
 
 from event.serializers import ListCreateEventCommentSerializer
 
+
 def sample_user(**params):
     """Create and return a sample user"""
     return get_user_model().objects.create_user(**params)
+
 
 def sample_event(user):
     """Create and return a sample event"""
@@ -27,6 +26,7 @@ def sample_event(user):
     }
 
     return Event.objects.create(organizer=user, **default)
+
 
 def sample_event_comment(event, user, comment='test comment', **params):
     """Create and return a sample comment"""

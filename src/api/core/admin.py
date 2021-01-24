@@ -19,7 +19,8 @@ class MyUserAdmin(BaseUserAdmin):
         }),
     )
     list_display = ('email', 'first_name', 'family_name', 'is_staff')
-    list_filter = ( 'is_staff', 'is_superuser', 'is_guide', 'is_active', 'groups')
+    list_filter = ('is_staff', 'is_superuser',
+                   'is_guide', 'is_active', 'groups')
     search_fields = ('email', 'first_name', 'family_name')
     ordering = ('id',)
 

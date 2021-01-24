@@ -12,6 +12,7 @@ from django.utils import timezone
 from django.utils.timezone import localtime
 from django.contrib.staticfiles.storage import staticfiles_storage
 
+
 def user_icon_file_path(instance, filename):
     """Generate file path for new user icon"""
     ext = filename.split('.')[-1]
