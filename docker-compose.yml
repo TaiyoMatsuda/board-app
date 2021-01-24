@@ -41,7 +41,7 @@ services:
       - "8000"
     depends_on:
       - db
-    command: uwsgi --ini /code/app/uwsgi.ini
+    command: uwsgi --ini /code/board-app/uwsgi.ini
     tty: true
     stdin_open: true
     privileged: true
