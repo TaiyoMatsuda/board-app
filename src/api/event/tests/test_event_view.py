@@ -1,12 +1,10 @@
 import tempfile
-import os
 
 from PIL import Image
 
 from django.contrib.auth import get_user_model
 from django.urls import reverse
 from django.test import TestCase
-from django.utils import timezone
 from django.utils.timezone import make_aware
 from datetime import timedelta
 
@@ -19,13 +17,16 @@ from core.models import Event
 
 EVENT_URL = reverse('event:event-list')
 
+
 def detail_url(event_id):
     """Return event detail URL"""
     return reverse('event:event-detail', args=[event_id])
 
+
 def sample_user(**params):
     """Create and return a sample user"""
     return get_user_model().objects.create_user(**params)
+
 
 def sample_event(
     organizer,
@@ -34,8 +35,7 @@ def sample_event(
     event_time=make_aware(datetime.datetime.now()),
     address='test address',
     fee=500
-    ):
-
+):
     """Create and return a sample event"""
     default = {
         'title': title,
@@ -47,6 +47,7 @@ def sample_event(
         'fee': fee,
     }
     return Event.objects.create(**default)
+
 
 def get_event_by_json(**params):
     event = Event.objects.get(
@@ -67,6 +68,7 @@ def get_event_by_json(**params):
 
     return expected_json_dict
 
+
 class PublicParticipantApiTests(TestCase):
     """Test that publcly available participant API"""
 
@@ -79,19 +81,19 @@ class PublicParticipantApiTests(TestCase):
         self.second_event = sample_event(
             organizer=self.organizer,
             title='second event title',
-            event_time=make_aware(datetime.datetime.now() + datetime.timedelta(days=1)),
+            event_time=make_aware(
+                datetime.datetime.now() + datetime.timedelta(days=1)),
             description='second event description',
             address='second event address',
             fee='700'
         )
         self.client = APIClient()
 
-
     def test_retrieve_event_list_success(self):
         """Test retrieving event list"""
         today = datetime.date.today()
         tomorrow = today + timedelta(days=1)
-        res = self.client.get(EVENT_URL, {'start':today, 'end':tomorrow})
+        res = self.client.get(EVENT_URL, {'start': today, 'end': tomorrow})
         self.assertEqual(res.status_code, status.HTTP_200_OK)
 
         expected_json_dict_list = [
@@ -102,7 +104,7 @@ class PublicParticipantApiTests(TestCase):
                 'event_time': self.first_event.event_time,
                 'address': self.first_event.address,
                 'participant_count': 0
-            },{
+            }, {
                 'id': self.second_event.id,
                 'title': self.second_event.title,
                 'image': self.second_event.get_image_url,
@@ -112,27 +114,28 @@ class PublicParticipantApiTests(TestCase):
             }
         ]
         expected_json = {
-            "count":2,
-            "next":None,
-            "previous":None,
-            "results":expected_json_dict_list
+            "count": 2,
+            "next": None,
+            "previous": None,
+            "results": expected_json_dict_list
         }
         self.assertJSONEqual(res.content, expected_json)
 
     def test_retrieve_event_pagination_success(self):
         """Test retrieving event with pagination"""
-        count= 0
+        count = 0
         while count < 30:
             sample_event(organizer=self.organizer)
             count += 1
 
         today = datetime.date.today()
         tomorrow = today + timedelta(days=1)
-        res = self.client.get(EVENT_URL, {'start':today, 'end':tomorrow})
+        res = self.client.get(EVENT_URL, {'start': today, 'end': tomorrow})
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertEqual(len(res.data['results']), 30)
 
-        res = self.client.get(EVENT_URL, {'start':today, 'end':tomorrow, 'page':2})
+        res = self.client.get(
+            EVENT_URL, {'start': today, 'end': tomorrow, 'page': 2})
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertEqual(len(res.data['results']), 2)
 
@@ -140,11 +143,12 @@ class PublicParticipantApiTests(TestCase):
         """Test retrieving events for a day"""
         sample_event(
             organizer=self.organizer,
-            event_time=make_aware(datetime.datetime.now() + datetime.timedelta(days=2))
+            event_time=make_aware(
+                datetime.datetime.now() + datetime.timedelta(days=2))
         )
         today = datetime.date.today()
         tomorrow = today + timedelta(days=1)
-        res = self.client.get(EVENT_URL, {'start':today, 'end':tomorrow})
+        res = self.client.get(EVENT_URL, {'start': today, 'end': tomorrow})
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertEqual(len(res.data['results']), 2)
 
@@ -152,30 +156,33 @@ class PublicParticipantApiTests(TestCase):
         """Test not retrieving events by wrong query parameter name"""
         sample_event(
             organizer=self.organizer,
-            event_time=make_aware(datetime.datetime.now() + datetime.timedelta(days=2))
+            event_time=make_aware(
+                datetime.datetime.now() + datetime.timedelta(days=2))
         )
         today = datetime.date.today()
         tomorrow = today + timedelta(days=1)
-        res = self.client.get(EVENT_URL, {'test':today, 'test':tomorrow})
+        res = self.client.get(EVENT_URL, {'test1': today, 'test2': tomorrow})
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_not_retrieving_events_by_wrong_type_query_parameters(self):
         """Test not retrieving events by wrong type query parameters"""
         sample_event(
             organizer=self.organizer,
-            event_time=make_aware(datetime.datetime.now() + datetime.timedelta(days=2))
+            event_time=make_aware(
+                datetime.datetime.now() + datetime.timedelta(days=2))
         )
-        res = self.client.get(EVENT_URL, {'start':'test', 'end':'test'})
+        res = self.client.get(EVENT_URL, {'start': 'test', 'end': 'test'})
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_not_retrieving_events_by_wrong_query_parameters_number(self):
         """Test not retrieving events by wrong query parameters number"""
         sample_event(
             organizer=self.organizer,
-            event_time=make_aware(datetime.datetime.now() + datetime.timedelta(days=2))
+            event_time=make_aware(
+                datetime.datetime.now() + datetime.timedelta(days=2))
         )
         today = datetime.date.today()
-        res = self.client.get(EVENT_URL, {'start':today})
+        res = self.client.get(EVENT_URL, {'start': today})
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_retrieve_event_success(self):

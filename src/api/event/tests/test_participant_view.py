@@ -1,13 +1,7 @@
-import tempfile
-import os
-
-from PIL import Image
-
 from django.contrib.auth import get_user_model
 from django.urls import reverse
 from django.test import TestCase
-from django.utils import timezone
-from django.utils.timezone import make_aware, localtime
+from django.utils.timezone import make_aware
 import datetime
 
 from rest_framework import status
@@ -15,29 +9,34 @@ from rest_framework.test import APIClient
 
 from core.models import Event, Participant
 
+
 def listCreate_url(event_id):
     """Return create detail URL"""
     return reverse('event:listCreateParticipant', args=[event_id])
+
 
 def cancel_url(event_id):
     """Return update status URL"""
     return reverse('event:cancelParticipant', args=[event_id])
 
+
 def join_url(event_id):
     """Return update status URL"""
     return reverse('event:joinParticipant', args=[event_id])
+
 
 def sample_user(**params):
     """Create and return a sample user"""
     return get_user_model().objects.create_user(**params)
 
+
 def sample_event(user):
     """Create and return a sample event"""
     default = {
-        'title':'test title',
+        'title': 'test title',
         'description': 'test description',
         'image': None,
-        'event_time':make_aware(datetime.datetime.now())
+        'event_time': make_aware(datetime.datetime.now())
         .strftime('%Y-%m-%d %H:%M:%S'),
         'address': 'test address',
         'fee': 500,
@@ -45,6 +44,7 @@ def sample_event(user):
     }
 
     return Event.objects.create(organizer=user, **default)
+
 
 def sample_participant(event, user, **params):
     """Create and return a sample participant"""
@@ -94,7 +94,8 @@ class PublicParticipantApiTests(TestCase):
         res = self.client.get(url)
         self.assertEqual(res.status_code, status.HTTP_200_OK)
 
-        participants = Participant.objects.filter(event=self.event.id).order_by('updated_at')
+        participants = Participant.objects.filter(
+            event=self.event.id).order_by('updated_at')
         expected_json_dict_list = []
         for participant in participants:
             expected_json_dict = {
@@ -244,7 +245,6 @@ class PrivateParticipantApiTests(TestCase):
         self.participant.refresh_from_db()
 
         self.assertEqual(self.participant.status, '0')
-
 
     def test_join_participant(self):
         """Test joinning a participant"""

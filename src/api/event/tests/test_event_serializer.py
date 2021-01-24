@@ -1,18 +1,17 @@
 from django.contrib.auth import get_user_model
 from django.test import TestCase
-from django.utils import timezone
-from django.utils.timezone import make_aware, localtime
+from django.utils.timezone import make_aware
 import datetime
-
-from rest_framework import status
 
 from core.models import Event
 
 from event.serializers import CreateEventSerializer
 
+
 def sample_user(**params):
     """Create and return a sample user"""
     return get_user_model().objects.create_user(**params)
+
 
 def sample_event(user):
     """Create and return a sample comment"""
@@ -58,7 +57,7 @@ class EventSerializerApiTests(TestCase):
     def test_validatet_too_long_title(self):
         """Test validate too long title"""
         payload = {
-            'title': 'test title' * 500 ,
+            'title': 'test title' * 500,
             'description': 'test description',
             'organizer': self.organizer.id,
             'image': None,
@@ -93,7 +92,7 @@ class EventSerializerApiTests(TestCase):
         """Test validate too long description"""
         payload = {
             'title': 'test title',
-            'description': 'test description'  * 500,
+            'description': 'test description' * 500,
             'organizer': self.organizer.id,
             'image': None,
             'event_time': make_aware(datetime.datetime.now())
