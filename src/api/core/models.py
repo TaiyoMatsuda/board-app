@@ -4,7 +4,7 @@ from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
 
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, \
-                                        PermissionsMixin
+    PermissionsMixin
 from django.conf import settings
 from django.utils.translation import gettext_lazy as _
 
@@ -98,7 +98,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     def delete(self):
         """Logical delete the user"""
-        self.is_active = false
+        self.is_active = False
         self.save()
         return self
 
