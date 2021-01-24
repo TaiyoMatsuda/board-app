@@ -1,21 +1,17 @@
-import tempfile
-import os
-
-from PIL import Image
-
 from django.test import TestCase
 from django.contrib.auth import get_user_model
-from django.utils.timezone import make_aware, localtime
-import datetime
 
-from rest_framework import status
 
-from user.serializers import UserSerializer, UserEmailSerializer, UserEventsSerializer
+from user.serializers import (
+    UserSerializer, UserEmailSerializer, UserEventsSerializer
+)
 from core.models import Event
+
 
 def sample_user(**params):
     """Create and return a sample user"""
     return get_user_model().objects.create_user(**params)
+
 
 def sample_event(user):
     """Create and return a sample comment"""
@@ -30,6 +26,7 @@ def sample_event(user):
     }
 
     return Event.objects.create(**default)
+
 
 class UserSerializerApiTests(TestCase):
     """Test user serializer API"""
@@ -140,7 +137,8 @@ class UserSerializerApiTests(TestCase):
 
     def test_retrieve_user_events_successful(self):
         """Test retrieve user events successful"""
-        events = Event.objects.filter(organizer=self.organizer.id, is_active=True)
+        events = Event.objects.filter(
+            organizer=self.organizer.id, is_active=True)
         serializer = UserEventsSerializer(instance=events, many=True)
         expected_dict = {
             'id': self.event.id,
