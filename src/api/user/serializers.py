@@ -1,5 +1,4 @@
-from django.contrib.auth import get_user_model, authenticate
-from django.utils.translation import ugettext_lazy as _
+from django.contrib.auth import get_user_model
 
 from rest_framework import serializers
 
@@ -15,7 +14,7 @@ class UserSerializer(serializers.ModelSerializer):
         fields = (
             'id', 'first_name', 'family_name', 'introduction',
             'icon_url', 'is_guide', 'icon'
-            )
+        )
         extra_kwargs = {'icon': {'write_only': True}}
 
     def get_icon_url(self, user):
@@ -39,7 +38,8 @@ class UserEventsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Event
         fields = (
-            'id', 'title', 'image', 'event_time', 'address', 'participant_count'
+            'id', 'title', 'image', 'event_time', 'address',
+            'participant_count'
         )
 
     def get_image(self, event):
@@ -49,5 +49,6 @@ class UserEventsSerializer(serializers.ModelSerializer):
         return event.get_brief_event_time
 
     def get_participant_count(self, event):
-        participant = Participant.objects.filter(event_id=event.id, status= '1', is_active=True)
+        participant = Participant.objects.filter(
+            event_id=event.id, status='1', is_active=True)
         return participant.count()

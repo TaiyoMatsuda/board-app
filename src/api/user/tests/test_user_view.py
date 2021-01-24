@@ -17,28 +17,35 @@ from core.models import Event, Participant
 
 USER_URL = reverse('user:user-list')
 
+
 def detail_url(user_id):
     """Return user detail URL"""
     return reverse('user:user-detail', args=[user_id])
+
 
 def email_url(user_id):
     """Return user email URL"""
     return reverse('user:user-email', args=[user_id])
 
+
 def password_url(user_id):
     """Return user password URL"""
     return reverse('user:user-password', args=[user_id])
+
 
 def organized_event_url(user_id):
     """Return organized event URL"""
     return reverse('user:user-organizedEvents', args=[user_id])
 
+
 def joined_event_url(user_id):
     """Return join event URL"""
     return reverse('user:user-joinedEvents', args=[user_id])
 
+
 def create_user(**params):
     return get_user_model().objects.create_user(**params)
+
 
 def get_user_by_json(**params):
     user = get_user_model().objects.get(pk=params['id'])
@@ -49,9 +56,10 @@ def get_user_by_json(**params):
         'introduction': user.introduction,
         'icon_url': user.get_icon_url,
         'is_guide': user.is_guide,
-        }
+    }
 
     return expected_json_dict
+
 
 def sample_event(
     organizer,
@@ -60,8 +68,7 @@ def sample_event(
     event_time=make_aware(datetime.datetime.now()),
     address='test address',
     fee=500
-    ):
-
+):
     """Create and return a sample event"""
     default = {
         'title': title,
@@ -74,6 +81,7 @@ def sample_event(
         'status': 1,
     }
     return Event.objects.create(**default)
+
 
 def sample_participant(event, user, **params):
     """Create and return a sample participant"""
@@ -115,17 +123,17 @@ class PublicUserApiTests(TestCase):
         self.assertEqual(res.status_code, status.HTTP_200_OK)
 
         expected_json_dict = {
-            "count":1,
-            "next":None,
-            "previous":None,
-            "results":[
+            "count": 1,
+            "next": None,
+            "previous": None,
+            "results": [
                 {
                     'id': self.event.id,
                     'title': self.event.title,
                     'image': self.event.get_image_url,
                     'event_time': self.event.event_time,
                     'address': self.event.address,
-                    "participant_count":1
+                    "participant_count": 1
                 }
             ]
         }
@@ -133,7 +141,7 @@ class PublicUserApiTests(TestCase):
 
     def test_retrieve_organized_event_pagination(self):
         """Test retrieving organized events"""
-        count= 0
+        count = 0
         while count < 10:
             sample_event(organizer=self.existed_user)
             count += 1
@@ -143,7 +151,7 @@ class PublicUserApiTests(TestCase):
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertEqual(len(res.data['results']), 10)
 
-        res = self.client.get(url, {'page':2})
+        res = self.client.get(url, {'page': 2})
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertEqual(len(res.data['results']), 1)
 
@@ -154,17 +162,17 @@ class PublicUserApiTests(TestCase):
         self.assertEqual(res.status_code, status.HTTP_200_OK)
 
         expected_json_dict = {
-            "count":1,
-            "next":None,
-            "previous":None,
-            "results":[
+            "count": 1,
+            "next": None,
+            "previous": None,
+            "results": [
                 {
                     'id': self.event.id,
                     'title': self.event.title,
                     'image': self.event.get_image_url,
                     'event_time': self.event.event_time,
                     'address': self.event.address,
-                    "participant_count":1
+                    "participant_count": 1
                 }
             ]
         }
@@ -172,7 +180,7 @@ class PublicUserApiTests(TestCase):
 
     def test_retrieve_joined_event_pagination(self):
         """Test retrieving joined events"""
-        count= 0
+        count = 0
         while count < 10:
             sample_participant(
                 sample_event(organizer=self.existed_user),
@@ -185,7 +193,7 @@ class PublicUserApiTests(TestCase):
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertEqual(len(res.data['results']), 10)
 
-        res = self.client.get(url, {'page':2})
+        res = self.client.get(url, {'page': 2})
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertEqual(len(res.data['results']), 1)
 
@@ -207,6 +215,7 @@ class PublicUserApiTests(TestCase):
         url = detail_url(self.existed_user.id)
         res = self.client.delete(url)
         self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
+
 
 class PrivateUserApiTests(TestCase):
     """Test API requests that require authentication"""
@@ -272,26 +281,26 @@ class PrivateUserApiTests(TestCase):
     def test_update_email_bad_request(self):
         """Test updating email with wrong method"""
         url = detail_url(self.user.id)
-        res = self.client.patch(url, {'email':'badrequest'})
+        res = self.client.patch(url, {'email': 'badrequest'})
 
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_update_password_bad_request(self):
         """Test updating password with wrong method"""
         url = detail_url(self.user.id)
-        res = self.client.patch(url, {'password':'badrequest'})
+        res = self.client.patch(url, {'password': 'badrequest'})
 
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_upload_image_bad_request(self):
         """Test uploading an invalid image"""
         url = detail_url(self.user.id)
-        res = self.client.patch(url, {'icon':'notimage'}, format='multipart')
+        res = self.client.patch(url, {'icon': 'notimage'}, format='multipart')
 
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
 
-    def test_delete_event_by_another_user(self):
-        """Test false logically deleting the user by another user"""
+    def test_delete_user_successful(self):
+        """Test logically deleting the user"""
         url = detail_url(self.user.id)
         res = self.client.delete(url)
         self.assertEqual(res.status_code, status.HTTP_204_NO_CONTENT)
@@ -312,7 +321,7 @@ class PrivateUserApiTests(TestCase):
 
         self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
 
-    def test_delete_event_by_another_user(self):
+    def test_delete_user_by_another_user(self):
         """Test false logically deleting the user by another user"""
         url = detail_url(self.another_user.id)
         res = self.client.delete(url)

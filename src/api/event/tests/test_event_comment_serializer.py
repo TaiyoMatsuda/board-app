@@ -17,7 +17,7 @@ def sample_user(**params):
 def sample_event(user):
     """Create and return a sample event"""
     default = {
-        'title':'test title',
+        'title': 'test title',
         'description': 'test description',
         'image': None,
         'event_time': make_aware(datetime.datetime.now())

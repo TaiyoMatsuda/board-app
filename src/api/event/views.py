@@ -34,7 +34,7 @@ class ListCreateParticipantView(generics.ListCreateAPIView):
     serializer_class = serializers.ListCreateParticipantSerializer
 
     def get_queryset(self):
-        return Participant.objects.filter(event=self.kwargs['pk'],status='1',is_active=True).order_by('updated_at')
+        return Participant.objects.filter(event=self.kwargs['pk'], status='1', is_active=True).order_by('updated_at')
 
     def post(self, request, *args, **kwargs):
         """Create a new participant in the system"""
@@ -42,7 +42,7 @@ class ListCreateParticipantView(generics.ListCreateAPIView):
         if not event.is_active:
             return Response(status=status.HTTP_404_NOT_FOUND)
 
-        if event.status == '0' or event.status  == '2':
+        if event.status == '0' or event.status == '2':
             return Response(status=status.HTTP_403_FORBIDDEN)
 
         data = {
@@ -62,7 +62,8 @@ class UpdateParticipantView(generics.UpdateAPIView):
     serializer_class = serializers.UpdateParticipantSerializer
 
     def patch(self, request, *args, **kwargs):
-        participant = get_object_or_404(self.queryset, event=kwargs['pk'], user=request.user.id)
+        participant = get_object_or_404(
+            self.queryset, event=kwargs['pk'], user=request.user.id)
 
         data = {}
         url = self.request.path
@@ -73,7 +74,8 @@ class UpdateParticipantView(generics.UpdateAPIView):
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-        serializer = serializers.UpdateParticipantSerializer(instance=participant, data=data, partial=True)
+        serializer = serializers.UpdateParticipantSerializer(
+            instance=participant, data=data, partial=True)
         if not serializer.is_valid():
             Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -82,9 +84,9 @@ class UpdateParticipantView(generics.UpdateAPIView):
 
 
 class EventCommentView(generics.GenericAPIView,
-                          mixins.ListModelMixin,
-                          mixins.CreateModelMixin,
-                          mixins.DestroyModelMixin
+                       mixins.ListModelMixin,
+                       mixins.CreateModelMixin,
+                       mixins.DestroyModelMixin
                        ):
     """Manage event comment in the database"""
     pagination_class = EventCommentListSetPagination
@@ -101,7 +103,8 @@ class EventCommentView(generics.GenericAPIView,
         return [permission() for permission in permission_classes]
 
     def get_object(self):
-        obj = get_object_or_404(self.get_queryset(), pk=self.kwargs["comment_id"])
+        obj = get_object_or_404(self.get_queryset(),
+                                pk=self.kwargs["comment_id"])
         self.check_object_permissions(self.request, obj)
         return obj
 
@@ -139,7 +142,7 @@ class EventViewSet(viewsets.ModelViewSet):
             start = self.request.query_params['start'] + ' 00:00:00'
             end = self.request.query_params['end'] + ' 23:59:59'
             return Event.objects.filter(is_active=True,
-                                        event_time__range=(start,end))
+                                        event_time__range=(start, end))
 
         return Event.objects.filter(is_active=True)
 
@@ -191,7 +194,7 @@ class EventViewSet(viewsets.ModelViewSet):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def create(self, request):
-        if request.data['organizer'] != str(self.request.user.id) :
+        if request.data['organizer'] != str(self.request.user.id):
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
         serializer = self.get_serializer(data=request.data)
@@ -206,7 +209,7 @@ class EventViewSet(viewsets.ModelViewSet):
 
     def partial_update(self, request, pk=None):
         event = self.get_object()
-        if event.organizer.id != self.request.user.id :
+        if event.organizer.id != self.request.user.id:
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
         serializer = self.get_serializer(instance=event, data=request.data)
