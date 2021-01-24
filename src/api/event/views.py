@@ -1,7 +1,5 @@
-from rest_framework.decorators import api_view, permission_classes, action
 from rest_framework.response import Response
-from rest_framework import views, generics, viewsets, mixins, status
-from rest_framework.authentication import TokenAuthentication
+from rest_framework import generics, viewsets, mixins, status
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.pagination import PageNumberPagination
 from django.shortcuts import get_object_or_404
@@ -9,7 +7,9 @@ from django.shortcuts import get_object_or_404
 import datetime
 
 from core.models import EventComment, Participant, Event
-from core.permissions import IsEventAttributeOwnerOnly, IsEventOwnerOnly, IsGuideOnly, IsValidEvent
+from core.permissions import (
+    IsEventAttributeOwnerOnly, IsEventOwnerOnly, IsGuideOnly, IsValidEvent
+)
 
 from event import serializers
 
@@ -34,7 +34,9 @@ class ListCreateParticipantView(generics.ListCreateAPIView):
     serializer_class = serializers.ListCreateParticipantSerializer
 
     def get_queryset(self):
-        return Participant.objects.filter(event=self.kwargs['pk'], status='1', is_active=True).order_by('updated_at')
+        return Participant.objects.filter(
+            event=self.kwargs['pk'], status='1', is_active=True
+        ).order_by('updated_at')
 
     def post(self, request, *args, **kwargs):
         """Create a new participant in the system"""
@@ -72,7 +74,7 @@ class UpdateParticipantView(generics.UpdateAPIView):
         elif 'cancel' in url:
             data['status'] = 0
         else:
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            return Response(status=status.HTTP_400_BAD_REQUEST)
 
         serializer = serializers.UpdateParticipantSerializer(
             instance=participant, data=data, partial=True)
@@ -97,10 +99,10 @@ class EventCommentView(generics.GenericAPIView,
     def get_permissions(self):
         """Return appropriate permission class"""
         if self.request.method == 'GET' or self.request.method == 'POST':
-            permission_classes = [IsAuthenticatedOrReadOnly, IsValidEvent]
+            permission_class_list = [IsAuthenticatedOrReadOnly, IsValidEvent]
         else:
-            permission_classes = [IsEventAttributeOwnerOnly]
-        return [permission() for permission in permission_classes]
+            permission_class_list = [IsEventAttributeOwnerOnly]
+        return [permission() for permission in permission_class_list]
 
     def get_object(self):
         obj = get_object_or_404(self.get_queryset(),
@@ -158,16 +160,17 @@ class EventViewSet(viewsets.ModelViewSet):
 
     def get_permissions(self):
         """
-        Instantiates and returns the list of permissions that this view requires.
+        Instantiates and returns the list of permissions that
+        this view requires.
         """
         if self.action == 'list' or self.action == 'retrieve':
-            permission_classes = [IsAuthenticatedOrReadOnly]
+            permission_class_list = [IsAuthenticatedOrReadOnly]
         elif self.action == 'create':
-            permission_classes = [IsAuthenticatedOrReadOnly, IsGuideOnly]
+            permission_class_list = [IsAuthenticatedOrReadOnly, IsGuideOnly]
         else:
-            permission_classes = [IsEventOwnerOnly]
+            permission_class_list = [IsEventOwnerOnly]
 
-        return [permission() for permission in permission_classes]
+        return [permission() for permission in permission_class_list]
 
     def get_object(self):
         obj = get_object_or_404(self.get_queryset(), pk=self.kwargs["pk"])
