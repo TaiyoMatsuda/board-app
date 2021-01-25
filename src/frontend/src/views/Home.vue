@@ -1,11 +1,11 @@
 <template>
   <div class="home">
+    <router-link to="/create_update_event">create</router-link>
     <EventList />
   </div>
 </template>
 
 <script>
-// @ is an alias to /src
 import EventList from '@/components/EventList.vue'
 
 export default {
