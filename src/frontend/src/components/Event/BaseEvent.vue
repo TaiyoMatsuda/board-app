@@ -1,18 +1,18 @@
 <template>
   <div>
     <p>{{this.$route.query.id}}</p>
-    <p>{{ events.id }}</p>
-    <p>{{ events.title }}</p>
-    <p>{{ events.description }}</p>
-    <p>{{ events.organizer }}</p>
-    <p>{{ events.organizer_first_name }}</p>
-    <p>{{ events.organizer_icon }}</p>
-    <p>{{ events.image }}</p>
-    <p>{{ events.event_time }}</p>
-    <p>{{ events.address }}</p>
-    <p>{{ events.fee }}</p>
-    <p>{{ events.status }}</p>
-    <p>{{ events.brief_updated_at }}</p>
+    <p>イベントID：{{ events.id }}</p>
+    <p>タイトル：{{ events.title }}</p>
+    <p>イベント紹介：{{ events.description }}</p>
+    <p>主催者ID：{{ events.organizer }}</p>
+    <p>主催者名：{{ events.organizer_first_name }}</p>
+    <p>主催者アイコン：{{ events.organizer_icon }}</p>
+    <p>イベントイメージ：{{ events.image }}</p>
+    <p>イベント時間：{{ events.event_time }}</p>
+    <p>イベント場所：{{ events.address }}</p>
+    <p>料金：{{ events.fee }}</p>
+    <p>ステータス：{{ events.status }}</p>
+    <p>更新時間：{{ events.brief_updated_at }}</p>
   </div>
 </template>
 
