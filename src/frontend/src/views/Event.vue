@@ -1,17 +1,20 @@
 <template>
   <div class="event">
     <h1>This is an event page</h1>
-    <Eventa />
+    <BaseEvent />
+    <ParticipantList />
   </div>
 </template>
 
 <script>
-import Eventa from '@/components/Event.vue'
+import BaseEvent from '@/components/Event/BaseEvent.vue'
+import ParticipantList from '@/components/Participant/ParticipantList.vue'
 
 export default {
   name: 'Event',
   components: {
-    Eventa
+    BaseEvent,
+    ParticipantList
   }
 }
 </script>

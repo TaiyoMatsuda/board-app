@@ -7,7 +7,7 @@
 
 <script>
 export default {
-  name: 'Eventa',
+  name: 'BaseEvent',
   data() {
     return {
       events: []
