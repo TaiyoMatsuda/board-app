@@ -7,6 +7,8 @@
         <p>{{ participant.name }}</p>
       <hr>
     </div>
+    <button v-on:click="showAll">all</button>
+    <p>{{ tmpMsg }}</p>
   </div>
 </template>
 
@@ -15,14 +17,20 @@ export default {
   name: 'ParticipantList',
   data() {
     return {
-      participants: []
+      participants: [],
+      tmpMsg: ""
     };
   },
-  mounted :function(){
+  mounted :function() {
     this.axios
       .get('https://jsonplaceholder.typicode.com/users')
       .then(response => {this.participants = response.data})
       .catch(error => console.log(error))
+  },
+  methods: {
+    showAll: function (){
+      this.tmpMsg = "全参加者を見せます"
+    }
   }
 }
 </script>
