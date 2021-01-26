@@ -12,15 +12,15 @@ const routes = [
     component: Home
   },
   {
-    path: '/create_event',
-    name: 'CreateEvent',
+    path: '/create_update_event',
+    name: 'CreateUpdateEvent',
     // route level code-splitting
     // this generates a separate chunk (about.[hash].js) for this route
     // which is lazy-loaded when the route is visited.
-    component: () => import(/* webpackChunkName: "create event" */ '../views/CreateEvent.vue')
+    component: () => import(/* webpackChunkName: "create event" */ '../views/CreateUpdateEvent.vue')
   },
   {
-    path: '/event/:eventId',
+    path: '/event',
     name: 'Event',
     component: Event
   }

@@ -4,7 +4,7 @@
     <div v-for="(event, key) in events" :key="key">
       <hr>
         <p>{{ event.name }}</p>
-        <router-link :to="{ name: 'Event', params: { eventId: event.id}}">
+        <router-link :to="{ name: 'Event', query: { id: event.id}}">
           more
         </router-link>
       <hr>
