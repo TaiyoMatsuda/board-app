@@ -5,6 +5,8 @@ import User from '../views/User.vue'
 import UpdateUser from '../views/UpdateUser.vue'
 import Event from '../views/Event.vue'
 import CreateUpdateEvent from '../views/CreateUpdateEvent.vue'
+import Login from '../views/Login.vue'
+import Logout from '../views/Logout.vue'
 
 Vue.use(VueRouter)
 

@@ -2,8 +2,8 @@
   <div id="app">
     <div id="nav">
       <router-link to="/">Home</router-link>|
-      <router-link :to="{ name: 'User', query: { id: 1}}">profile</router-link>
-      <router-link to="/login'">log in</router-link>|
+      <router-link :to="{ name: 'User', query: { id: 1}}">profile</router-link>|
+      <router-link to="/login">log in</router-link>|
       <router-link to="/logout">log out</router-link>|
     </div>
     <router-view/>
