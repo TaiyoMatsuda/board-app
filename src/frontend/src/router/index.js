@@ -1,9 +1,10 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
 import Home from '../views/Home.vue'
-import Event from '../views/Event.vue'
 import User from '../views/User.vue'
 import UpdateUser from '../views/UpdateUser.vue'
+import Event from '../views/Event.vue'
+import CreateUpdateEvent from '../views/CreateUpdateEvent.vue'
 
 Vue.use(VueRouter)
 
@@ -31,15 +32,22 @@ const routes = [
   {
     path: '/create_update_event',
     name: 'CreateUpdateEvent',
-    // route level code-splitting
-    // this generates a separate chunk (about.[hash].js) for this route
-    // which is lazy-loaded when the route is visited.
-    component: () => import(/* webpackChunkName: "create event" */ '../views/CreateUpdateEvent.vue')
+    component: CreateUpdateEvent
   },
   {
     path: '/event',
     name: 'Event',
     component: Event
+  },
+  {
+    path: '/login',
+    name: 'Login',
+    component: Login
+  },
+  {
+    path: '/logout',
+    name: 'Logout',
+    component: Logout
   }
 ]
 
