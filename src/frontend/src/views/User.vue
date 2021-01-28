@@ -1,6 +1,7 @@
 <template>
   <div class="user">
     <h1>This is user page</h1>
+    <p>{{this.$route.query.id}}</p>
     <router-link :to="{ name: 'UpdateUser', query: { id: user.id}}">
       edit
     </router-link>
