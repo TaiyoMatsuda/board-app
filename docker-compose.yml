@@ -33,7 +33,9 @@ services:
     privileged: true
 
   api:
-    build: .
+    build: 
+      context: .
+      dockerfile: ./docker/api/Dockerfile
     volumes:
       - ./src/api:/code
       - ./static:/static
@@ -42,6 +44,16 @@ services:
     depends_on:
       - db
     command: uwsgi --ini /code/board-app/uwsgi.ini
+    tty: true
+    stdin_open: true
+    privileged: true
+
+  frontend:
+    build:
+      context: .
+      dockerfile: ./docker/frontend/Dockerfile
+    ports:
+      - "8080:8080"
     tty: true
     stdin_open: true
     privileged: true
