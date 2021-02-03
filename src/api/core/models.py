@@ -27,6 +27,20 @@ def event_image_file_path(instance, filename):
     return os.path.join('uploads/event/', filename)
 
 
+class BaseModel(models.Model):
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        abstract = True
+
+    def delete(self):
+        """Logical delete the user"""
+        self.is_active = False
+        self.save()
+        return self
+
 class UserManager(BaseUserManager):
     use_in_migrations = True
 
@@ -58,7 +72,7 @@ class UserManager(BaseUserManager):
         return self._create_user(email, password, **extra_fields)
 
 
-class User(AbstractBaseUser, PermissionsMixin):
+class User(AbstractBaseUser, PermissionsMixin, BaseModel):
     """Custom user model that suppors using email instead of username"""
 
     email = models.EmailField(_('email address'), unique=True)
@@ -73,8 +87,6 @@ class User(AbstractBaseUser, PermissionsMixin):
         blank=True,
         upload_to=user_icon_file_path
     )
-    created_at = models.DateTimeField(_('created_at'), default=timezone.now)
-    updated_at = models.DateTimeField(_('update_at'), auto_now=True)
 
     objects = UserManager()
 
@@ -118,14 +130,8 @@ class User(AbstractBaseUser, PermissionsMixin):
         else:
             return staticfiles_storage.url(self.DEFAULT_ICON_PATH)
 
-    def delete(self):
-        """Logical delete the user"""
-        self.is_active = False
-        self.save()
-        return self
 
-
-class Event(models.Model):
+class Event(BaseModel):
     """Event object"""
     class Meta:
         db_table = 't_event'
@@ -159,8 +165,6 @@ class Event(models.Model):
                     MaxValueValidator(100000)]
     )
     status = models.CharField(max_length=10, choices=STATUS, default='0')
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
     is_active = models.BooleanField(default=True)
 
     DEFAULT_IMAGE_PATH = "/images/no_event_image.png"
@@ -185,14 +189,8 @@ class Event(models.Model):
         """Return the update time except millisecond"""
         return localtime(self.updated_at).strftime('%Y-%m-%d %H:%M:%S')
 
-    def delete(self):
-        """Logical delete the user"""
-        self.is_active = False
-        self.save()
-        return self
 
-
-class EventComment(models.Model):
+class EventComment(BaseModel):
     """EventComment to be used for an Event"""
     class Meta:
         db_table = 't_event_comment'
@@ -209,8 +207,6 @@ class EventComment(models.Model):
         on_delete=models.CASCADE,
     )
     comment = models.TextField(max_length=500)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
     is_active = models.BooleanField(default=True)
 
     def __str__(self):
@@ -221,14 +217,8 @@ class EventComment(models.Model):
         """Return the update time except millisecond"""
         return localtime(self.updated_at).strftime('%Y-%m-%d %H:%M:%S')
 
-    def delete(self):
-        """Logical delete the user"""
-        self.is_active = False
-        self.save()
-        return self
 
-
-class Participant(models.Model):
+class Participant(BaseModel):
     """Participant to be used for an Event"""
     class Meta:
         db_table = 't_participant'
@@ -251,14 +241,7 @@ class Participant(models.Model):
         on_delete=models.CASCADE
     )
     status = models.CharField(max_length=10, choices=STATUS, default='1')
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
     is_active = models.BooleanField(default=True)
 
     def __str__(self):
         return self.user.short_name
-
-    def delete(self):
-        self.is_active = False
-        self.save()
-        return self
