@@ -79,8 +79,8 @@ class UpdateEventSerializer(serializers.ModelSerializer):
 
 class RetrieveEventSerializer(serializers.ModelSerializer):
     """Serialize for Event object"""
-    organizer_first_name = serializers.ReadOnlyField(
-        source="organizer.first_name")
+    organizer_full_name = serializers.ReadOnlyField(
+        source="organizer.get_full_name")
     organizer_icon = serializers.SerializerMethodField()
     image = serializers.SerializerMethodField()
     event_time = serializers.SerializerMethodField()
@@ -89,7 +89,7 @@ class RetrieveEventSerializer(serializers.ModelSerializer):
     class Meta:
         model = Event
         fields = (
-            'id', 'title', 'description', 'organizer', 'organizer_first_name',
+            'id', 'title', 'description', 'organizer', 'organizer_full_name',
             'organizer_icon', 'image', 'event_time', 'address', 'fee',
             'status', 'brief_updated_at'
         )
