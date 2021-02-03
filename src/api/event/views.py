@@ -1,16 +1,14 @@
-from rest_framework.response import Response
-from rest_framework import generics, viewsets, mixins, status
-from rest_framework.permissions import IsAuthenticatedOrReadOnly
-from rest_framework.pagination import PageNumberPagination
-from django.shortcuts import get_object_or_404
-
 import datetime
 
-from core.models import EventComment, Participant, Event
-from core.permissions import (
-    IsEventAttributeOwnerOnly, IsEventOwnerOnly, IsGuideOnly, IsValidEvent
-)
+from django.shortcuts import get_object_or_404
+from rest_framework import generics, mixins, status, viewsets
+from rest_framework.pagination import PageNumberPagination
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
+from rest_framework.response import Response
 
+from core.models import Event, EventComment, Participant
+from core.permissions import (IsEventAttributeOwnerOnly, IsEventOwnerOnly,
+                              IsGuideOnly, IsValidEvent)
 from event import serializers
 
 

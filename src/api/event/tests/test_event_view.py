@@ -1,15 +1,12 @@
+import datetime
 import tempfile
-
-from PIL import Image
-
-from django.contrib.auth import get_user_model
-from django.urls import reverse
-from django.test import TestCase
-from django.utils.timezone import make_aware
 from datetime import timedelta
 
-import datetime
-
+from django.contrib.auth import get_user_model
+from django.test import TestCase
+from django.urls import reverse
+from django.utils.timezone import make_aware
+from PIL import Image
 from rest_framework import status
 from rest_framework.test import APIClient
 

@@ -1,16 +1,15 @@
-import uuid
 import os
-from django.db import models
-from django.core.validators import MinValueValidator, MaxValueValidator
+import uuid
 
-from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, \
-    PermissionsMixin
 from django.conf import settings
-from django.utils.translation import gettext_lazy as _
-
+from django.contrib.auth.models import (AbstractBaseUser, BaseUserManager,
+                                        PermissionsMixin)
+from django.contrib.staticfiles.storage import staticfiles_storage
+from django.core.validators import MaxValueValidator, MinValueValidator
+from django.db import models
 from django.utils import timezone
 from django.utils.timezone import localtime
-from django.contrib.staticfiles.storage import staticfiles_storage
+from django.utils.translation import gettext_lazy as _
 
 
 def user_icon_file_path(instance, filename):
@@ -28,10 +27,10 @@ def event_image_file_path(instance, filename):
 
 
 class BaseModel(models.Model):
-    
+    "Base Model"
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    
+
     class Meta:
         abstract = True
 
@@ -40,6 +39,7 @@ class BaseModel(models.Model):
         self.is_active = False
         self.save()
         return self
+
 
 class UserManager(BaseUserManager):
     use_in_migrations = True

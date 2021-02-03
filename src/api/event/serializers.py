@@ -1,7 +1,7 @@
-from rest_framework import serializers
 from django.contrib.auth import get_user_model
+from rest_framework import serializers
 
-from core.models import EventComment, Participant, Event
+from core.models import Event, EventComment, Participant
 
 
 class ListCreateEventCommentSerializer(serializers.ModelSerializer):

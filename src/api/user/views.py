@@ -1,12 +1,11 @@
-from rest_framework import viewsets, mixins, status
-from rest_framework.decorators import action
-from rest_framework.response import Response
-from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly
 from django.shortcuts import get_object_or_404
+from rest_framework import mixins, status, viewsets
+from rest_framework.decorators import action
+from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly
+from rest_framework.response import Response
 
-from core.models import User, Event, Participant
+from core.models import Event, Participant, User
 from core.permissions import IsUserOwnerOnly
-
 from user import serializers
 
 

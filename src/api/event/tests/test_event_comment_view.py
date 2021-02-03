@@ -1,9 +1,9 @@
-from django.contrib.auth import get_user_model
-from django.urls import reverse
-from django.test import TestCase
-from django.utils.timezone import make_aware, localtime
 import datetime
 
+from django.contrib.auth import get_user_model
+from django.test import TestCase
+from django.urls import reverse
+from django.utils.timezone import localtime, make_aware
 from rest_framework import status
 from rest_framework.test import APIClient
 
