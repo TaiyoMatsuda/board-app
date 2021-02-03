@@ -3,7 +3,7 @@ from django.contrib.auth import get_user_model
 
 
 from user.serializers import (
-    UpdateUserSerializer, UserSerializer, UserShortNameSerializer, 
+    UserSerializer, ShowUserSerializer, UserShortNameSerializer, 
     UserEmailSerializer, UserEventsSerializer
 )
 from core.models import Event
@@ -48,7 +48,7 @@ class UserSerializerApiTests(TestCase):
 
     def test_retrieve_user_for_update(self):
         """Test retrieve user fields for update"""
-        serializer = UpdateUserSerializer(instance=self.organizer)
+        serializer = UserSerializer(instance=self.organizer)
         expected_dict = {
             'id': self.organizer.id,
             'first_name': self.organizer.first_name,
@@ -61,7 +61,7 @@ class UserSerializerApiTests(TestCase):
 
     def test_retrieve_user_successful(self):
         """Test retrieve user fields successful"""
-        serializer = UserSerializer(instance=self.organizer)
+        serializer = ShowUserSerializer(instance=self.organizer)
         expected_dict = {
             'id': self.organizer.id,
             'short_name': self.organizer.first_name,
@@ -96,7 +96,7 @@ class UserSerializerApiTests(TestCase):
     def test_update_user_successful(self):
         """Test update user fields successful"""
         data = {'is_guide': False}
-        serializer = UpdateUserSerializer(instance=self.organizer, data=data)
+        serializer = UserSerializer(instance=self.organizer, data=data)
         self.assertTrue(serializer.is_valid())
 
         serializer.save()
@@ -106,7 +106,7 @@ class UserSerializerApiTests(TestCase):
         """Test retrieve user fields successful"""
         long_first_name = "long_first_name " * 500
         data = {'first_name': long_first_name}
-        serializer = UpdateUserSerializer(instance=self.organizer, data=data)
+        serializer = UserSerializer(instance=self.organizer, data=data)
         self.assertFalse(serializer.is_valid())
         self.assertCountEqual(serializer.errors.keys(), ['first_name'])
 
@@ -114,7 +114,7 @@ class UserSerializerApiTests(TestCase):
         """Test retrieve user fields successful"""
         long_family_name = "long_family_name " * 500
         data = {'family_name': long_family_name}
-        serializer = UpdateUserSerializer(instance=self.organizer, data=data)
+        serializer = UserSerializer(instance=self.organizer, data=data)
         self.assertFalse(serializer.is_valid())
         self.assertCountEqual(serializer.errors.keys(), ['family_name'])
 
@@ -122,28 +122,28 @@ class UserSerializerApiTests(TestCase):
         """Test retrieve user fields successful"""
         long_introduction = "logn_introduction " * 500
         data = {'introduction': long_introduction}
-        serializer = UpdateUserSerializer(instance=self.organizer, data=data)
+        serializer = UserSerializer(instance=self.organizer, data=data)
         self.assertFalse(serializer.is_valid())
         self.assertCountEqual(serializer.errors.keys(), ['introduction'])
 
     def test_not_updating_user_icon_validate(self):
         """Test retrieve user fields successful"""
         data = {'icon': 1}
-        serializer = UpdateUserSerializer(instance=self.organizer, data=data)
+        serializer = UserSerializer(instance=self.organizer, data=data)
         self.assertFalse(serializer.is_valid())
         self.assertCountEqual(serializer.errors.keys(), ['icon'])
 
     def test_not_updating_is_guide_with_not_boolean(self):
         """Test updating is_guide with not boolean"""
         data = {'is_guide': 'test'}
-        serializer = UpdateUserSerializer(instance=self.organizer, data=data)
+        serializer = UserSerializer(instance=self.organizer, data=data)
         self.assertFalse(serializer.is_valid())
         self.assertCountEqual(serializer.errors.keys(), ['is_guide'])
 
     def test_updating_other_field_with_userserialize(self):
         """Test not updating other fields"""
         data = {'email': 'organizer_changed@matsuda.com'}
-        serializer = UpdateUserSerializer(instance=self.organizer, data=data)
+        serializer = UserSerializer(instance=self.organizer, data=data)
         self.assertTrue(serializer.is_valid())
         serializer.save()
         self.assertEqual(self.organizer.email, self.email)

@@ -31,8 +31,8 @@ class UserViewSet(viewsets.GenericViewSet,
         return [permission() for permission in permission_classes]
 
     def get_serializer_class(self):
-        if self.action == 'confirm' or self.action == 'partial_update':
-            return serializers.UpdateUserSerializer
+        if self.action == 'read':
+            return serializers.ShowUserSerializer
         elif self.action == 'shortname':
             return serializers.UserShortNameSerializer
         elif self.action == 'email':
@@ -47,7 +47,7 @@ class UserViewSet(viewsets.GenericViewSet,
         return obj
 
     @action(methods=['get'], detail=True)
-    def confirm(self, request, pk=None):
+    def read(self, request, pk=None):
         user = self.get_object()
         serializer = self.get_serializer(instance=user)
         return Response(serializer.data, status=status.HTTP_200_OK)

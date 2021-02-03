@@ -23,9 +23,9 @@ def detail_url(user_id):
     return reverse('user:user-detail', args=[user_id])
 
 
-def confirm_detail_url(user_id):
+def show_user_url(user_id):
     """Return user detail for confirm URL"""
-    return reverse('user:user-confirm', args=[user_id])
+    return reverse('user:user-read', args=[user_id])
 
 
 def short_name_url(user_id):
@@ -105,7 +105,7 @@ class PublicUserApiTests(TestCase):
 
     def test_retrieve_designated_user(self):
         """Test retrieving a user"""
-        url = detail_url(self.existed_user.id)
+        url = show_user_url(self.existed_user.id)
         
         res = self.client.get(url)
         self.assertEqual(res.status_code, status.HTTP_200_OK)
@@ -122,7 +122,7 @@ class PublicUserApiTests(TestCase):
 
     def test_retrieve_designated_user_for_update(self):
         """Test retrieving a user for update"""
-        url = confirm_detail_url(self.existed_user.id)
+        url = detail_url(self.existed_user.id)
         res = self.client.get(url)
         self.assertEqual(res.status_code, status.HTTP_200_OK)
 

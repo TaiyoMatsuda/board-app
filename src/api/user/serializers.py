@@ -5,7 +5,7 @@ from rest_framework import serializers
 from core.models import Participant, Event
 
 
-class UpdateUserSerializer(serializers.ModelSerializer):
+class UserSerializer(serializers.ModelSerializer):
     """Serializer for the users object"""
     icon_url = serializers.SerializerMethodField()
 
@@ -20,7 +20,7 @@ class UpdateUserSerializer(serializers.ModelSerializer):
     def get_icon_url(self, user):
         return user.get_icon_url
 
-class UserSerializer(serializers.ModelSerializer):
+class ShowUserSerializer(serializers.ModelSerializer):
     """Serializer for the users object"""
     short_name = serializers.SerializerMethodField()
     icon_url = serializers.SerializerMethodField()
