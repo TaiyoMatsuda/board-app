@@ -28,7 +28,10 @@ def event_image_file_path(instance, filename):
 
 
 class BaseModel(models.Model):
-
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
     class Meta:
         abstract = True
 
@@ -84,8 +87,6 @@ class User(AbstractBaseUser, PermissionsMixin, BaseModel):
         blank=True,
         upload_to=user_icon_file_path
     )
-    created_at = models.DateTimeField(_('created_at'), default=timezone.now)
-    updated_at = models.DateTimeField(_('update_at'), auto_now=True)
 
     objects = UserManager()
 
@@ -164,8 +165,6 @@ class Event(BaseModel):
                     MaxValueValidator(100000)]
     )
     status = models.CharField(max_length=10, choices=STATUS, default='0')
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
     is_active = models.BooleanField(default=True)
 
     DEFAULT_IMAGE_PATH = "/images/no_event_image.png"
@@ -208,8 +207,6 @@ class EventComment(BaseModel):
         on_delete=models.CASCADE,
     )
     comment = models.TextField(max_length=500)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
     is_active = models.BooleanField(default=True)
 
     def __str__(self):
@@ -244,8 +241,6 @@ class Participant(BaseModel):
         on_delete=models.CASCADE
     )
     status = models.CharField(max_length=10, choices=STATUS, default='1')
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
     is_active = models.BooleanField(default=True)
 
     def __str__(self):
