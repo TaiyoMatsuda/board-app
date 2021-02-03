@@ -92,7 +92,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     @property
     def get_icon_url(self):
-        if self.icon and hasattr(self.icon, 'url'):
+        if self.icon:
             return self.icon.url
         else:
             return staticfiles_storage.url(self.DEFAULT_ICON_PATH)
@@ -149,7 +149,7 @@ class Event(models.Model):
 
     @property
     def get_image_url(self):
-        if self.image and hasattr(self.image, 'url'):
+        if self.image:
             return self.image.url
         else:
             return staticfiles_storage.url(self.DEFAULT_IMAGE_PATH)
