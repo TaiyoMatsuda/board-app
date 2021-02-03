@@ -206,7 +206,7 @@ class PublicParticipantApiTests(TestCase):
             'address': event.address,
             'fee': event.fee,
             'status': event.status,
-            'brief_updated_at': event.get_brief_updated_at
+            'brief_updated_at': event.brief_updated_at
         }
         self.assertJSONEqual(res.content, expected_json_dict)
 

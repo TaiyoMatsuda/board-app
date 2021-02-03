@@ -105,7 +105,7 @@ class RetrieveEventSerializer(serializers.ModelSerializer):
         return event.brief_event_time
 
     def get_brief_updated_at(sefl, event):
-        return event.get_brief_updated_at
+        return event.brief_updated_at
 
 
 class BriefEventSerializer(serializers.ModelSerializer):

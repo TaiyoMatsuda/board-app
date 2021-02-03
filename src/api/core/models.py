@@ -181,7 +181,7 @@ class Event(models.Model):
         return localtime(self.event_time).strftime('%Y-%m-%d %H:%M:%S')
 
     @property
-    def get_brief_updated_at(self):
+    def brief_updated_at(self):
         """Return the update time except millisecond"""
         return localtime(self.updated_at).strftime('%Y-%m-%d %H:%M:%S')
 
