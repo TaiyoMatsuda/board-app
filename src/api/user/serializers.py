@@ -20,9 +20,39 @@ class UserSerializer(serializers.ModelSerializer):
     def get_icon_url(self, user):
         return user.get_icon_url
 
+class ShowUserSerializer(serializers.ModelSerializer):
+    """Serializer for the users object"""
+    short_name = serializers.SerializerMethodField()
+    icon_url = serializers.SerializerMethodField()
+
+    class Meta:
+        model = get_user_model()
+        fields = (
+            'id', 'short_name', 'introduction',
+            'icon_url', 'is_guide'
+        )
+
+    def get_short_name(self, user):
+        return user.get_short_name
+
+    def get_icon_url(self, user):
+        return user.get_icon_url
+
+
+class UserShortNameSerializer(serializers.ModelSerializer):
+    """Serializer for a user short name object"""
+    short_name = serializers.SerializerMethodField()
+
+    class Meta:
+        model = get_user_model()
+        fields = ('short_name',)
+
+    def get_short_name(self, user):
+        return user.get_short_name
+
 
 class UserEmailSerializer(serializers.ModelSerializer):
-    """Serializer for the user email object"""
+    """Serializer for a user email object"""
 
     class Meta:
         model = get_user_model()

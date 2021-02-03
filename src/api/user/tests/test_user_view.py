@@ -23,6 +23,16 @@ def detail_url(user_id):
     return reverse('user:user-detail', args=[user_id])
 
 
+def show_user_url(user_id):
+    """Return user detail for confirm URL"""
+    return reverse('user:user-read', args=[user_id])
+
+
+def short_name_url(user_id):
+    """Return user short name URL"""
+    return reverse('user:user-shortname', args=[user_id])
+
+
 def email_url(user_id):
     """Return user email URL"""
     return reverse('user:user-email', args=[user_id])
@@ -45,20 +55,6 @@ def joined_event_url(user_id):
 
 def create_user(**params):
     return get_user_model().objects.create_user(**params)
-
-
-def get_user_by_json(**params):
-    user = get_user_model().objects.get(pk=params['id'])
-    expected_json_dict = {
-        'id': user.id,
-        'first_name': user.first_name,
-        'family_name': user.family_name,
-        'introduction': user.introduction,
-        'icon_url': user.get_icon_url,
-        'is_guide': user.is_guide,
-    }
-
-    return expected_json_dict
 
 
 def sample_event(
@@ -109,11 +105,36 @@ class PublicUserApiTests(TestCase):
 
     def test_retrieve_designated_user(self):
         """Test retrieving a user"""
+        url = show_user_url(self.existed_user.id)
+        
+        res = self.client.get(url)
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+
+        user = get_user_model().objects.get(pk=res.data['id'])
+        expected_json_dict = {
+            'id': user.id,
+            'short_name': user.first_name,
+            'introduction': user.introduction,
+            'icon_url': user.get_icon_url,
+            'is_guide': user.is_guide
+        }
+        self.assertJSONEqual(res.content, expected_json_dict)
+
+    def test_retrieve_designated_user_for_update(self):
+        """Test retrieving a user for update"""
         url = detail_url(self.existed_user.id)
         res = self.client.get(url)
         self.assertEqual(res.status_code, status.HTTP_200_OK)
 
-        expected_json_dict = get_user_by_json(**res.data)
+        user = get_user_model().objects.get(pk=res.data['id'])
+        expected_json_dict = {
+            'id': user.id,
+            'first_name': user.first_name,
+            'family_name': user.family_name,
+            'introduction': user.introduction,
+            'icon_url': user.get_icon_url,
+            'is_guide': user.is_guide,
+        }
         self.assertJSONEqual(res.content, expected_json_dict)
 
     def test_retrieve_organized_event(self):
@@ -231,6 +252,34 @@ class PrivateUserApiTests(TestCase):
         )
         self.client = APIClient()
         self.client.force_authenticate(user=self.user)
+
+    def test_retrieve_designated_user_short_name(self):
+        """Test retrieving a user short name"""
+        url = short_name_url(self.user.id)
+        
+        res = self.client.get(url)
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+
+        self.assertJSONEqual(res.content, {'short_name': 'noname'})
+
+        familyName = 'family'
+        self.user.family_name = familyName
+        self.user.save()
+
+        res = self.client.get(url)
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+
+        self.assertJSONEqual(res.content, {'short_name': familyName})
+
+        firstName = 'first'
+        self.user.first_name = firstName
+        self.user.save()
+
+        res = self.client.get(url)
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+
+        self.assertJSONEqual(res.content, {'short_name': firstName})
+
 
     def test_retrieve_user_email(self):
         """Test success retrive user e-mail"""

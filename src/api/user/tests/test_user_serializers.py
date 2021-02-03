@@ -3,7 +3,8 @@ from django.contrib.auth import get_user_model
 
 
 from user.serializers import (
-    UserSerializer, UserEmailSerializer, UserEventsSerializer
+    UserSerializer, ShowUserSerializer, UserShortNameSerializer, 
+    UserEmailSerializer, UserEventsSerializer
 )
 from core.models import Event
 
@@ -45,8 +46,8 @@ class UserSerializerApiTests(TestCase):
 
         self.event = sample_event(self.organizer)
 
-    def test_retrieve_user_successful(self):
-        """Test retrieve user fields successful"""
+    def test_retrieve_user_for_update(self):
+        """Test retrieve user fields for update"""
         serializer = UserSerializer(instance=self.organizer)
         expected_dict = {
             'id': self.organizer.id,
@@ -57,6 +58,40 @@ class UserSerializerApiTests(TestCase):
             'is_guide': self.organizer.is_guide
         }
         self.assertEqual(serializer.data, expected_dict)
+
+    def test_retrieve_user_successful(self):
+        """Test retrieve user fields successful"""
+        serializer = ShowUserSerializer(instance=self.organizer)
+        expected_dict = {
+            'id': self.organizer.id,
+            'short_name': self.organizer.first_name,
+            'introduction': self.organizer.introduction,
+            'icon_url': '/static/images/no_user_image.png',
+            'is_guide': self.organizer.is_guide
+        }
+        self.assertEqual(serializer.data, expected_dict)
+    
+    def test_retrieve_designated_user_short_name(self):
+        """Test retrieving a user short name"""
+        noname_user = sample_user(
+            email='noname@matsuda.com',
+            password='testpass'
+        )
+
+        serializer = UserShortNameSerializer(instance=noname_user)
+        self.assertEqual(serializer.data, {'short_name': 'noname'})
+
+        familyName = 'family'
+        noname_user.family_name = familyName
+        noname_user.save()
+        serializer = UserShortNameSerializer(instance=noname_user)
+        self.assertEqual(serializer.data, {'short_name': familyName})
+
+        firstName = 'first'
+        noname_user.first_name = firstName
+        noname_user.save()
+        serializer = UserShortNameSerializer(instance=noname_user)
+        self.assertEqual(serializer.data, {'short_name': firstName})
 
     def test_update_user_successful(self):
         """Test update user fields successful"""

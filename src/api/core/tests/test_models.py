@@ -119,5 +119,4 @@ class ModelTests(TestCase):
             event=self.event,
             user=user,
         )
-
-        self.assertEqual(str(participant), participant.user.get_short_name())
+        self.assertEqual(str(participant), participant.user.get_short_name)
