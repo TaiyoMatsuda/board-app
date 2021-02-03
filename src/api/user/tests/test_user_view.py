@@ -115,7 +115,7 @@ class PublicUserApiTests(TestCase):
             'id': user.id,
             'short_name': user.first_name,
             'introduction': user.introduction,
-            'icon_url': user.get_icon_url,
+            'icon_url': user.icon_url,
             'is_guide': user.is_guide
         }
         self.assertJSONEqual(res.content, expected_json_dict)
@@ -132,7 +132,7 @@ class PublicUserApiTests(TestCase):
             'first_name': user.first_name,
             'family_name': user.family_name,
             'introduction': user.introduction,
-            'icon_url': user.get_icon_url,
+            'icon_url': user.icon_url,
             'is_guide': user.is_guide,
         }
         self.assertJSONEqual(res.content, expected_json_dict)
@@ -151,7 +151,7 @@ class PublicUserApiTests(TestCase):
                 {
                     'id': self.event.id,
                     'title': self.event.title,
-                    'image': self.event.get_image_url,
+                    'image': self.event.image_url,
                     'event_time': self.event.event_time,
                     'address': self.event.address,
                     "participant_count": 1
@@ -190,7 +190,7 @@ class PublicUserApiTests(TestCase):
                 {
                     'id': self.event.id,
                     'title': self.event.title,
-                    'image': self.event.get_image_url,
+                    'image': self.event.image_url,
                     'event_time': self.event.event_time,
                     'address': self.event.address,
                     "participant_count": 1

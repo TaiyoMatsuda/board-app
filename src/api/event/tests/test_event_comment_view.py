@@ -95,9 +95,9 @@ class PublicEventCommentApiTests(TestCase):
                 'event': event_comment.event.id,
                 'user': event_comment.user.id,
                 'first_name': event_comment.user.first_name,
-                'icon': event_comment.user.get_icon_url,
+                'icon': event_comment.user.icon_url,
                 'comment': event_comment.comment,
-                'brief_updated_at': event_comment.get_brief_updated_at
+                'brief_updated_at': event_comment.brief_updated_at
             }
             expected_json_dict_list.append(expected_json_dict)
 
@@ -145,9 +145,9 @@ class PublicEventCommentApiTests(TestCase):
             'event': self.event_comment.event.id,
             'user': self.event_comment.user.id,
             'first_name': self.event_comment.user.first_name,
-            'icon': self.event_comment.user.get_icon_url,
+            'icon': self.event_comment.user.icon_url,
             'comment': self.event_comment.comment,
-            'brief_updated_at': self.event_comment.get_brief_updated_at
+            'brief_updated_at': self.event_comment.brief_updated_at
         }
         self.assertIn(expected_json_dict, list(res.data['results']))
         self.assertEqual(dict(res.data['results'][0]), expected_json_dict)

@@ -20,10 +20,10 @@ class ListCreateEventCommentSerializer(serializers.ModelSerializer):
 
     def get_icon(self, participant):
         user = get_user_model().objects.get(pk=participant.user_id)
-        return user.get_icon_url
+        return user.icon_url
 
-    def get_brief_updated_at(sefl, instance):
-        return instance.get_brief_updated_at
+    def get_brief_updated_at(self, instance):
+        return instance.brief_updated_at
 
 
 class ListCreateParticipantSerializer(serializers.ModelSerializer):
@@ -40,7 +40,7 @@ class ListCreateParticipantSerializer(serializers.ModelSerializer):
 
     def get_icon(self, participant):
         user = get_user_model().objects.get(pk=participant.user_id)
-        return user.get_icon_url
+        return user.icon_url
 
 
 class UpdateParticipantSerializer(serializers.ModelSerializer):
@@ -80,7 +80,7 @@ class UpdateEventSerializer(serializers.ModelSerializer):
 class RetrieveEventSerializer(serializers.ModelSerializer):
     """Serialize for Event object"""
     organizer_full_name = serializers.ReadOnlyField(
-        source="organizer.get_full_name")
+        source="organizer.full_name")
     organizer_icon = serializers.SerializerMethodField()
     image = serializers.SerializerMethodField()
     event_time = serializers.SerializerMethodField()
@@ -96,16 +96,16 @@ class RetrieveEventSerializer(serializers.ModelSerializer):
 
     def get_organizer_icon(self, event):
         user = get_user_model().objects.get(pk=event.organizer.id)
-        return user.get_icon_url
+        return user.icon_url
 
     def get_image(self, event):
-        return event.get_image_url
+        return event.image_url
 
-    def get_event_time(sefl, event):
-        return event.get_brief_event_time
+    def get_event_time(self, event):
+        return event.brief_event_time
 
-    def get_brief_updated_at(sefl, event):
-        return event.get_brief_updated_at
+    def get_brief_updated_at(self, event):
+        return event.brief_updated_at
 
 
 class BriefEventSerializer(serializers.ModelSerializer):
@@ -122,10 +122,10 @@ class BriefEventSerializer(serializers.ModelSerializer):
         )
 
     def get_image(self, event):
-        return event.get_image_url
+        return event.image_url
 
     def get_event_time(self, event):
-        return event.get_brief_event_time
+        return event.brief_event_time
 
     def get_participant_count(self, event):
         participant = Participant.objects.filter(

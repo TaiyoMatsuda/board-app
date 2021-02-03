@@ -100,14 +100,14 @@ class PublicParticipantApiTests(TestCase):
             {
                 'id': self.first_event.id,
                 'title': self.first_event.title,
-                'image': self.first_event.get_image_url,
+                'image': self.first_event.image_url,
                 'event_time': self.first_event.event_time,
                 'address': self.first_event.address,
                 'participant_count': 0
             }, {
                 'id': self.second_event.id,
                 'title': self.second_event.title,
-                'image': self.second_event.get_image_url,
+                'image': self.second_event.image_url,
                 'event_time': self.second_event.event_time,
                 'address': self.second_event.address,
                 'participant_count': 0
@@ -200,13 +200,13 @@ class PublicParticipantApiTests(TestCase):
             'description': event.description,
             'organizer': event.organizer_id,
             'organizer_full_name': 'noname',
-            'organizer_icon': organizer.get_icon_url,
-            'image': event.get_image_url,
-            'event_time': event.get_brief_event_time,
+            'organizer_icon': organizer.icon_url,
+            'image': event.image_url,
+            'event_time': event.brief_event_time,
             'address': event.address,
             'fee': event.fee,
             'status': event.status,
-            'brief_updated_at': event.get_brief_updated_at
+            'brief_updated_at': event.brief_updated_at
         }
         self.assertJSONEqual(res.content, expected_json_dict)
 

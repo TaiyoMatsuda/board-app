@@ -87,7 +87,7 @@ class User(AbstractBaseUser, PermissionsMixin):
         db_table = 'm_user'
 
     @property
-    def get_short_name(self):
+    def short_name(self):
         """Return the short name for the user"""
         if self.first_name:
             return self.first_name
@@ -98,7 +98,7 @@ class User(AbstractBaseUser, PermissionsMixin):
         return 'noname'
 
     @property
-    def get_full_name(self):
+    def full_name(self):
         """Return the full name for the user"""
         if self.family_name and self.first_name:
             return self.family_name + self.first_name
@@ -112,7 +112,7 @@ class User(AbstractBaseUser, PermissionsMixin):
         return 'noname'
 
     @property
-    def get_icon_url(self):
+    def icon_url(self):
         if self.icon:
             return self.icon.url
         else:
@@ -169,19 +169,19 @@ class Event(models.Model):
         return self.title
 
     @property
-    def get_image_url(self):
+    def image_url(self):
         if self.image:
             return self.image.url
         else:
             return staticfiles_storage.url(self.DEFAULT_IMAGE_PATH)
 
     @property
-    def get_brief_event_time(self):
+    def brief_event_time(self):
         """Return the event time except millisecond"""
         return localtime(self.event_time).strftime('%Y-%m-%d %H:%M:%S')
 
     @property
-    def get_brief_updated_at(self):
+    def brief_updated_at(self):
         """Return the update time except millisecond"""
         return localtime(self.updated_at).strftime('%Y-%m-%d %H:%M:%S')
 
@@ -217,7 +217,7 @@ class EventComment(models.Model):
         return self.comment
 
     @property
-    def get_brief_updated_at(self):
+    def brief_updated_at(self):
         """Return the update time except millisecond"""
         return localtime(self.updated_at).strftime('%Y-%m-%d %H:%M:%S')
 
@@ -256,7 +256,7 @@ class Participant(models.Model):
     is_active = models.BooleanField(default=True)
 
     def __str__(self):
-        return self.user.get_short_name
+        return self.user.short_name
 
     def delete(self):
         self.is_active = False

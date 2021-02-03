@@ -18,7 +18,7 @@ class UserSerializer(serializers.ModelSerializer):
         extra_kwargs = {'icon': {'write_only': True}}
 
     def get_icon_url(self, user):
-        return user.get_icon_url
+        return user.icon_url
 
 class ShowUserSerializer(serializers.ModelSerializer):
     """Serializer for the users object"""
@@ -33,10 +33,10 @@ class ShowUserSerializer(serializers.ModelSerializer):
         )
 
     def get_short_name(self, user):
-        return user.get_short_name
+        return user.short_name
 
     def get_icon_url(self, user):
-        return user.get_icon_url
+        return user.icon_url
 
 
 class UserShortNameSerializer(serializers.ModelSerializer):
@@ -48,7 +48,7 @@ class UserShortNameSerializer(serializers.ModelSerializer):
         fields = ('short_name',)
 
     def get_short_name(self, user):
-        return user.get_short_name
+        return user.short_name
 
 
 class UserEmailSerializer(serializers.ModelSerializer):
@@ -73,10 +73,10 @@ class UserEventsSerializer(serializers.ModelSerializer):
         )
 
     def get_image(self, event):
-        return event.get_image_url
+        return event.image_url
 
     def get_event_time(self, event):
-        return event.get_brief_event_time
+        return event.brief_event_time
 
     def get_participant_count(self, event):
         participant = Participant.objects.filter(
