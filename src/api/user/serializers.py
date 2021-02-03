@@ -73,7 +73,7 @@ class UserEventsSerializer(serializers.ModelSerializer):
         )
 
     def get_image(self, event):
-        return event.get_image_url
+        return event.image_url
 
     def get_event_time(self, event):
         return event.get_brief_event_time

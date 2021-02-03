@@ -99,7 +99,7 @@ class RetrieveEventSerializer(serializers.ModelSerializer):
         return user.icon_url
 
     def get_image(self, event):
-        return event.get_image_url
+        return event.image_url
 
     def get_event_time(sefl, event):
         return event.get_brief_event_time
@@ -122,7 +122,7 @@ class BriefEventSerializer(serializers.ModelSerializer):
         )
 
     def get_image(self, event):
-        return event.get_image_url
+        return event.image_url
 
     def get_event_time(self, event):
         return event.get_brief_event_time

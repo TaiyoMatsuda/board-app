@@ -169,7 +169,7 @@ class Event(models.Model):
         return self.title
 
     @property
-    def get_image_url(self):
+    def image_url(self):
         if self.image:
             return self.image.url
         else:

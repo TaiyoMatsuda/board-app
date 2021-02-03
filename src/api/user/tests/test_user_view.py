@@ -151,7 +151,7 @@ class PublicUserApiTests(TestCase):
                 {
                     'id': self.event.id,
                     'title': self.event.title,
-                    'image': self.event.get_image_url,
+                    'image': self.event.image_url,
                     'event_time': self.event.event_time,
                     'address': self.event.address,
                     "participant_count": 1
@@ -190,7 +190,7 @@ class PublicUserApiTests(TestCase):
                 {
                     'id': self.event.id,
                     'title': self.event.title,
-                    'image': self.event.get_image_url,
+                    'image': self.event.image_url,
                     'event_time': self.event.event_time,
                     'address': self.event.address,
                     "participant_count": 1
