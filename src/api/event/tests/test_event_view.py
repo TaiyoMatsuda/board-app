@@ -202,7 +202,7 @@ class PublicParticipantApiTests(TestCase):
             'organizer_full_name': 'noname',
             'organizer_icon': organizer.icon_url,
             'image': event.image_url,
-            'event_time': event.get_brief_event_time,
+            'event_time': event.brief_event_time,
             'address': event.address,
             'fee': event.fee,
             'status': event.status,

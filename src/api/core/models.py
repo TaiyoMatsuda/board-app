@@ -176,7 +176,7 @@ class Event(models.Model):
             return staticfiles_storage.url(self.DEFAULT_IMAGE_PATH)
 
     @property
-    def get_brief_event_time(self):
+    def brief_event_time(self):
         """Return the event time except millisecond"""
         return localtime(self.event_time).strftime('%Y-%m-%d %H:%M:%S')
 

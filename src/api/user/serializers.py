@@ -76,7 +76,7 @@ class UserEventsSerializer(serializers.ModelSerializer):
         return event.image_url
 
     def get_event_time(self, event):
-        return event.get_brief_event_time
+        return event.brief_event_time
 
     def get_participant_count(self, event):
         participant = Participant.objects.filter(
