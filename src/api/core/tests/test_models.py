@@ -31,7 +31,7 @@ class ModelTests(TestCase):
         self.event = sample_event(self.user)
 
     def test_create_user_with_email_successful(self):
-        """Test creating a neww user withh an email is successful"""
+        """Test creating a new user withh an email is successful"""
         email = 'test@matsuda.com'
         password = 'Testpass123'
         user = get_user_model().objects.create_user(email, password)
