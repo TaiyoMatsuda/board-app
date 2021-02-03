@@ -27,6 +27,17 @@ def event_image_file_path(instance, filename):
     return os.path.join('uploads/event/', filename)
 
 
+class BaseModel(models.Model):
+
+    class Meta:
+        abstract = True
+
+    def delete(self):
+        """Logical delete the user"""
+        self.is_active = False
+        self.save()
+        return self
+
 class UserManager(BaseUserManager):
     use_in_migrations = True
 
@@ -58,7 +69,7 @@ class UserManager(BaseUserManager):
         return self._create_user(email, password, **extra_fields)
 
 
-class User(AbstractBaseUser, PermissionsMixin):
+class User(AbstractBaseUser, PermissionsMixin, BaseModel):
     """Custom user model that suppors using email instead of username"""
 
     email = models.EmailField(_('email address'), unique=True)
@@ -118,14 +129,8 @@ class User(AbstractBaseUser, PermissionsMixin):
         else:
             return staticfiles_storage.url(self.DEFAULT_ICON_PATH)
 
-    def delete(self):
-        """Logical delete the user"""
-        self.is_active = False
-        self.save()
-        return self
 
-
-class Event(models.Model):
+class Event(BaseModel):
     """Event object"""
     class Meta:
         db_table = 't_event'
@@ -185,14 +190,8 @@ class Event(models.Model):
         """Return the update time except millisecond"""
         return localtime(self.updated_at).strftime('%Y-%m-%d %H:%M:%S')
 
-    def delete(self):
-        """Logical delete the user"""
-        self.is_active = False
-        self.save()
-        return self
 
-
-class EventComment(models.Model):
+class EventComment(BaseModel):
     """EventComment to be used for an Event"""
     class Meta:
         db_table = 't_event_comment'
@@ -221,14 +220,8 @@ class EventComment(models.Model):
         """Return the update time except millisecond"""
         return localtime(self.updated_at).strftime('%Y-%m-%d %H:%M:%S')
 
-    def delete(self):
-        """Logical delete the user"""
-        self.is_active = False
-        self.save()
-        return self
 
-
-class Participant(models.Model):
+class Participant(BaseModel):
     """Participant to be used for an Event"""
     class Meta:
         db_table = 't_participant'
@@ -257,8 +250,3 @@ class Participant(models.Model):
 
     def __str__(self):
         return self.user.short_name
-
-    def delete(self):
-        self.is_active = False
-        self.save()
-        return self
