@@ -80,7 +80,7 @@ class UpdateEventSerializer(serializers.ModelSerializer):
 class RetrieveEventSerializer(serializers.ModelSerializer):
     """Serialize for Event object"""
     organizer_full_name = serializers.ReadOnlyField(
-        source="organizer.get_full_name")
+        source="organizer.full_name")
     organizer_icon = serializers.SerializerMethodField()
     image = serializers.SerializerMethodField()
     event_time = serializers.SerializerMethodField()

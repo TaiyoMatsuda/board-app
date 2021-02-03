@@ -98,7 +98,7 @@ class User(AbstractBaseUser, PermissionsMixin):
         return 'noname'
 
     @property
-    def get_full_name(self):
+    def full_name(self):
         """Return the full name for the user"""
         if self.family_name and self.first_name:
             return self.family_name + self.first_name
