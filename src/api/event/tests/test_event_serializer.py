@@ -1,10 +1,10 @@
+import datetime
+
 from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.utils.timezone import make_aware
-import datetime
 
 from core.models import Event
-
 from event.serializers import CreateEventSerializer
 
 

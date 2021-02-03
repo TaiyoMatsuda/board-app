@@ -1,8 +1,7 @@
 from django.contrib.auth import get_user_model
-
 from rest_framework import serializers
 
-from core.models import Participant, Event
+from core.models import Event, Participant
 
 
 class UserSerializer(serializers.ModelSerializer):

@@ -1,12 +1,10 @@
-from django.test import TestCase
 from django.contrib.auth import get_user_model
+from django.test import TestCase
 
-
-from user.serializers import (
-    UserSerializer, ShowUserSerializer, UserShortNameSerializer, 
-    UserEmailSerializer, UserEventsSerializer
-)
 from core.models import Event
+from user.serializers import (ShowUserSerializer, UserEmailSerializer,
+                              UserEventsSerializer, UserSerializer,
+                              UserShortNameSerializer)
 
 
 def sample_user(**params):
