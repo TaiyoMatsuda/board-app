@@ -87,7 +87,7 @@ class User(AbstractBaseUser, PermissionsMixin):
         db_table = 'm_user'
 
     @property
-    def get_short_name(self):
+    def short_name(self):
         """Return the short name for the user"""
         if self.first_name:
             return self.first_name
@@ -256,7 +256,7 @@ class Participant(models.Model):
     is_active = models.BooleanField(default=True)
 
     def __str__(self):
-        return self.user.get_short_name
+        return self.user.short_name
 
     def delete(self):
         self.is_active = False

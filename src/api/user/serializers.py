@@ -33,7 +33,7 @@ class ShowUserSerializer(serializers.ModelSerializer):
         )
 
     def get_short_name(self, user):
-        return user.get_short_name
+        return user.short_name
 
     def get_icon_url(self, user):
         return user.get_icon_url
@@ -48,7 +48,7 @@ class UserShortNameSerializer(serializers.ModelSerializer):
         fields = ('short_name',)
 
     def get_short_name(self, user):
-        return user.get_short_name
+        return user.short_name
 
 
 class UserEmailSerializer(serializers.ModelSerializer):
