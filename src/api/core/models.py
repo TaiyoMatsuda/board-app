@@ -112,7 +112,7 @@ class User(AbstractBaseUser, PermissionsMixin):
         return 'noname'
 
     @property
-    def get_icon_url(self):
+    def icon_url(self):
         if self.icon:
             return self.icon.url
         else:

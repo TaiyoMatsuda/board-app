@@ -18,7 +18,7 @@ class UserSerializer(serializers.ModelSerializer):
         extra_kwargs = {'icon': {'write_only': True}}
 
     def get_icon_url(self, user):
-        return user.get_icon_url
+        return user.icon_url
 
 class ShowUserSerializer(serializers.ModelSerializer):
     """Serializer for the users object"""
@@ -36,7 +36,7 @@ class ShowUserSerializer(serializers.ModelSerializer):
         return user.short_name
 
     def get_icon_url(self, user):
-        return user.get_icon_url
+        return user.icon_url
 
 
 class UserShortNameSerializer(serializers.ModelSerializer):

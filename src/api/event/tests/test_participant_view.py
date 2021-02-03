@@ -101,7 +101,7 @@ class PublicParticipantApiTests(TestCase):
             expected_json_dict = {
                 'user': participant.user.id,
                 'first_name': participant.user.first_name,
-                'icon': participant.user.get_icon_url
+                'icon': participant.user.icon_url
             }
             expected_json_dict_list.append(expected_json_dict)
 
@@ -118,7 +118,7 @@ class PublicParticipantApiTests(TestCase):
         expected_json_dict_list = [{
             'user': self.participant_one.user.id,
             'first_name': self.participant_one.user.first_name,
-            'icon': self.participant_one.user.get_icon_url
+            'icon': self.participant_one.user.icon_url
         }]
         self.assertJSONEqual(res.content, expected_json_dict_list)
 
@@ -134,7 +134,7 @@ class PublicParticipantApiTests(TestCase):
         expected_json_dict_list = [{
             'user': self.participant_one.user.id,
             'first_name': self.participant_one.user.first_name,
-            'icon': self.participant_one.user.get_icon_url
+            'icon': self.participant_one.user.icon_url
         }]
         self.assertJSONEqual(res.content, expected_json_dict_list)
 
