@@ -217,7 +217,7 @@ class EventComment(models.Model):
         return self.comment
 
     @property
-    def get_brief_updated_at(self):
+    def brief_updated_at(self):
         """Return the update time except millisecond"""
         return localtime(self.updated_at).strftime('%Y-%m-%d %H:%M:%S')
 

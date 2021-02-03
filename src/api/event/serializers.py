@@ -22,8 +22,8 @@ class ListCreateEventCommentSerializer(serializers.ModelSerializer):
         user = get_user_model().objects.get(pk=participant.user_id)
         return user.icon_url
 
-    def get_brief_updated_at(sefl, instance):
-        return instance.get_brief_updated_at
+    def get_brief_updated_at(self, instance):
+        return instance.brief_updated_at
 
 
 class ListCreateParticipantSerializer(serializers.ModelSerializer):
@@ -101,10 +101,10 @@ class RetrieveEventSerializer(serializers.ModelSerializer):
     def get_image(self, event):
         return event.image_url
 
-    def get_event_time(sefl, event):
+    def get_event_time(self, event):
         return event.brief_event_time
 
-    def get_brief_updated_at(sefl, event):
+    def get_brief_updated_at(self, event):
         return event.brief_updated_at
 
 
