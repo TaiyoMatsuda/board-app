@@ -86,9 +86,14 @@ class User(AbstractBaseUser, PermissionsMixin):
     class Meta:
         db_table = 'm_user'
 
+    @property
     def get_short_name(self):
         """Return the short name for the user"""
-        return self.first_name
+        if self.first_name:
+            return self.first_name
+        elif self.family_name:
+            return self.family_name
+        return 'noname'
 
     @property
     def get_icon_url(self):
@@ -235,7 +240,7 @@ class Participant(models.Model):
     is_active = models.BooleanField(default=True)
 
     def __str__(self):
-        return self.user.get_short_name()
+        return self.user.get_short_name
 
     def delete(self):
         self.is_active = False

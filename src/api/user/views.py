@@ -31,9 +31,13 @@ class UserViewSet(viewsets.GenericViewSet,
         return [permission() for permission in permission_classes]
 
     def get_serializer_class(self):
-        if self.action == 'email':
+        if self.action == 'confirm' or self.action == 'partial_update':
+            return serializers.UpdateUserSerializer
+        elif self.action == 'shortname':
+            return serializers.UserShortNameSerializer
+        elif self.action == 'email':
             return serializers.UserEmailSerializer
-        if self.action == 'organizedEvents' or self.action == 'joinedEvents':
+        elif self.action == 'organizedEvents' or self.action == 'joinedEvents':
             return serializers.UserEventsSerializer
         return serializers.UserSerializer
 
@@ -41,6 +45,18 @@ class UserViewSet(viewsets.GenericViewSet,
         obj = get_object_or_404(self.get_queryset(), pk=self.kwargs["pk"])
         self.check_object_permissions(self.request, obj)
         return obj
+
+    @action(methods=['get'], detail=True)
+    def confirm(self, request, pk=None):
+        user = self.get_object()
+        serializer = self.get_serializer(instance=user)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    @action(methods=['get'], detail=True)
+    def shortname(self, request, pk=None):
+        user = self.get_object()
+        serializer = self.get_serializer(instance=user)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
     @action(methods=['get', 'patch'], detail=True)
     def email(self, request, pk=None):
