@@ -71,7 +71,7 @@ def sample_event(
         'event_time': event_time.strftime('%Y-%m-%d %H:%M:%S'),
         'address': address,
         'fee': fee,
-        'status': 1,
+        'status': Event.Status.PUBLIC,
     }
     return Event.objects.create(**default)
 

@@ -33,7 +33,9 @@ class ListCreateParticipantView(generics.ListCreateAPIView):
 
     def get_queryset(self):
         return Participant.objects.filter(
-            event=self.kwargs['pk'], status='1', is_active=True
+            event=self.kwargs['pk'], 
+            status='1', 
+            is_active=True
         ).order_by('updated_at')
 
     def post(self, request, *args, **kwargs):
@@ -42,7 +44,7 @@ class ListCreateParticipantView(generics.ListCreateAPIView):
         if not event.is_active:
             return Response(status=status.HTTP_404_NOT_FOUND)
 
-        if event.status == '0' or event.status == '2':
+        if event.status != Event.Status.PUBLIC:
             return Response(status=status.HTTP_403_FORBIDDEN)
 
         data = {
@@ -141,8 +143,11 @@ class EventViewSet(viewsets.ModelViewSet):
         if self.action == 'list':
             start = self.request.query_params['start'] + ' 00:00:00'
             end = self.request.query_params['end'] + ' 23:59:59'
-            return Event.objects.filter(is_active=True,
-                                        event_time__range=(start, end))
+            return Event.objects.filter(
+                    is_active=True,
+                    status=Event.Status.PUBLIC,
+                    event_time__range=(start, end)
+                    )
 
         return Event.objects.filter(is_active=True)
 
