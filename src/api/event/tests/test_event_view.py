@@ -32,7 +32,7 @@ def sample_event(
     event_time=make_aware(datetime.datetime.now()),
     address='test address',
     fee=500,
-    status=Event.Status.PRIVATE,
+    status=Event.Status.PRIVATE.value,
 ):
     """Create and return a sample event"""
     default = {
@@ -90,9 +90,9 @@ class PublicParticipantApiTests(TestCase):
 
     def test_retrieve_event_list_success(self):
         """Test retrieving event list"""
-        self.first_event.status = Event.Status.PUBLIC
+        self.first_event.status = Event.Status.PUBLIC.value
         self.first_event.save()
-        self.second_event.status = Event.Status.PUBLIC
+        self.second_event.status = Event.Status.PUBLIC.value
         self.second_event.save()
         today = datetime.date.today()
         tomorrow = today + timedelta(days=1)
@@ -126,15 +126,15 @@ class PublicParticipantApiTests(TestCase):
 
     def test_retrieve_event_pagination_success(self):
         """Test retrieving event with pagination"""
-        self.first_event.status = Event.Status.PUBLIC
+        self.first_event.status = Event.Status.PUBLIC.value
         self.first_event.save()
-        self.second_event.status = Event.Status.PUBLIC
+        self.second_event.status = Event.Status.PUBLIC.value
         self.second_event.save()
         count = 0
         while count < 30:
             sample_event(
                 organizer=self.organizer,
-                status=Event.Status.PUBLIC
+                status=Event.Status.PUBLIC.value
             )
             count += 1
 
@@ -151,15 +151,15 @@ class PublicParticipantApiTests(TestCase):
 
     def test_retrieving_events_for_a_day_successful(self):
         """Test retrieving events for a day"""
-        self.first_event.status = Event.Status.PUBLIC
+        self.first_event.status = Event.Status.PUBLIC.value
         self.first_event.save()
-        self.second_event.status = Event.Status.PUBLIC
+        self.second_event.status = Event.Status.PUBLIC.value
         self.second_event.save()
         sample_event(
             organizer=self.organizer,
             event_time=make_aware(
                 datetime.datetime.now() + datetime.timedelta(days=2)),
-            status=Event.Status.PUBLIC
+            status=Event.Status.PUBLIC.value
         )
         today = datetime.date.today()
         tomorrow = today + timedelta(days=1)
