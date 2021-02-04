@@ -129,5 +129,8 @@ class BriefEventSerializer(serializers.ModelSerializer):
 
     def get_participant_count(self, event):
         participant = Participant.objects.filter(
-            event_id=event.id, status='1', is_active=True)
+                event_id=event.id, 
+                status=Participant.Status.JOIN, 
+                is_active=True
+            )
         return participant.count()

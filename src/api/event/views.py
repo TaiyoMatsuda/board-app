@@ -34,7 +34,7 @@ class ListCreateParticipantView(generics.ListCreateAPIView):
     def get_queryset(self):
         return Participant.objects.filter(
             event=self.kwargs['pk'], 
-            status='1', 
+            status=Participant.Status.JOIN, 
             is_active=True
         ).order_by('updated_at')
 
@@ -70,9 +70,9 @@ class UpdateParticipantView(generics.UpdateAPIView):
         data = {}
         url = self.request.path
         if 'join' in url:
-            data['status'] = 1
+            data['status'] = Participant.Status.JOIN
         elif 'cancel' in url:
-            data['status'] = 0
+            data['status'] = Participant.Status.CANCEL
         else:
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
@@ -147,7 +147,7 @@ class EventViewSet(viewsets.ModelViewSet):
                     is_active=True,
                     status=Event.Status.PUBLIC,
                     event_time__range=(start, end)
-                    )
+                )
 
         return Event.objects.filter(is_active=True)
 

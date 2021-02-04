@@ -40,7 +40,7 @@ def sample_event(user):
         .strftime('%Y-%m-%d %H:%M:%S'),
         'address': 'test address',
         'fee': 500,
-        'status': '1',
+        'status': Participant.Status.JOIN,
     }
 
     return Event.objects.create(organizer=user, **default)
@@ -124,7 +124,7 @@ class PublicParticipantApiTests(TestCase):
 
     def test_not_retrieve_cancel_participants_success(self):
         """Test not retrieving canceled participants"""
-        self.participant_two.status = '0'
+        self.participant_two.status = Participant.Status.CANCEL
         self.participant_two.save()
 
         url = listCreate_url(self.event.id)
@@ -179,10 +179,10 @@ class PrivateParticipantApiTests(TestCase):
         )
         self.event = sample_event(self.organizer)
         self.private_event = sample_event(self.organizer)
-        self.private_event.status = '0'
+        self.private_event.status = Event.Status.PRIVATE,
         self.private_event.save()
         self.cancel_event = sample_event(self.organizer)
-        self.cancel_event.status = '2'
+        self.cancel_event.status = Event.Status.CANCEL
         self.cancel_event.save()
         self.participant = sample_participant(
             self.event,
@@ -244,13 +244,13 @@ class PrivateParticipantApiTests(TestCase):
 
         self.participant.refresh_from_db()
 
-        self.assertEqual(self.participant.status, '0')
+        self.assertEqual(self.participant.status, Participant.Status.CANCEL)
 
     def test_join_participant(self):
         """Test joinning a participant"""
         self.client.force_authenticate(self.follower)
 
-        self.participant.status = '0'
+        self.participant.status = Participant.Status.CANCEL
         self.participant.save()
         self.participant.refresh_from_db()
 
@@ -261,4 +261,4 @@ class PrivateParticipantApiTests(TestCase):
 
         self.participant.refresh_from_db()
 
-        self.assertEqual(self.participant.status, '1')
+        self.assertEqual(self.participant.status, Participant.Status.JOIN)

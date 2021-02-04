@@ -228,10 +228,9 @@ class Participant(BaseModel):
         ordering = ['updated_at']
         unique_together = ("event", "user")
 
-    STATUS = (
-        ('0', 'Cancel'),
-        ('1', 'Join'),
-    )
+    class Status(models.TextChoices):
+        CANCEL = '0', 'Cancel'
+        JOIN = '1', 'Join'
 
     event = models.ForeignKey(
         Event,
@@ -243,7 +242,11 @@ class Participant(BaseModel):
         to_field='id',
         on_delete=models.CASCADE
     )
-    status = models.CharField(max_length=10, choices=STATUS, default='1')
+    status = models.CharField(
+        max_length=10, 
+        choices=Status.choices,
+        default=Status.JOIN
+    )
     is_active = models.BooleanField(default=True)
 
     def __str__(self):

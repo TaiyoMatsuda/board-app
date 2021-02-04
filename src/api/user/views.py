@@ -77,7 +77,7 @@ class UserViewSet(viewsets.GenericViewSet,
         elif self.action == 'joinedEvents':
             joined_event_ids = Participant.objects.filter(
                     user=user_id, 
-                    status=1, 
+                    status=Participant.Status.JOIN, 
                     is_active=True
                 ).values_list('event_id', flat=True)
             events = Event.objects.filter(
