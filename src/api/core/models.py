@@ -137,11 +137,10 @@ class Event(BaseModel):
         db_table = 't_event'
         ordering = ['event_time']
 
-    STATUS = (
-        ('0', 'Private'),
-        ('1', 'Publish'),
-        ('2', 'Cancel'),
-    )
+    class Status(models.TextChoices):
+        PRIVATE = '0', 'Private'
+        PUBLIC = '1', 'Public'
+        CANCEL = '2', 'Cancel'
 
     title = models.CharField(max_length=255)
     description = models.TextField(max_length=2000)
@@ -164,7 +163,11 @@ class Event(BaseModel):
         validators=[MinValueValidator(0),
                     MaxValueValidator(100000)]
     )
-    status = models.CharField(max_length=10, choices=STATUS, default='0')
+    status = models.CharField(
+        max_length=10, 
+        choices=Status.choices, 
+        default=Status.PRIVATE
+    )
     is_active = models.BooleanField(default=True)
 
     DEFAULT_IMAGE_PATH = "/images/no_event_image.png"
@@ -225,10 +228,9 @@ class Participant(BaseModel):
         ordering = ['updated_at']
         unique_together = ("event", "user")
 
-    STATUS = (
-        ('0', 'Cancel'),
-        ('1', 'Join'),
-    )
+    class Status(models.TextChoices):
+        CANCEL = '0', 'Cancel'
+        JOIN = '1', 'Join'
 
     event = models.ForeignKey(
         Event,
@@ -240,7 +242,11 @@ class Participant(BaseModel):
         to_field='id',
         on_delete=models.CASCADE
     )
-    status = models.CharField(max_length=10, choices=STATUS, default='1')
+    status = models.CharField(
+        max_length=10, 
+        choices=Status.choices,
+        default=Status.JOIN
+    )
     is_active = models.BooleanField(default=True)
 
     def __str__(self):
