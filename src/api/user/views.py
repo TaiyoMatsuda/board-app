@@ -82,8 +82,9 @@ class UserViewSet(viewsets.GenericViewSet,
                 ).values_list('event_id', flat=True)
             events = Event.objects.filter(
                     id__in=joined_event_ids, 
-                    status=Event.Status.PUBLIC, 
                     is_active=True
+                ).exclude(
+                    status=Event.Status.PRIVATE
                 )
 
         page = self.paginate_queryset(events)

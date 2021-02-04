@@ -35,5 +35,5 @@ class IsValidEvent(BasePermission):
         event_status = Event.objects.get(pk=pk).status
 
         return bool(
-            is_event_active and event_status != '0'
+            is_event_active and event_status != Event.Status.PRIVATE
         )
