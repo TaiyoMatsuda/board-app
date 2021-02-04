@@ -31,9 +31,5 @@ class IsValidEvent(BasePermission):
 
     def has_permission(self, request, view):
         pk = request.parser_context['kwargs']['pk']
-        is_event_active = Event.objects.get(pk=pk).is_active
-        event_status = Event.objects.get(pk=pk).status
-
-        return bool(
-            is_event_active and event_status != '0'
-        )
+        event = Event.objects.get(pk=pk)
+        return event.is_valid_comment()

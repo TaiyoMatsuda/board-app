@@ -192,6 +192,10 @@ class Event(BaseModel):
         """Return the update time except millisecond"""
         return localtime(self.updated_at).strftime('%Y-%m-%d %H:%M:%S')
 
+    def is_valid_comment(self):
+        """Return private status or other"""
+        return bool(self.is_active and self.status != self.Status.PRIVATE)
+
 
 class EventComment(BaseModel):
     """EventComment to be used for an Event"""
