@@ -1,11 +1,16 @@
 import datetime
 import factory
 
+from faker import Faker
+
 from django.utils.timezone import now, localtime 
 from django.contrib.auth import get_user_model
 from django.utils.timezone import make_aware
 
 from core.models import Event, EventComment, Participant
+
+
+fake = Faker()
 
 
 class UserFactory(factory.django.DjangoModelFactory):
@@ -20,11 +25,11 @@ class EventFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = Event
 
-    title = 'test title'
-    description = 'test description'
+    title = fake.text(max_nb_chars=255)
+    description = fake.text(max_nb_chars=2000)
     event_time = factory.LazyFunction(now)
-    image = None
-    address = 'test address'
+    image = fake.image_url()
+    address = fake.address()
     fee = 500
     status = Event.Status.PUBLIC
 

@@ -56,7 +56,6 @@ class PublicParticipantApiTests(TestCase):
             event_time=make_aware(
                 datetime.datetime.now() + datetime.timedelta(days=1)),
             description='second event description',
-            address='second event address',
             fee='700'
         )
         self.client = APIClient()
