@@ -10,7 +10,7 @@ from PIL import Image
 from rest_framework import status
 from rest_framework.test import APIClient
 
-from core.models import Event, Participant
+from core.factorys import UserFactory, EventFactory, ParticipantFactory
 
 USER_URL = reverse('user:user-list')
 
@@ -50,53 +50,25 @@ def joined_event_url(user_id):
     return reverse('user:user-joinedEvents', args=[user_id])
 
 
-def create_user(**params):
-    return get_user_model().objects.create_user(**params)
-
-
-def sample_event(
-    organizer,
-    title='test title',
-    description='test description',
-    event_time=make_aware(datetime.datetime.now()),
-    address='test address',
-    fee=500
-):
-    """Create and return a sample event"""
-    default = {
-        'title': title,
-        'description': description,
-        'organizer': organizer,
-        'image': '',
-        'event_time': event_time.strftime('%Y-%m-%d %H:%M:%S'),
-        'address': address,
-        'fee': fee,
-        'status': Event.Status.PUBLIC.value,
-    }
-    return Event.objects.create(**default)
-
-
-def sample_participant(event, user, **params):
-    """Create and return a sample participant"""
-    return Participant.objects.create(event=event, user=user, **params)
-
-
 class PublicUserApiTests(TestCase):
     """Test the users API (public)"""
 
     def setUp(self):
         self.password = 'testpass'
-        self.existed_user = create_user(
+        self.existed_user = UserFactory(
             email='existed_user@matsuda.com',
             password=self.password,
             first_name='existed'
         )
         self.existed_user.is_guide = True
         self.existed_user.save()
-        self.event = sample_event(organizer=self.existed_user)
-        self.participant = sample_participant(
-            self.event,
-            self.existed_user
+        self.event = EventFactory(
+            organizer=self.existed_user,
+            event_time=make_aware(datetime.datetime.now())
+        )
+        self.participant = ParticipantFactory(
+            event=self.event,
+            user=self.existed_user
         )
         self.client = APIClient()
 
@@ -149,7 +121,7 @@ class PublicUserApiTests(TestCase):
                     'id': self.event.id,
                     'title': self.event.title,
                     'image': self.event.image_url,
-                    'event_time': self.event.event_time,
+                    'event_time': self.event.event_time.strftime('%Y-%m-%d %H:%M:%S'),
                     'address': self.event.address,
                     "participant_count": 1
                 }
@@ -161,7 +133,7 @@ class PublicUserApiTests(TestCase):
         """Test retrieving organized events"""
         count = 0
         while count < 10:
-            sample_event(organizer=self.existed_user)
+            EventFactory(organizer=self.existed_user)
             count += 1
 
         url = organized_event_url(self.existed_user.id)
@@ -188,7 +160,7 @@ class PublicUserApiTests(TestCase):
                     'id': self.event.id,
                     'title': self.event.title,
                     'image': self.event.image_url,
-                    'event_time': self.event.event_time,
+                    'event_time': self.event.event_time.strftime('%Y-%m-%d %H:%M:%S'),
                     'address': self.event.address,
                     "participant_count": 1
                 }
@@ -200,9 +172,9 @@ class PublicUserApiTests(TestCase):
         """Test retrieving joined events"""
         count = 0
         while count < 10:
-            sample_participant(
-                sample_event(organizer=self.existed_user),
-                self.existed_user
+            ParticipantFactory(
+                event=EventFactory(organizer=self.existed_user),
+                user=self.existed_user
             )
             count += 1
 
@@ -239,11 +211,8 @@ class PrivateUserApiTests(TestCase):
     """Test API requests that require authentication"""
 
     def setUp(self):
-        self.user = create_user(
-            email='test@matsuda.com',
-            password='testpass'
-        )
-        self.another_user = create_user(
+        self.user = UserFactory()
+        self.another_user = UserFactory(
             email='test1@matsuda.com',
             password='testpass'
         )

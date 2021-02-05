@@ -1,6 +1,5 @@
 import datetime
 
-from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.urls import reverse
 from django.utils.timezone import localtime, make_aware
@@ -8,6 +7,7 @@ from rest_framework import status
 from rest_framework.test import APIClient
 
 from core.models import Event, EventComment
+from core.factorys import UserFactory, EventFactory, EventCommentFactory
 
 
 def detail_url(event_id):
@@ -20,31 +20,10 @@ def delete_url(event_id, comment_id):
     return reverse('event:deleteComment', args=[event_id, comment_id])
 
 
-def sample_user(**params):
-    """Create and return a sample user"""
-    return get_user_model().objects.create_user(**params)
-
-
-def sample_event(user):
-    """Create and return a sample event"""
-    default = {
-        'title': 'test title',
-        'description': 'test description',
-        'image': None,
-        'event_time': make_aware(datetime.datetime.now())
-        .strftime('%Y-%m-%d %H:%M:%S'),
-        'address': 'test address',
-        'fee': 500,
-        'status': '1',
-    }
-
-    return Event.objects.create(organizer=user, **default)
-
-
-def sample_event_comment(event, user, comment='test comment'):
-    """Create and return a sample event comment"""
-    default = {'event': event, 'user': user, 'comment': comment}
-    return EventComment.objects.create(**default)
+# def sample_event_comment(event, user, comment='test comment'):
+#     """Create and return a sample event comment"""
+#     default = {'event': event, 'user': user, 'comment': comment}
+#     return EventComment.objects.create(**default)
 
 
 def get_event_comment_by_json(**params):
@@ -68,14 +47,17 @@ class PublicEventCommentApiTests(TestCase):
     """Test that publcly available event comments API"""
 
     def setUp(self):
-        self.user = sample_user(
+        self.user = UserFactory(
             email='test@matsuda.com',
-            password='testpass',
             first_name='test'
         )
-        self.event = sample_event(self.user)
-        self.event_comment = sample_event_comment(self.event, self.user)
-        self.deleted_comment = sample_event_comment(self.event, self.user)
+        self.event = EventFactory(organizer=self.user)
+        self.event_comment = EventCommentFactory(
+            event=self.event, user=self.user
+        )
+        self.deleted_comment = EventCommentFactory(
+            event=self.event, user=self.user
+        )
         self.deleted_comment.delete()
         self.deleted_comment.refresh_from_db()
         self.client = APIClient()
@@ -113,7 +95,9 @@ class PublicEventCommentApiTests(TestCase):
         """Test retrieving event comments with pagination"""
         count = 0
         while count < 15:
-            sample_event_comment(self.event, self.user)
+            EventCommentFactory(
+                event=self.event, user=self.user
+            )
             count += 1
 
         url = detail_url(self.event.id)
@@ -173,24 +157,25 @@ class PrivateEventCommentApiTests(TestCase):
 
     def setUp(self):
         self.client = APIClient()
-        self.organizer = sample_user(
+        self.organizer = UserFactory(
             email='test@matsuda.com',
-            password='testpass',
             first_name='test'
         )
-        self.comment_user = sample_user(
+        self.comment_user = UserFactory(
             email='test2@matsuda.com',
             password='testpass2',
             first_name='testtest'
         )
-        self.event = sample_event(self.organizer)
-        self.private_event = sample_event(self.organizer)
+        self.event = EventFactory(organizer=self.organizer)
+        self.private_event = EventFactory(organizer=self.organizer)
         self.private_event.status = '0'
         self.private_event.save()
-        self.organizer_comment = sample_event_comment(
-            self.event, self.organizer)
-        self.event_comment = sample_event_comment(
-            self.event, self.comment_user)
+        self.organizer_comment = EventCommentFactory(
+            event=self.event, user=self.organizer
+        )
+        self.event_comment = EventCommentFactory(
+            event=self.event, user=self.comment_user
+        )
         self.client.force_authenticate(self.organizer)
 
     def test_create_event_comment_successful(self):

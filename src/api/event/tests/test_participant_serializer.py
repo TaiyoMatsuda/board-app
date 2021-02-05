@@ -1,63 +1,36 @@
 import datetime
 
-from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.utils.timezone import make_aware
 
-from core.models import Event, Participant
+from core.models import Participant
+from core.factorys import UserFactory, EventFactory, ParticipantFactory
 from event.serializers import (ListCreateParticipantSerializer,
                                UpdateParticipantSerializer)
-
-
-def sample_user(**params):
-    """Create and return a sample user"""
-    return get_user_model().objects.create_user(**params)
-
-
-def sample_event(user):
-    """Create and return a sample comment"""
-    default = {
-        'title': 'test title',
-        'description': 'test description',
-        'organizer': user,
-        'image': None,
-        'event_time': make_aware(datetime.datetime.now())
-        .strftime('%Y-%m-%d %H:%M:%S'),
-        'address': 'test address',
-        'fee': 500,
-    }
-
-    return Event.objects.create(**default)
-
-
-def sample_participant(event, user, **params):
-    """Create and return a sample participant"""
-    return Participant.objects.create(event=event, user=user, **params)
 
 
 class ParticipantSerializerApiTests(TestCase):
     """Test participant serializer API"""
 
     def setUp(self):
-        self.organizer_user = sample_user(
-            email='organizer@gmail.com',
-            password='testpass'
-        )
+        self.organizer_user = UserFactory(email='organizer@gmail.com')
         self.organizer_user.first_name = 'organizer'
         self.organizer_user.is_guide = True
         self.organizer_user.save()
-        self.participant_user = sample_user(
-            email='participant@gmail.com',
-            password='testpass'
-        )
+        self.participant_user = UserFactory(email='participant@gmail.com')
         self.participant_user.first_name = 'participant'
         self.participant_user.save()
 
-        self.event = sample_event(self.organizer_user)
+        self.event = EventFactory(organizer=self.organizer_user)
 
-        self.organizer = sample_participant(self.event, self.organizer_user)
-        self.participant = sample_participant(
-            self.event, self.participant_user)
+        self.organizer = ParticipantFactory(
+            event=self.event, 
+            user=self.organizer_user
+        )
+        self.participant = ParticipantFactory(
+            event=self.event, 
+            user=self.participant_user
+        )
 
     def test_retrieve_participant_successful(self):
         """Test retrieving participant successful"""
@@ -81,10 +54,7 @@ class ParticipantSerializerApiTests(TestCase):
 
     def test_creating_participant_successful(self):
         """Test creating participant successful"""
-        new_participant = sample_user(
-            email='new_participant@gmail.com',
-            password='testpass'
-        )
+        new_participant = UserFactory(email='new_participant@gmail.com')
         new_participant.first_name = 'newparticipant'
         new_participant.save()
         data = {
@@ -104,10 +74,7 @@ class ParticipantSerializerApiTests(TestCase):
 
     def test_not_creating_participant_with_wrong_event_id_type(self):
         """Test not creating participant with worng event id type"""
-        new_participant = sample_user(
-            email='new_participant@gmail.com',
-            password='testpass'
-        )
+        new_participant = UserFactory(email='new_participant@gmail.com')
         new_participant.first_name = 'newparticipant'
         new_participant.save()
         data = {
@@ -120,10 +87,7 @@ class ParticipantSerializerApiTests(TestCase):
 
     def test_not_creating_participant_with_wrong_user_id_type(self):
         """Test not creating participant with worng user id type"""
-        new_participant = sample_user(
-            email='new_participant@gmail.com',
-            password='testpass'
-        )
+        new_participant = UserFactory(email='new_participant@gmail.com')
         new_participant.first_name = 'newparticipant'
         new_participant.save()
         data = {

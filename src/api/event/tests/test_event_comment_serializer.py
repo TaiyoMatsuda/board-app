@@ -1,57 +1,21 @@
 import datetime
 
-from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.utils.timezone import make_aware
 
-from core.models import Event, EventComment
+from core.factorys import UserFactory, EventFactory, EventCommentFactory
 from event.serializers import ListCreateEventCommentSerializer
-
-
-def sample_user(**params):
-    """Create and return a sample user"""
-    return get_user_model().objects.create_user(**params)
-
-
-def sample_event(user):
-    """Create and return a sample event"""
-    default = {
-        'title': 'test title',
-        'description': 'test description',
-        'image': None,
-        'event_time': make_aware(datetime.datetime.now())
-        .strftime('%Y-%m-%d %H:%M:%S'),
-        'address': 'test address',
-        'fee': 500,
-    }
-
-    return Event.objects.create(organizer=user, **default)
-
-
-def sample_event_comment(event, user, comment='test comment', **params):
-    """Create and return a sample comment"""
-    default = {
-        'event': event,
-        'user': user,
-        'comment': comment,
-    }
-    default.update(params)
-
-    return EventComment.objects.create(**default)
 
 
 class EventCommentSerializerApiTests(TestCase):
     """Test event comment serializer API"""
 
     def setUp(self):
-        self.organaizer = sample_user(
-            email='organaizer@matsuda.com',
-            password='testpass'
-        )
-        self.event = sample_event(self.organaizer)
-        self.event_comment = sample_event_comment(
-            self.event,
-            self.organaizer
+        self.organaizer = UserFactory(email='organaizer@matsuda.com')
+        self.event = EventFactory(organizer=self.organaizer)
+        self.event_comment = EventCommentFactory(
+            event=self.event,
+            user=self.organaizer
         )
 
     def test_create_event_comment_successful(self):

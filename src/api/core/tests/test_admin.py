@@ -2,6 +2,7 @@ from django.contrib.auth import get_user_model
 from django.test import Client, TestCase
 from django.urls import reverse
 
+from core.factorys import UserFactory
 
 class AdminSiteTests(TestCase):
 
@@ -12,12 +13,7 @@ class AdminSiteTests(TestCase):
             password='password123'
         )
         self.client.force_login(self.admin_user)
-        self.user = get_user_model().objects.create_user(
-            email='test5@matsuda.com',
-            password='password123',
-            first_name='testfirst',
-            family_name='testlast'
-        )
+        self.user = UserFactory(first_name='testfirst',family_name='testlast')
 
     def test_users_listed(self):
         """Test that users are listed on user page"""

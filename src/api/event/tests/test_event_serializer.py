@@ -1,43 +1,19 @@
 import datetime
 
-from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.utils.timezone import make_aware
 
 from core.models import Event
+from core.factorys import UserFactory, EventFactory
 from event.serializers import CreateEventSerializer
-
-
-def sample_user(**params):
-    """Create and return a sample user"""
-    return get_user_model().objects.create_user(**params)
-
-
-def sample_event(user):
-    """Create and return a sample comment"""
-    default = {
-        'title': 'test title',
-        'description': 'test description',
-        'organizer': user,
-        'image': None,
-        'event_time': make_aware(datetime.datetime.now())
-        .strftime('%Y-%m-%d %H:%M:%S'),
-        'address': 'test address',
-        'fee': 500,
-    }
-
-    return Event.objects.create(**default)
 
 
 class EventSerializerApiTests(TestCase):
     """Test event serializer API"""
 
     def setUp(self):
-        self.organizer = sample_user(
-            email='organizer@matsuda.com',
-            password='testpass'
-        )
-        self.event = sample_event(self.organizer)
+        self.organizer = UserFactory(email='organizer@matsuda.com')
+        self.event = EventFactory(organizer=self.organizer)
 
     def test_validate_event_successful(self):
         """Test validate event fields successful"""
