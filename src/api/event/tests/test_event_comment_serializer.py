@@ -3,21 +3,8 @@ import datetime
 from django.test import TestCase
 from django.utils.timezone import make_aware
 
-from core.models import Event, EventComment
-from core.factorys import UserFactory, EventFactory
+from core.factorys import UserFactory, EventFactory, EventCommentFactory
 from event.serializers import ListCreateEventCommentSerializer
-
-
-def sample_event_comment(event, user, comment='test comment', **params):
-    """Create and return a sample comment"""
-    default = {
-        'event': event,
-        'user': user,
-        'comment': comment,
-    }
-    default.update(params)
-
-    return EventComment.objects.create(**default)
 
 
 class EventCommentSerializerApiTests(TestCase):
@@ -26,9 +13,9 @@ class EventCommentSerializerApiTests(TestCase):
     def setUp(self):
         self.organaizer = UserFactory(email='organaizer@matsuda.com')
         self.event = EventFactory(organizer=self.organaizer)
-        self.event_comment = sample_event_comment(
-            self.event,
-            self.organaizer
+        self.event_comment = EventCommentFactory(
+            event=self.event,
+            user=self.organaizer
         )
 
     def test_create_event_comment_successful(self):

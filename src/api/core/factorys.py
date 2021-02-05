@@ -28,6 +28,14 @@ class EventFactory(factory.django.DjangoModelFactory):
     fee = 500
     status = Event.Status.PUBLIC
 
+
+class EventCommentFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = EventComment
+    
+    comment = 'test comment'
+
+
 class ParticipantFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = Participant
