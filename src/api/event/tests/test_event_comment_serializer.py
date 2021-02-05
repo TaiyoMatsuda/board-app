@@ -1,5 +1,7 @@
 import datetime
 
+from faker import Faker
+
 from django.test import TestCase
 from django.utils.timezone import make_aware
 
@@ -7,15 +9,17 @@ from core.factorys import UserFactory, EventFactory, EventCommentFactory
 from event.serializers import ListCreateEventCommentSerializer
 
 
+fake = Faker()
+
+
 class EventCommentSerializerApiTests(TestCase):
     """Test event comment serializer API"""
 
     def setUp(self):
-        self.organaizer = UserFactory(email='organaizer@matsuda.com')
+        self.organaizer = UserFactory()
         self.event = EventFactory(organizer=self.organaizer)
         self.event_comment = EventCommentFactory(
-            event=self.event,
-            user=self.organaizer
+            event=self.event, user=self.organaizer
         )
 
     def test_create_event_comment_successful(self):
@@ -23,7 +27,7 @@ class EventCommentSerializerApiTests(TestCase):
         payload = {
             'event': self.event.id,
             'user': self.organaizer.id,
-            'comment': 'test comment'
+            'comment': fake.text(max_nb_chars=500)
         }
         serializer = ListCreateEventCommentSerializer(data=payload)
         self.assertTrue(serializer.is_valid())

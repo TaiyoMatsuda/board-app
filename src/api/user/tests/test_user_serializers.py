@@ -1,5 +1,7 @@
 import datetime
 
+from faker import Faker
+
 from django.test import TestCase
 from django.utils.timezone import make_aware
 
@@ -10,15 +12,18 @@ from user.serializers import (ShowUserSerializer, UserEmailSerializer,
                               UserShortNameSerializer)
 
 
+fake = Faker()
+
+
 class UserSerializerApiTests(TestCase):
     """Test user serializer API"""
 
     def setUp(self):
-        self.email = 'organizer@matsuda.com'
+        self.email = fake.safe_email()
         self.organizer = UserFactory(email=self.email)
-        self.organizer.first_name = 'firstname'
-        self.organizer.family_name = 'family_name'
-        self.organizer.introduction = 'introduction'
+        self.organizer.first_name = fake.first_name()
+        self.organizer.family_name = fake.last_name()
+        self.organizer.introduction = fake.text(max_nb_chars=1000)
         self.organizer.is_guide = True
         self.organizer.save()
 
@@ -51,10 +56,10 @@ class UserSerializerApiTests(TestCase):
             'is_guide': self.organizer.is_guide
         }
         self.assertEqual(serializer.data, expected_dict)
-    
+
     def test_retrieve_designated_user_short_name(self):
         """Test retrieving a user short name"""
-        noname_user = UserFactory(email='noname@matsuda.com')
+        noname_user = UserFactory(email=fake.safe_email())
 
         serializer = UserShortNameSerializer(instance=noname_user)
         self.assertEqual(serializer.data, {'short_name': 'noname'})
@@ -120,8 +125,10 @@ class UserSerializerApiTests(TestCase):
 
     def test_updating_other_field_with_userserialize(self):
         """Test not updating other fields"""
-        data = {'email': 'organizer_changed@matsuda.com'}
-        serializer = UserSerializer(instance=self.organizer, data=data)
+        serializer = UserSerializer(
+            instance=self.organizer,
+            data={'email': fake.safe_email()}
+        )
         self.assertTrue(serializer.is_valid())
         serializer.save()
         self.assertEqual(self.organizer.email, self.email)
@@ -129,12 +136,12 @@ class UserSerializerApiTests(TestCase):
     def test_retrieve_user_email_successful(self):
         """Test retrieving user email successful"""
         serializer = UserEmailSerializer(instance=self.organizer)
-        expected_dict = {'email': 'organizer@matsuda.com'}
+        expected_dict = {'email': self.email}
         self.assertEqual(serializer.data, expected_dict)
 
     def test_update_user_email_successful(self):
         """Test validate user email successful"""
-        data = {'email': 'organizer_changed@matsuda.com'}
+        data = {'email': fake.safe_email()}
         serializer = UserEmailSerializer(instance=self.organizer, data=data)
         self.assertTrue(serializer.is_valid())
 
@@ -153,7 +160,7 @@ class UserSerializerApiTests(TestCase):
         events = Event.objects.filter(
             organizer=self.organizer.id, is_active=True)
         serializer = UserEventsSerializer(instance=events, many=True)
-        
+
         expected_dict = {
             'id': self.event.id,
             'title': self.event.title,

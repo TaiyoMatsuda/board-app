@@ -2,6 +2,8 @@ import datetime
 import os
 import tempfile
 
+from faker import Faker
+
 from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.urls import reverse
@@ -13,6 +15,9 @@ from rest_framework.test import APIClient
 from core.factorys import UserFactory, EventFactory, ParticipantFactory
 
 USER_URL = reverse('user:user-list')
+
+
+fake = Faker()
 
 
 def detail_url(user_id):
@@ -54,11 +59,9 @@ class PublicUserApiTests(TestCase):
     """Test the users API (public)"""
 
     def setUp(self):
-        self.password = 'testpass'
         self.existed_user = UserFactory(
-            email='existed_user@matsuda.com',
-            password=self.password,
-            first_name='existed'
+            email=fake.safe_email(),
+            first_name=fake.first_name()
         )
         self.existed_user.is_guide = True
         self.existed_user.save()
@@ -75,7 +78,7 @@ class PublicUserApiTests(TestCase):
     def test_retrieve_designated_user(self):
         """Test retrieving a user"""
         url = show_user_url(self.existed_user.id)
-        
+
         res = self.client.get(url)
         self.assertEqual(res.status_code, status.HTTP_200_OK)
 
@@ -121,7 +124,8 @@ class PublicUserApiTests(TestCase):
                     'id': self.event.id,
                     'title': self.event.title,
                     'image': self.event.image_url,
-                    'event_time': self.event.event_time.strftime('%Y-%m-%d %H:%M:%S'),
+                    'event_time': self.event.event_time
+                    .strftime('%Y-%m-%d %H:%M:%S'),
                     'address': self.event.address,
                     "participant_count": 1
                 }
@@ -160,7 +164,8 @@ class PublicUserApiTests(TestCase):
                     'id': self.event.id,
                     'title': self.event.title,
                     'image': self.event.image_url,
-                    'event_time': self.event.event_time.strftime('%Y-%m-%d %H:%M:%S'),
+                    'event_time': self.event.event_time
+                    .strftime('%Y-%m-%d %H:%M:%S'),
                     'address': self.event.address,
                     "participant_count": 1
                 }
@@ -211,18 +216,15 @@ class PrivateUserApiTests(TestCase):
     """Test API requests that require authentication"""
 
     def setUp(self):
-        self.user = UserFactory()
-        self.another_user = UserFactory(
-            email='test1@matsuda.com',
-            password='testpass'
-        )
+        self.user = UserFactory(email=fake.safe_email())
+        self.another_user = UserFactory(email=fake.safe_email())
         self.client = APIClient()
         self.client.force_authenticate(user=self.user)
 
     def test_retrieve_designated_user_short_name(self):
         """Test retrieving a user short name"""
         url = short_name_url(self.user.id)
-        
+
         res = self.client.get(url)
         self.assertEqual(res.status_code, status.HTTP_200_OK)
 
@@ -246,7 +248,6 @@ class PrivateUserApiTests(TestCase):
 
         self.assertJSONEqual(res.content, {'short_name': firstName})
 
-
     def test_retrieve_user_email(self):
         """Test success retrive user e-mail"""
         url = email_url(self.user.id)
@@ -256,7 +257,7 @@ class PrivateUserApiTests(TestCase):
 
     def test_update_user_email(self):
         """Test success updating the user e-mail"""
-        email = 'change_email@matsuda.com'
+        email = fake.safe_email()
         url = email_url(self.user.id)
         res = self.client.patch(url, {'email': email})
         self.assertEqual(res.status_code, status.HTTP_200_OK)
@@ -265,9 +266,9 @@ class PrivateUserApiTests(TestCase):
 
     def test_full_update_user_profile(self):
         """Test full updating the user profile for authenticated user"""
-        change_first_name = 'firstname'
-        change_family_name = 'family_name'
-        change_introduction = 'introduction'
+        change_first_name = fake.first_name()
+        change_family_name = fake.last_name()
+        change_introduction = fake.text(max_nb_chars=1000)
         with tempfile.NamedTemporaryFile(suffix='.jpg') as ntf:
             img = Image.new('RGB', (10, 10))
             img.save(ntf, format='JPEG')

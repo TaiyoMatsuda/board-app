@@ -1,5 +1,7 @@
 import datetime
 
+from faker import Faker
+
 from django.test import TestCase
 from django.urls import reverse
 from django.utils.timezone import localtime, make_aware
@@ -10,6 +12,9 @@ from core.models import Event, EventComment
 from core.factorys import UserFactory, EventFactory, EventCommentFactory
 
 
+fake = Faker()
+
+
 def detail_url(event_id):
     """Return detail event comment URL"""
     return reverse('event:eventComment', args=[event_id])
@@ -18,12 +23,6 @@ def detail_url(event_id):
 def delete_url(event_id, comment_id):
     """Return delete event comment URL"""
     return reverse('event:deleteComment', args=[event_id, comment_id])
-
-
-# def sample_event_comment(event, user, comment='test comment'):
-#     """Create and return a sample event comment"""
-#     default = {'event': event, 'user': user, 'comment': comment}
-#     return EventComment.objects.create(**default)
 
 
 def get_event_comment_by_json(**params):
@@ -47,10 +46,7 @@ class PublicEventCommentApiTests(TestCase):
     """Test that publcly available event comments API"""
 
     def setUp(self):
-        self.user = UserFactory(
-            email='test@matsuda.com',
-            first_name='test'
-        )
+        self.user = UserFactory(first_name=fake.first_name())
         self.event = EventFactory(organizer=self.user)
         self.event_comment = EventCommentFactory(
             event=self.event, user=self.user
@@ -158,17 +154,16 @@ class PrivateEventCommentApiTests(TestCase):
     def setUp(self):
         self.client = APIClient()
         self.organizer = UserFactory(
-            email='test@matsuda.com',
-            first_name='test'
+            email=fake.safe_email(),
+            first_name=fake.first_name()
         )
         self.comment_user = UserFactory(
-            email='test2@matsuda.com',
-            password='testpass2',
-            first_name='testtest'
+            email=fake.safe_email(),
+            first_name=fake.first_name()
         )
         self.event = EventFactory(organizer=self.organizer)
         self.private_event = EventFactory(organizer=self.organizer)
-        self.private_event.status = '0'
+        self.private_event.status = Event.Status.PRIVATE.value
         self.private_event.save()
         self.organizer_comment = EventCommentFactory(
             event=self.event, user=self.organizer
@@ -180,7 +175,7 @@ class PrivateEventCommentApiTests(TestCase):
 
     def test_create_event_comment_successful(self):
         """Test creating a new event comment"""
-        str_comment = 'test_create_event_comment_successful'
+        str_comment = fake.text(max_nb_chars=500)
         payload = {
             'comment': str_comment,
         }
@@ -194,7 +189,7 @@ class PrivateEventCommentApiTests(TestCase):
     def test_not_create_event_comment_to_private_event(self):
         """Test not creating a new comment to private event"""
         payload = {
-            'comment': 'testcomment',
+            'comment': fake.text(max_nb_chars=500),
         }
         url = detail_url(self.private_event.id)
         res = self.client.post(url, payload)
@@ -205,7 +200,7 @@ class PrivateEventCommentApiTests(TestCase):
         self.event.delete()
 
         payload = {
-            'comment': 'testcomment',
+            'comment': fake.text(max_nb_chars=500),
         }
         url = detail_url(self.event.id)
         res = self.client.post(url, payload)
