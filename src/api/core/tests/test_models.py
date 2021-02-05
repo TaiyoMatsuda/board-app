@@ -1,4 +1,5 @@
 import datetime
+
 from unittest.mock import patch
 
 from django.contrib.auth import get_user_model
@@ -6,11 +7,8 @@ from django.test import TestCase
 from django.utils.timezone import make_aware
 
 from core import models
+from core.factorys import UserFactory
 
-
-def sample_user(email='sampleuser@matsuda.com', password='testpass'):
-    """Create a sample user"""
-    return get_user_model().objects.create_user(email, password)
 
 def sample_event(user):
     """Create a sample event"""
@@ -28,7 +26,7 @@ def sample_event(user):
 class ModelTests(TestCase):
 
     def setUp(self):
-        self.user = sample_user()
+        self.user = UserFactory()
         self.event = sample_event(self.user)
 
     def test_create_user_with_email_successful(self):

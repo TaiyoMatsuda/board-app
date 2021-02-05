@@ -11,6 +11,7 @@ from rest_framework import status
 from rest_framework.test import APIClient
 
 from core.models import Event, Participant
+from core.factorys import UserFactory
 
 USER_URL = reverse('user:user-list')
 
@@ -50,10 +51,6 @@ def joined_event_url(user_id):
     return reverse('user:user-joinedEvents', args=[user_id])
 
 
-def create_user(**params):
-    return get_user_model().objects.create_user(**params)
-
-
 def sample_event(
     organizer,
     title='test title',
@@ -86,7 +83,7 @@ class PublicUserApiTests(TestCase):
 
     def setUp(self):
         self.password = 'testpass'
-        self.existed_user = create_user(
+        self.existed_user = UserFactory(
             email='existed_user@matsuda.com',
             password=self.password,
             first_name='existed'
@@ -239,11 +236,8 @@ class PrivateUserApiTests(TestCase):
     """Test API requests that require authentication"""
 
     def setUp(self):
-        self.user = create_user(
-            email='test@matsuda.com',
-            password='testpass'
-        )
-        self.another_user = create_user(
+        self.user = UserFactory()
+        self.another_user = UserFactory(
             email='test1@matsuda.com',
             password='testpass'
         )

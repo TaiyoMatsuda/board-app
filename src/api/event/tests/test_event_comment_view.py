@@ -1,6 +1,5 @@
 import datetime
 
-from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.urls import reverse
 from django.utils.timezone import localtime, make_aware
@@ -8,6 +7,7 @@ from rest_framework import status
 from rest_framework.test import APIClient
 
 from core.models import Event, EventComment
+from core.factorys import UserFactory
 
 
 def detail_url(event_id):
@@ -18,11 +18,6 @@ def detail_url(event_id):
 def delete_url(event_id, comment_id):
     """Return delete event comment URL"""
     return reverse('event:deleteComment', args=[event_id, comment_id])
-
-
-def sample_user(**params):
-    """Create and return a sample user"""
-    return get_user_model().objects.create_user(**params)
 
 
 def sample_event(user):
@@ -68,9 +63,8 @@ class PublicEventCommentApiTests(TestCase):
     """Test that publcly available event comments API"""
 
     def setUp(self):
-        self.user = sample_user(
+        self.user = UserFactory(
             email='test@matsuda.com',
-            password='testpass',
             first_name='test'
         )
         self.event = sample_event(self.user)
@@ -173,12 +167,11 @@ class PrivateEventCommentApiTests(TestCase):
 
     def setUp(self):
         self.client = APIClient()
-        self.organizer = sample_user(
+        self.organizer = UserFactory(
             email='test@matsuda.com',
-            password='testpass',
             first_name='test'
         )
-        self.comment_user = sample_user(
+        self.comment_user = UserFactory(
             email='test2@matsuda.com',
             password='testpass2',
             first_name='testtest'

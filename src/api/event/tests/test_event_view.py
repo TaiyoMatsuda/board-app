@@ -11,6 +11,7 @@ from rest_framework import status
 from rest_framework.test import APIClient
 
 from core.models import Event
+from core.factorys import UserFactory
 
 EVENT_URL = reverse('event:event-list')
 
@@ -18,11 +19,6 @@ EVENT_URL = reverse('event:event-list')
 def detail_url(event_id):
     """Return event detail URL"""
     return reverse('event:event-detail', args=[event_id])
-
-
-def sample_user(**params):
-    """Create and return a sample user"""
-    return get_user_model().objects.create_user(**params)
 
 
 def sample_event(
@@ -72,10 +68,7 @@ class PublicParticipantApiTests(TestCase):
     """Test that publcly available participant API"""
 
     def setUp(self):
-        self.organizer = sample_user(
-            email='testorganaizer@matsuda.com',
-            password='testpass'
-        )
+        self.organizer = UserFactory(email='testorganaizer@matsuda.com')
         self.first_event = sample_event(organizer=self.organizer)
         self.second_event = sample_event(
             organizer=self.organizer,
@@ -266,16 +259,10 @@ class PrivateParticipantApiTests(TestCase):
 
     def setUp(self):
         self.client = APIClient()
-        self.organizer = sample_user(
-            email='testorganizer@matsuda.com',
-            password='testpass'
-        )
+        self.organizer = UserFactory(email='testorganizer@matsuda.com')
         self.organizer.is_guide = True
         self.organizer.save()
-        self.user_one = sample_user(
-            email='testone@matsuda.com',
-            password='testpass'
-        )
+        self.user_one = UserFactory(email='testone@matsuda.com')
 
         self.event = sample_event(self.organizer)
 

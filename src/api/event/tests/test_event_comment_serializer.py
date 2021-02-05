@@ -1,16 +1,11 @@
 import datetime
 
-from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.utils.timezone import make_aware
 
 from core.models import Event, EventComment
+from core.factorys import UserFactory
 from event.serializers import ListCreateEventCommentSerializer
-
-
-def sample_user(**params):
-    """Create and return a sample user"""
-    return get_user_model().objects.create_user(**params)
 
 
 def sample_event(user):
@@ -44,10 +39,7 @@ class EventCommentSerializerApiTests(TestCase):
     """Test event comment serializer API"""
 
     def setUp(self):
-        self.organaizer = sample_user(
-            email='organaizer@matsuda.com',
-            password='testpass'
-        )
+        self.organaizer = UserFactory(email='organaizer@matsuda.com')
         self.event = sample_event(self.organaizer)
         self.event_comment = sample_event_comment(
             self.event,

@@ -1,15 +1,10 @@
-from django.contrib.auth import get_user_model
 from django.test import TestCase
 
 from core.models import Event
+from core.factorys import UserFactory
 from user.serializers import (ShowUserSerializer, UserEmailSerializer,
                               UserEventsSerializer, UserSerializer,
                               UserShortNameSerializer)
-
-
-def sample_user(**params):
-    """Create and return a sample user"""
-    return get_user_model().objects.create_user(**params)
 
 
 def sample_event(user):
@@ -32,10 +27,7 @@ class UserSerializerApiTests(TestCase):
 
     def setUp(self):
         self.email = 'organizer@matsuda.com'
-        self.organizer = sample_user(
-            email=self.email,
-            password='testpass'
-        )
+        self.organizer = UserFactory(email=self.email)
         self.organizer.first_name = 'firstname'
         self.organizer.family_name = 'family_name'
         self.organizer.introduction = 'introduction'
@@ -71,10 +63,7 @@ class UserSerializerApiTests(TestCase):
     
     def test_retrieve_designated_user_short_name(self):
         """Test retrieving a user short name"""
-        noname_user = sample_user(
-            email='noname@matsuda.com',
-            password='testpass'
-        )
+        noname_user = UserFactory(email='noname@matsuda.com')
 
         serializer = UserShortNameSerializer(instance=noname_user)
         self.assertEqual(serializer.data, {'short_name': 'noname'})

@@ -1,6 +1,5 @@
 import datetime
 
-from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.urls import reverse
 from django.utils.timezone import make_aware
@@ -8,6 +7,7 @@ from rest_framework import status
 from rest_framework.test import APIClient
 
 from core.models import Event, Participant
+from core.factorys import UserFactory
 
 
 def listCreate_url(event_id):
@@ -23,11 +23,6 @@ def cancel_url(event_id):
 def join_url(event_id):
     """Return update status URL"""
     return reverse('event:joinParticipant', args=[event_id])
-
-
-def sample_user(**params):
-    """Create and return a sample user"""
-    return get_user_model().objects.create_user(**params)
 
 
 def sample_event(user):
@@ -55,17 +50,17 @@ class PublicParticipantApiTests(TestCase):
     """Test that publcly available participant API"""
 
     def setUp(self):
-        self.organizer = sample_user(
+        self.organizer = UserFactory(
             email='organizer@matsuda.com',
             password='testpass',
             first_name='organizer'
         )
-        self.new_organizer = sample_user(
+        self.new_organizer = UserFactory(
             email='new_organizer@matsuda.com',
             password='testpass',
             first_name='neworganizer'
         )
-        self.follower = sample_user(
+        self.follower = UserFactory(
             email='follower@matsuda.com',
             password='testpass',
             first_name='follower'
@@ -162,17 +157,17 @@ class PrivateParticipantApiTests(TestCase):
 
     def setUp(self):
         self.client = APIClient()
-        self.organizer = sample_user(
+        self.organizer = UserFactory(
             email='organizer@matsuda.com',
             password='testpass',
             first_name='organizer'
         )
-        self.new_organizer = sample_user(
+        self.new_organizer = UserFactory(
             email='new_organizer@matsuda.com',
             password='testpass',
             first_name='new_organizer'
         )
-        self.follower = sample_user(
+        self.follower = UserFactory(
             email='follower@matsuda.com',
             password='testpass',
             first_name='follower'
