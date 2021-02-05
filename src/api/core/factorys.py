@@ -5,7 +5,7 @@ from django.utils.timezone import now, localtime
 from django.contrib.auth import get_user_model
 from django.utils.timezone import make_aware
 
-from core.models import Event, EventComment
+from core.models import Event, EventComment, Participant
 
 
 class UserFactory(factory.django.DjangoModelFactory):
@@ -27,3 +27,7 @@ class EventFactory(factory.django.DjangoModelFactory):
     address = 'test address'
     fee = 500
     status = Event.Status.PUBLIC
+
+class ParticipantFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = Participant

@@ -3,15 +3,10 @@ import datetime
 from django.test import TestCase
 from django.utils.timezone import make_aware
 
-from core.models import Event, Participant
-from core.factorys import UserFactory, EventFactory
+from core.models import Participant
+from core.factorys import UserFactory, EventFactory, ParticipantFactory
 from event.serializers import (ListCreateParticipantSerializer,
                                UpdateParticipantSerializer)
-
-
-def sample_participant(event, user, **params):
-    """Create and return a sample participant"""
-    return Participant.objects.create(event=event, user=user, **params)
 
 
 class ParticipantSerializerApiTests(TestCase):
@@ -28,9 +23,14 @@ class ParticipantSerializerApiTests(TestCase):
 
         self.event = EventFactory(organizer=self.organizer_user)
 
-        self.organizer = sample_participant(self.event, self.organizer_user)
-        self.participant = sample_participant(
-            self.event, self.participant_user)
+        self.organizer = ParticipantFactory(
+            event=self.event, 
+            user=self.organizer_user
+        )
+        self.participant = ParticipantFactory(
+            event=self.event, 
+            user=self.participant_user
+        )
 
     def test_retrieve_participant_successful(self):
         """Test retrieving participant successful"""

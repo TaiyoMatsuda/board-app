@@ -7,7 +7,7 @@ from rest_framework import status
 from rest_framework.test import APIClient
 
 from core.models import Event, Participant
-from core.factorys import UserFactory, EventFactory
+from core.factorys import UserFactory, EventFactory, ParticipantFactory
 
 
 def listCreate_url(event_id):
@@ -23,11 +23,6 @@ def cancel_url(event_id):
 def join_url(event_id):
     """Return update status URL"""
     return reverse('event:joinParticipant', args=[event_id])
-
-
-def sample_participant(event, user, **params):
-    """Create and return a sample participant"""
-    return Participant.objects.create(event=event, user=user, **params)
 
 
 class PublicParticipantApiTests(TestCase):
@@ -52,17 +47,17 @@ class PublicParticipantApiTests(TestCase):
 
         self.event = EventFactory(organizer=self.organizer)
         self.event_two = EventFactory(organizer=self.organizer)
-        self.participant_one = sample_participant(
-            self.event,
-            self.organizer
+        self.participant_one = ParticipantFactory(
+            event=self.event,
+            user=self.organizer
         )
-        self.participant_two = sample_participant(
-            self.event,
-            self.follower
+        self.participant_two = ParticipantFactory(
+            event=self.event,
+            user=self.follower
         )
-        self.participant_three = sample_participant(
-            self.event_two,
-            self.organizer
+        self.participant_three = ParticipantFactory(
+            event=self.event_two,
+            user=self.organizer
         )
 
         self.client = APIClient()
@@ -163,9 +158,9 @@ class PrivateParticipantApiTests(TestCase):
         self.cancel_event = EventFactory(organizer=self.organizer)
         self.cancel_event.status = Event.Status.CANCEL.value
         self.cancel_event.save()
-        self.participant = sample_participant(
-            self.event,
-            self.follower
+        self.participant = ParticipantFactory(
+            event=self.event,
+            user=self.follower
         )
 
     def test_create_participant_successful(self):

@@ -10,8 +10,7 @@ from PIL import Image
 from rest_framework import status
 from rest_framework.test import APIClient
 
-from core.models import Event, Participant
-from core.factorys import UserFactory, EventFactory
+from core.factorys import UserFactory, EventFactory, ParticipantFactory
 
 USER_URL = reverse('user:user-list')
 
@@ -51,11 +50,6 @@ def joined_event_url(user_id):
     return reverse('user:user-joinedEvents', args=[user_id])
 
 
-def sample_participant(event, user, **params):
-    """Create and return a sample participant"""
-    return Participant.objects.create(event=event, user=user, **params)
-
-
 class PublicUserApiTests(TestCase):
     """Test the users API (public)"""
 
@@ -72,9 +66,9 @@ class PublicUserApiTests(TestCase):
             organizer=self.existed_user,
             event_time=make_aware(datetime.datetime.now())
         )
-        self.participant = sample_participant(
-            self.event,
-            self.existed_user
+        self.participant = ParticipantFactory(
+            event=self.event,
+            user=self.existed_user
         )
         self.client = APIClient()
 
@@ -178,9 +172,9 @@ class PublicUserApiTests(TestCase):
         """Test retrieving joined events"""
         count = 0
         while count < 10:
-            sample_participant(
-                EventFactory(organizer=self.existed_user),
-                self.existed_user
+            ParticipantFactory(
+                event=EventFactory(organizer=self.existed_user),
+                user=self.existed_user
             )
             count += 1
 
