@@ -7,7 +7,7 @@ from rest_framework import status
 from rest_framework.test import APIClient
 
 from core.models import Event, EventComment
-from core.factorys import UserFactory
+from core.factorys import UserFactory, EventFactory
 
 
 def detail_url(event_id):
@@ -18,22 +18,6 @@ def detail_url(event_id):
 def delete_url(event_id, comment_id):
     """Return delete event comment URL"""
     return reverse('event:deleteComment', args=[event_id, comment_id])
-
-
-def sample_event(user):
-    """Create and return a sample event"""
-    default = {
-        'title': 'test title',
-        'description': 'test description',
-        'image': None,
-        'event_time': make_aware(datetime.datetime.now())
-        .strftime('%Y-%m-%d %H:%M:%S'),
-        'address': 'test address',
-        'fee': 500,
-        'status': '1',
-    }
-
-    return Event.objects.create(organizer=user, **default)
 
 
 def sample_event_comment(event, user, comment='test comment'):
@@ -67,7 +51,7 @@ class PublicEventCommentApiTests(TestCase):
             email='test@matsuda.com',
             first_name='test'
         )
-        self.event = sample_event(self.user)
+        self.event = EventFactory(organizer=self.user)
         self.event_comment = sample_event_comment(self.event, self.user)
         self.deleted_comment = sample_event_comment(self.event, self.user)
         self.deleted_comment.delete()
@@ -176,8 +160,8 @@ class PrivateEventCommentApiTests(TestCase):
             password='testpass2',
             first_name='testtest'
         )
-        self.event = sample_event(self.organizer)
-        self.private_event = sample_event(self.organizer)
+        self.event = EventFactory(organizer=self.organizer)
+        self.private_event = EventFactory(organizer=self.organizer)
         self.private_event.status = '0'
         self.private_event.save()
         self.organizer_comment = sample_event_comment(

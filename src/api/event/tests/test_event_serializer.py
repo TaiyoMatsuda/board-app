@@ -4,24 +4,8 @@ from django.test import TestCase
 from django.utils.timezone import make_aware
 
 from core.models import Event
-from core.factorys import UserFactory
+from core.factorys import UserFactory, EventFactory
 from event.serializers import CreateEventSerializer
-
-
-def sample_event(user):
-    """Create and return a sample comment"""
-    default = {
-        'title': 'test title',
-        'description': 'test description',
-        'organizer': user,
-        'image': None,
-        'event_time': make_aware(datetime.datetime.now())
-        .strftime('%Y-%m-%d %H:%M:%S'),
-        'address': 'test address',
-        'fee': 500,
-    }
-
-    return Event.objects.create(**default)
 
 
 class EventSerializerApiTests(TestCase):
@@ -29,7 +13,7 @@ class EventSerializerApiTests(TestCase):
 
     def setUp(self):
         self.organizer = UserFactory(email='organizer@matsuda.com')
-        self.event = sample_event(self.organizer)
+        self.event = EventFactory(organizer=self.organizer)
 
     def test_validate_event_successful(self):
         """Test validate event fields successful"""

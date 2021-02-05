@@ -7,27 +7,14 @@ from django.test import TestCase
 from django.utils.timezone import make_aware
 
 from core import models
-from core.factorys import UserFactory
-
-
-def sample_event(user):
-    """Create a sample event"""
-    return models.Event.objects.create(
-        title='sample event',
-        description='test description',
-        organizer=user,
-        event_time=make_aware(datetime.datetime.now())
-        .strftime('%Y-%m-%d %H:%M:%S'),
-        address='sample test place',
-        fee=500
-    )
+from core.factorys import UserFactory, EventFactory
 
 
 class ModelTests(TestCase):
 
     def setUp(self):
         self.user = UserFactory()
-        self.event = sample_event(self.user)
+        self.event = EventFactory(organizer=self.user)
 
     def test_create_user_with_email_successful(self):
         """Test creating a new user withh an email is successful"""

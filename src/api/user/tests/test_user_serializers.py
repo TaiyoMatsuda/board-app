@@ -1,25 +1,13 @@
+import datetime
+
 from django.test import TestCase
+from django.utils.timezone import make_aware
 
 from core.models import Event
-from core.factorys import UserFactory
+from core.factorys import UserFactory, EventFactory
 from user.serializers import (ShowUserSerializer, UserEmailSerializer,
                               UserEventsSerializer, UserSerializer,
                               UserShortNameSerializer)
-
-
-def sample_event(user):
-    """Create and return a sample comment"""
-    default = {
-        'title': 'test title',
-        'description': 'test description',
-        'organizer': user,
-        'image': None,
-        'event_time': '2021-01-18 00:34:39',
-        'address': 'test address',
-        'fee': 500,
-    }
-
-    return Event.objects.create(**default)
 
 
 class UserSerializerApiTests(TestCase):
@@ -34,7 +22,10 @@ class UserSerializerApiTests(TestCase):
         self.organizer.is_guide = True
         self.organizer.save()
 
-        self.event = sample_event(self.organizer)
+        self.event = EventFactory(
+            organizer=self.organizer,
+            event_time=make_aware(datetime.datetime.now())            
+        )
 
     def test_retrieve_user_for_update(self):
         """Test retrieve user fields for update"""
@@ -162,12 +153,13 @@ class UserSerializerApiTests(TestCase):
         events = Event.objects.filter(
             organizer=self.organizer.id, is_active=True)
         serializer = UserEventsSerializer(instance=events, many=True)
+        
         expected_dict = {
             'id': self.event.id,
-            'title': 'test title',
-            'image': '/static/images/no_event_image.png',
-            'event_time': '2021-01-18 00:34:39',
-            'address': 'test address',
+            'title': self.event.title,
+            'image': self.event.image_url,
+            'event_time': self.event.event_time.strftime('%Y-%m-%d %H:%M:%S'),
+            'address': self.event.address,
             'participant_count': 0
         }
         self.assertEqual(dict(serializer.data[0]), expected_dict)

@@ -4,25 +4,9 @@ from django.test import TestCase
 from django.utils.timezone import make_aware
 
 from core.models import Event, Participant
-from core.factorys import UserFactory
+from core.factorys import UserFactory, EventFactory
 from event.serializers import (ListCreateParticipantSerializer,
                                UpdateParticipantSerializer)
-
-
-def sample_event(user):
-    """Create and return a sample comment"""
-    default = {
-        'title': 'test title',
-        'description': 'test description',
-        'organizer': user,
-        'image': None,
-        'event_time': make_aware(datetime.datetime.now())
-        .strftime('%Y-%m-%d %H:%M:%S'),
-        'address': 'test address',
-        'fee': 500,
-    }
-
-    return Event.objects.create(**default)
 
 
 def sample_participant(event, user, **params):
@@ -42,7 +26,7 @@ class ParticipantSerializerApiTests(TestCase):
         self.participant_user.first_name = 'participant'
         self.participant_user.save()
 
-        self.event = sample_event(self.organizer_user)
+        self.event = EventFactory(organizer=self.organizer_user)
 
         self.organizer = sample_participant(self.event, self.organizer_user)
         self.participant = sample_participant(

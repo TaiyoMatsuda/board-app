@@ -11,7 +11,7 @@ from rest_framework import status
 from rest_framework.test import APIClient
 
 from core.models import Event
-from core.factorys import UserFactory
+from core.factorys import UserFactory, EventFactory
 
 EVENT_URL = reverse('event:event-list')
 
@@ -19,29 +19,6 @@ EVENT_URL = reverse('event:event-list')
 def detail_url(event_id):
     """Return event detail URL"""
     return reverse('event:event-detail', args=[event_id])
-
-
-def sample_event(
-    organizer,
-    title='test title',
-    description='test description',
-    event_time=make_aware(datetime.datetime.now()),
-    address='test address',
-    fee=500,
-    status=Event.Status.PRIVATE.value,
-):
-    """Create and return a sample event"""
-    default = {
-        'title': title,
-        'description': description,
-        'organizer': organizer,
-        'image': '',
-        'event_time': event_time.strftime('%Y-%m-%d %H:%M:%S'),
-        'address': address,
-        'fee': fee,
-        'status': status
-    }
-    return Event.objects.create(**default)
 
 
 def get_event_by_json(**params):
@@ -69,8 +46,11 @@ class PublicParticipantApiTests(TestCase):
 
     def setUp(self):
         self.organizer = UserFactory(email='testorganaizer@matsuda.com')
-        self.first_event = sample_event(organizer=self.organizer)
-        self.second_event = sample_event(
+        self.first_event = EventFactory(
+            organizer=self.organizer,
+            event_time=make_aware(datetime.datetime.now())
+        )
+        self.second_event = EventFactory(
             organizer=self.organizer,
             title='second event title',
             event_time=make_aware(
@@ -97,14 +77,14 @@ class PublicParticipantApiTests(TestCase):
                 'id': self.first_event.id,
                 'title': self.first_event.title,
                 'image': self.first_event.image_url,
-                'event_time': self.first_event.event_time,
+                'event_time': self.first_event.event_time.strftime('%Y-%m-%d %H:%M:%S'),
                 'address': self.first_event.address,
                 'participant_count': 0
             }, {
                 'id': self.second_event.id,
                 'title': self.second_event.title,
                 'image': self.second_event.image_url,
-                'event_time': self.second_event.event_time,
+                'event_time': self.second_event.event_time.strftime('%Y-%m-%d %H:%M:%S'),
                 'address': self.second_event.address,
                 'participant_count': 0
             }
@@ -125,7 +105,7 @@ class PublicParticipantApiTests(TestCase):
         self.second_event.save()
         count = 0
         while count < 30:
-            sample_event(
+            EventFactory(
                 organizer=self.organizer,
                 status=Event.Status.PUBLIC.value
             )
@@ -148,7 +128,7 @@ class PublicParticipantApiTests(TestCase):
         self.first_event.save()
         self.second_event.status = Event.Status.PUBLIC.value
         self.second_event.save()
-        sample_event(
+        EventFactory(
             organizer=self.organizer,
             event_time=make_aware(
                 datetime.datetime.now() + datetime.timedelta(days=2)),
@@ -162,7 +142,7 @@ class PublicParticipantApiTests(TestCase):
 
     def test_not_retrieving_events_by_wrong_query_parameters_name(self):
         """Test not retrieving events by wrong query parameter name"""
-        sample_event(
+        EventFactory(
             organizer=self.organizer,
             event_time=make_aware(
                 datetime.datetime.now() + datetime.timedelta(days=2))
@@ -174,7 +154,7 @@ class PublicParticipantApiTests(TestCase):
 
     def test_not_retrieving_events_by_wrong_type_query_parameters(self):
         """Test not retrieving events by wrong type query parameters"""
-        sample_event(
+        EventFactory(
             organizer=self.organizer,
             event_time=make_aware(
                 datetime.datetime.now() + datetime.timedelta(days=2))
@@ -184,7 +164,7 @@ class PublicParticipantApiTests(TestCase):
 
     def test_not_retrieving_events_by_wrong_query_parameters_number(self):
         """Test not retrieving events by wrong query parameters number"""
-        sample_event(
+        EventFactory(
             organizer=self.organizer,
             event_time=make_aware(
                 datetime.datetime.now() + datetime.timedelta(days=2))
@@ -264,7 +244,7 @@ class PrivateParticipantApiTests(TestCase):
         self.organizer.save()
         self.user_one = UserFactory(email='testone@matsuda.com')
 
-        self.event = sample_event(self.organizer)
+        self.event = EventFactory(organizer=self.organizer)
 
         self.client.force_authenticate(self.organizer)
 

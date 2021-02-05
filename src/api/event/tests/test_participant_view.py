@@ -7,7 +7,7 @@ from rest_framework import status
 from rest_framework.test import APIClient
 
 from core.models import Event, Participant
-from core.factorys import UserFactory
+from core.factorys import UserFactory, EventFactory
 
 
 def listCreate_url(event_id):
@@ -23,22 +23,6 @@ def cancel_url(event_id):
 def join_url(event_id):
     """Return update status URL"""
     return reverse('event:joinParticipant', args=[event_id])
-
-
-def sample_event(user):
-    """Create and return a sample event"""
-    default = {
-        'title': 'test title',
-        'description': 'test description',
-        'image': None,
-        'event_time': make_aware(datetime.datetime.now())
-        .strftime('%Y-%m-%d %H:%M:%S'),
-        'address': 'test address',
-        'fee': 500,
-        'status': Participant.Status.JOIN.value,
-    }
-
-    return Event.objects.create(organizer=user, **default)
 
 
 def sample_participant(event, user, **params):
@@ -66,8 +50,8 @@ class PublicParticipantApiTests(TestCase):
             first_name='follower'
         )
 
-        self.event = sample_event(self.organizer)
-        self.event_two = sample_event(self.organizer)
+        self.event = EventFactory(organizer=self.organizer)
+        self.event_two = EventFactory(organizer=self.organizer)
         self.participant_one = sample_participant(
             self.event,
             self.organizer
@@ -172,11 +156,11 @@ class PrivateParticipantApiTests(TestCase):
             password='testpass',
             first_name='follower'
         )
-        self.event = sample_event(self.organizer)
-        self.private_event = sample_event(self.organizer)
+        self.event = EventFactory(organizer=self.organizer)
+        self.private_event = EventFactory(organizer=self.organizer)
         self.private_event.status = Event.Status.PRIVATE.value,
         self.private_event.save()
-        self.cancel_event = sample_event(self.organizer)
+        self.cancel_event = EventFactory(organizer=self.organizer)
         self.cancel_event.status = Event.Status.CANCEL.value
         self.cancel_event.save()
         self.participant = sample_participant(
