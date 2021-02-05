@@ -2,6 +2,8 @@ import datetime
 import tempfile
 from datetime import timedelta
 
+from faker import Faker
+
 from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.urls import reverse
@@ -14,6 +16,9 @@ from core.models import Event
 from core.factorys import UserFactory, EventFactory
 
 EVENT_URL = reverse('event:event-list')
+
+
+fake = Faker()
 
 
 def detail_url(event_id):
@@ -52,10 +57,10 @@ class PublicParticipantApiTests(TestCase):
         )
         self.second_event = EventFactory(
             organizer=self.organizer,
-            title='second event title',
+            title=fake.text(max_nb_chars=255),
             event_time=make_aware(
                 datetime.datetime.now() + datetime.timedelta(days=1)),
-            description='second event description',
+            description=fake.text(max_nb_chars=2000),
             fee='700'
         )
         self.client = APIClient()
@@ -200,13 +205,13 @@ class PublicParticipantApiTests(TestCase):
     def test_create_event_for_unauthorized_user(self):
         """Test false creating a new event"""
         payload = {
-            'title': 'test title',
-            'description': 'test description',
+            'title': fake.text(max_nb_chars=255),
+            'description': fake.text(max_nb_chars=2000),
             'image': '',
             'organizer_id': self.organizer.id,
             'event_time': make_aware(datetime.datetime.now())
             .strftime('%Y-%m-%d %H:%M:%S'),
-            'address': 'test address',
+            'address': fake.address(),
             'fee': 500,
         }
         res = self.client.post(EVENT_URL, payload)
@@ -221,11 +226,11 @@ class PublicParticipantApiTests(TestCase):
     def test_update_event_for_unauthorized_user(self):
         """Test false updating an event for not authenticated user"""
         payload = {
-            'title': 'test update title',
-            'description': 'test update description',
+            'title': fake.text(max_nb_chars=255),
+            'description': fake.text(max_nb_chars=2000),
             'image': '',
             'event_time': make_aware(datetime.datetime.now()),
-            'address': 'test update address',
+            'address': fake.address(),
             'fee': '600',
         }
         url = detail_url(self.first_event.id)
@@ -250,12 +255,12 @@ class PrivateParticipantApiTests(TestCase):
     def test_create_event_successful(self):
         """Test create a new event"""
         payload = {
-            'title': 'test title',
-            'description': 'test description',
+            'title': fake.text(max_nb_chars=255),
+            'description': fake.text(max_nb_chars=2000),
             'organizer': self.organizer.id,
             'image': '',
             'event_time': make_aware(datetime.datetime.now()),
-            'address': 'test address',
+            'address': fake.address(),
             'fee': 500,
             'status': '1'
         }
@@ -266,11 +271,11 @@ class PrivateParticipantApiTests(TestCase):
         """Test not creating a new event by tourist"""
         self.client.force_authenticate(self.user_one)
         payload = {
-            'title': 'test title',
-            'description': 'test description',
+            'title': fake.text(max_nb_chars=255),
+            'description': fake.text(max_nb_chars=2000),
             'image': '',
             'event_time': make_aware(datetime.datetime.now()),
-            'address': 'test address',
+            'address': fake.address(),
             'fee': 500,
             'status': '1'
         }
@@ -300,11 +305,11 @@ class PrivateParticipantApiTests(TestCase):
             img.save(ntf, format='JPEG')
             ntf.seek(0)
             payload = {
-                'title': 'test update title',
-                'description': 'test update description',
+                'title': fake.text(max_nb_chars=255),
+                'description': fake.text(max_nb_chars=2000),
                 'image': ntf,
                 'event_time': make_aware(datetime.datetime.now()),
-                'address': 'test update address',
+                'address': fake.address(),
                 'fee': '600',
                 'status': '2'
             }
@@ -319,11 +324,11 @@ class PrivateParticipantApiTests(TestCase):
         """Test false updating an event for not organizer"""
         self.client.force_authenticate(self.user_one)
         payload = {
-            'title': 'test update title',
-            'description': 'test update description',
+            'title': fake.text(max_nb_chars=255),
+            'description': fake.text(max_nb_chars=2000),
             'image': '',
             'event_time': make_aware(datetime.datetime.now()),
-            'address': 'test update address',
+            'address': fake.address(),
             'fee': '600',
             'status': '2'
         }

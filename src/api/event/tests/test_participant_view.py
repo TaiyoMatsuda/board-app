@@ -1,5 +1,7 @@
 import datetime
 
+from faker import Faker
+
 from django.test import TestCase
 from django.urls import reverse
 from django.utils.timezone import make_aware
@@ -8,6 +10,9 @@ from rest_framework.test import APIClient
 
 from core.models import Event, Participant
 from core.factorys import UserFactory, EventFactory, ParticipantFactory
+
+
+fake = Faker()
 
 
 def listCreate_url(event_id):
@@ -30,19 +35,16 @@ class PublicParticipantApiTests(TestCase):
 
     def setUp(self):
         self.organizer = UserFactory(
-            email='organizer@matsuda.com',
-            password='testpass',
-            first_name='organizer'
+            email=fake.safe_email(),
+            first_name=fake.first_name()
         )
         self.new_organizer = UserFactory(
-            email='new_organizer@matsuda.com',
-            password='testpass',
-            first_name='neworganizer'
+            email=fake.safe_email(),
+            first_name=fake.first_name()
         )
         self.follower = UserFactory(
-            email='follower@matsuda.com',
-            password='testpass',
-            first_name='follower'
+            email=fake.safe_email(),
+            first_name=fake.first_name()
         )
 
         self.event = EventFactory(organizer=self.organizer)
@@ -137,19 +139,16 @@ class PrivateParticipantApiTests(TestCase):
     def setUp(self):
         self.client = APIClient()
         self.organizer = UserFactory(
-            email='organizer@matsuda.com',
-            password='testpass',
-            first_name='organizer'
+            email=fake.safe_email(),
+            first_name=fake.first_name()
         )
         self.new_organizer = UserFactory(
-            email='new_organizer@matsuda.com',
-            password='testpass',
-            first_name='new_organizer'
+            email=fake.safe_email(),
+            first_name=fake.first_name()
         )
         self.follower = UserFactory(
-            email='follower@matsuda.com',
-            password='testpass',
-            first_name='follower'
+            email=fake.safe_email(),
+            first_name=fake.first_name()
         )
         self.event = EventFactory(organizer=self.organizer)
         self.private_event = EventFactory(organizer=self.organizer)

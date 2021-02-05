@@ -3,7 +3,7 @@ import factory
 
 from faker import Faker
 
-from django.utils.timezone import now, localtime 
+from django.utils.timezone import now
 from django.contrib.auth import get_user_model
 from django.utils.timezone import make_aware
 
@@ -17,7 +17,7 @@ class UserFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = get_user_model()
 
-    email = 'sampleuser@matsuda.com'
+    email = fake.safe_email()
     password = 'testpass'
 
 
@@ -37,7 +37,7 @@ class EventFactory(factory.django.DjangoModelFactory):
 class EventCommentFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = EventComment
-    
+
     comment = 'test comment'
 
 

@@ -1,5 +1,7 @@
 import datetime
 
+from faker import Faker
+
 from django.test import TestCase
 from django.utils.timezone import make_aware
 
@@ -9,26 +11,29 @@ from event.serializers import (ListCreateParticipantSerializer,
                                UpdateParticipantSerializer)
 
 
+fake = Faker()
+
+
 class ParticipantSerializerApiTests(TestCase):
     """Test participant serializer API"""
 
     def setUp(self):
-        self.organizer_user = UserFactory(email='organizer@gmail.com')
-        self.organizer_user.first_name = 'organizer'
+        self.organizer_user = UserFactory(email=fake.safe_email())
+        self.organizer_user.first_name = fake.first_name()
         self.organizer_user.is_guide = True
         self.organizer_user.save()
-        self.participant_user = UserFactory(email='participant@gmail.com')
-        self.participant_user.first_name = 'participant'
+        self.participant_user = UserFactory(email=fake.safe_email())
+        self.participant_user.first_name = fake.first_name()
         self.participant_user.save()
 
         self.event = EventFactory(organizer=self.organizer_user)
 
         self.organizer = ParticipantFactory(
-            event=self.event, 
+            event=self.event,
             user=self.organizer_user
         )
         self.participant = ParticipantFactory(
-            event=self.event, 
+            event=self.event,
             user=self.participant_user
         )
 
@@ -58,8 +63,7 @@ class ParticipantSerializerApiTests(TestCase):
         new_participant.first_name = 'newparticipant'
         new_participant.save()
         data = {
-            'event': self.event.id,
-            'user': new_participant.id
+            'event': self.event.id, 'user': new_participant.id
         }
         serializer = ListCreateParticipantSerializer(data=data)
         self.assertTrue(serializer.is_valid())
@@ -74,8 +78,8 @@ class ParticipantSerializerApiTests(TestCase):
 
     def test_not_creating_participant_with_wrong_event_id_type(self):
         """Test not creating participant with worng event id type"""
-        new_participant = UserFactory(email='new_participant@gmail.com')
-        new_participant.first_name = 'newparticipant'
+        new_participant = UserFactory(email=fake.safe_email())
+        new_participant.first_name = fake.first_name()
         new_participant.save()
         data = {
             'event': self.event,
@@ -87,8 +91,8 @@ class ParticipantSerializerApiTests(TestCase):
 
     def test_not_creating_participant_with_wrong_user_id_type(self):
         """Test not creating participant with worng user id type"""
-        new_participant = UserFactory(email='new_participant@gmail.com')
-        new_participant.first_name = 'newparticipant'
+        new_participant = UserFactory(email=fake.safe_email())
+        new_participant.first_name = fake.first_name()
         new_participant.save()
         data = {
             'event': self.event.id,
@@ -100,19 +104,19 @@ class ParticipantSerializerApiTests(TestCase):
 
     def test_update_participant_status_successful(self):
         """Test updating participant status successful"""
-        data = {'status': 0}
+        data = {'status': Participant.Status.CANCEL.value}
         serializer = UpdateParticipantSerializer(
             instance=self.participant, data=data)
         self.assertTrue(serializer.is_valid())
         serializer.save()
-        self.assertEqual(int(serializer.data['status']), data['status'])
+        self.assertEqual(serializer.data['status'], data['status'])
 
-        data = {'status': 1}
+        data = {'status': Participant.Status.JOIN.value}
         serializer = UpdateParticipantSerializer(
             instance=self.participant, data=data)
         self.assertTrue(serializer.is_valid())
         serializer.save()
-        self.assertEqual(int(serializer.data['status']), data['status'])
+        self.assertEqual(serializer.data['status'], data['status'])
 
     def test_not_updating_participant_status_with_undesignated_number(self):
         """Test not updating participant status with undesignated number"""
@@ -122,19 +126,10 @@ class ParticipantSerializerApiTests(TestCase):
         self.assertFalse(serializer.is_valid())
         self.assertCountEqual(serializer.errors.keys(), ['status'])
 
-    def test_not_updating_participant_status_with_other_type(self):
-        """Test not updating participant status with undesignated number"""
-        data = {'status': '2'}
-        serializer = UpdateParticipantSerializer(
-            instance=self.participant, data=data)
-        self.assertFalse(serializer.is_valid())
-        self.assertCountEqual(serializer.errors.keys(), ['status'])
-
     def test_updating_wrong_field_with_UpdateParticipantSerializer(self):
         """Test not logically delting with UpdateParticipantSerializer"""
-        data = {'is_active': False}
         serializer = UpdateParticipantSerializer(
-            instance=self.participant, data=data)
+            instance=self.participant, data={'is_active': False})
         self.assertTrue(serializer.is_valid())
         serializer.save()
         self.assertTrue(self.participant.is_active)
