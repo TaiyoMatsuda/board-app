@@ -48,16 +48,6 @@ services:
     stdin_open: true
     privileged: true
 
-  frontend:
-    build:
-      context: .
-      dockerfile: ./docker/frontend/Dockerfile
-    ports:
-      - "8080:8080"
-    tty: true
-    stdin_open: true
-    privileged: true
-
 volumes:
     dbdata:
       driver: local

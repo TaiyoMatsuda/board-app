@@ -164,8 +164,8 @@ class Event(BaseModel):
                     MaxValueValidator(100000)]
     )
     status = models.CharField(
-        max_length=10, 
-        choices=Status.choices, 
+        max_length=10,
+        choices=Status.choices,
         default=Status.PRIVATE
     )
     is_active = models.BooleanField(default=True)
@@ -194,7 +194,7 @@ class Event(BaseModel):
 
     def is_valid_comment(self):
         """Return private status or other"""
-        return bool(self.is_active and self.status != self.Status.PRIVATE)
+        return self.is_active and self.status != self.Status.PRIVATE
 
 
 class EventComment(BaseModel):
@@ -247,7 +247,7 @@ class Participant(BaseModel):
         on_delete=models.CASCADE
     )
     status = models.CharField(
-        max_length=10, 
+        max_length=10,
         choices=Status.choices,
         default=Status.JOIN
     )
