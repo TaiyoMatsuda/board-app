@@ -164,8 +164,8 @@ class Event(BaseModel):
                     MaxValueValidator(100000)]
     )
     status = models.CharField(
-        max_length=10, 
-        choices=Status.choices, 
+        max_length=10,
+        choices=Status.choices,
         default=Status.PRIVATE
     )
     is_active = models.BooleanField(default=True)
@@ -247,7 +247,7 @@ class Participant(BaseModel):
         on_delete=models.CASCADE
     )
     status = models.CharField(
-        max_length=10, 
+        max_length=10,
         choices=Status.choices,
         default=Status.JOIN
     )
