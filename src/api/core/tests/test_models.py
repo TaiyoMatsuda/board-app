@@ -2,12 +2,17 @@ import datetime
 
 from unittest.mock import patch
 
+from faker import Faker
+
 from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.utils.timezone import make_aware
 
 from core import models
 from core.factorys import UserFactory, EventFactory
+
+
+fake = Faker()
 
 
 class ModelTests(TestCase):
@@ -18,7 +23,7 @@ class ModelTests(TestCase):
 
     def test_create_user_with_email_successful(self):
         """Test creating a new user withh an email is successful"""
-        email = 'test@matsuda.com'
+        email = fake.safe_email()
         password = 'Testpass123'
         user = get_user_model().objects.create_user(email, password)
 
@@ -40,7 +45,7 @@ class ModelTests(TestCase):
     def test_create_new_superuser(self):
         """Test creating a new superuser"""
 
-        email = 'test3@matsuda.com'
+        email = fake.safe_email()
         password = 'Testpass123'
         user = get_user_model().objects.create_superuser(email, password)
 
@@ -50,7 +55,7 @@ class ModelTests(TestCase):
     @patch('uuid.uuid4')
     def test_icon_file_name_uuid(self, mock_uuid):
         """Test that icon image is saved in the correct location"""
-        uuid = 'icon-test-uuid'
+        uuid = fake.text(max_nb_chars=20)
         mock_uuid.return_value = uuid
         file_path = models.user_icon_file_path(None, 'iconimage.jpg')
 
@@ -60,12 +65,12 @@ class ModelTests(TestCase):
     def test_event_str(self):
         """Test the event string representations"""
         create_event = models.Event.objects.create(
-            title='test event',
-            description='test description',
+            title=fake.text(max_nb_chars=255),
+            description=fake.text(max_nb_chars=2000),
             organizer=self.user,
             event_time=make_aware(datetime.datetime.now())
             .strftime('%Y-%m-%d %H:%M:%S'),
-            address='testplace',
+            address=fake.address(),
             fee=50
         )
 
@@ -74,7 +79,7 @@ class ModelTests(TestCase):
     @patch('uuid.uuid4')
     def test_event_file_name_uuid(self, mock_uuid):
         """Test that event image is saved in the correct location"""
-        uuid = 'event-test-uuid'
+        uuid = fake.text(max_nb_chars=20)
         mock_uuid.return_value = uuid
         file_path = models.event_image_file_path(None, 'eventimage.jpg')
 
@@ -83,21 +88,21 @@ class ModelTests(TestCase):
 
     def test_event_comment_str(self):
         """Test the event_comment string representations"""
-        email = 'comment_user@matsuda.com'
+        email = fake.safe_email()
         password = 'Testpass123'
         comment_user = get_user_model().objects.create_user(email, password)
 
         event_comment = models.EventComment.objects.create(
             event=self.event,
             user=comment_user,
-            comment='test comment',
+            comment=fake.text(max_nb_chars=500),
         )
 
         self.assertEqual(str(event_comment), event_comment.comment)
 
     def test_participant_str(self):
         """Test the participant string representations"""
-        email = 'participant@matsuda.com'
+        email = fake.safe_email()
         password = 'Testpass123'
         user = get_user_model().objects.create_user(email, password)
 
