@@ -4,6 +4,6 @@ ENV PYTHONUNBUFFERED 1
 
 RUN mkdir /code
 WORKDIR /code
-ADD ./docker/api/dockerfile_requirements.txt /code/
+ADD ./dockerfile_requirements.txt /code/
 RUN pip install --upgrade pip && \
     pip install -r dockerfile_requirements.txt
