@@ -38,7 +38,7 @@ class EventCommentFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = EventComment
 
-    comment = 'test comment'
+    comment = fake.text(max_nb_chars=500)
 
 
 class ParticipantFactory(factory.django.DjangoModelFactory):
