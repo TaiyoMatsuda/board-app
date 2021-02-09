@@ -7,4 +7,3 @@ WORKDIR /code
 ADD ./docker/api/dockerfile_requirements.txt /code/
 RUN pip install --upgrade pip && \
     pip install -r dockerfile_requirements.txt
-ADD . /code/
