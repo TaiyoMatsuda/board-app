@@ -1,8 +1,10 @@
 <template>
   <div>
+    <router-link :to="{ name: 'UpdateUser', query: { id: user.id}}">
+      edit
+    </router-link>
     <p>ユーザID:{{ user.id }}</p>
-    <p>ユーザ名:{{ user.first_name }}</p>
-    <p>ユーザ姓:{{ user.family_name }}</p>
+    <p>ユーザ名:{{ user.short_name }}</p>
     <p>紹介文:{{ user.introduction }}</p>
     <p>ガイドフラグ:{{ user.is_guide }}</p>
     <p>ユーザアイコン:{{ user.icon_url }}</p>
@@ -10,7 +12,7 @@
 </template>
 <script>
 export default {
-  name: 'BaseUser',
+  name: 'ReadUser',
   data() {
     return {
       user: []
@@ -18,7 +20,7 @@ export default {
   },
   mounted :function(){
     this.axios
-      .get('api/users/' + this.$route.query.id + '/')
+      .get('api/users/' + this.$route.query.id + '/read/')
       .then(response => {this.user = response.data})
       .catch(error => console.log(error))
   }
