@@ -1,6 +1,6 @@
 <template>
   <div>
-    <p>Event List</p>
+    <p>Join Event List</p>
     <p>イベント数：{{events.count}}</p>
     <p>nextページ：{{ events.next }}</p>
     <p>previousページ：{{ events.previous }}</p>    
@@ -22,7 +22,7 @@
 
 <script>
 export default {
-  name: 'EventList',
+  name: 'JoinedEvent',
   data() {
     return {
       events: []
@@ -30,7 +30,7 @@ export default {
   },
   mounted :function(){
     this.axios
-      .get('/api/events/?start=2021-02-10&end=2100-02-11')
+      .get('api/users/' + this.$route.query.id + '/joinedEvents/')
       .then(response => {this.events = response.data})
       .catch(error => console.log(error))
   }
