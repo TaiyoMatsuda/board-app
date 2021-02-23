@@ -1,0 +1,219 @@
+[
+{
+    "model": "core.user",
+    "pk": 3,
+    "fields": {
+        "password": "pbkdf2_sha256$180000$Clg79Wsp8UBj$kPm7GLZOlbd0TEhkJACxcbMj24VFeROrBHOkSuxOvuE=",
+        "last_login": null,
+        "is_superuser": false,
+        "created_at": "2021-02-12T02:15:00Z",
+        "updated_at": "2021-02-23T04:21:55.975Z",
+        "email": "guide1@example.com",
+        "first_name": "\u3044\u3061",
+        "family_name": "\u30ac\u30a4\u30c9",
+        "is_active": true,
+        "is_staff": false,
+        "is_guide": true,
+        "introduction": "\u30ac\u30a4\u30c9\u3044\u3061\u306e\u7d39\u4ecb\u6587",
+        "icon": "",
+        "groups": [],
+        "user_permissions": []
+    }
+},
+{
+    "model": "core.user",
+    "pk": 4,
+    "fields": {
+        "password": "pbkdf2_sha256$180000$CpkyZv7Cxsgm$askB6oI+3Rq2O2dCGNtP8h9PnROGdWaY9XZrl2UyISE=",
+        "last_login": null,
+        "is_superuser": false,
+        "created_at": "2021-02-12T02:15:00Z",
+        "updated_at": "2021-02-23T04:22:47.401Z",
+        "email": "guide2@example.com",
+        "first_name": "second",
+        "family_name": "guide",
+        "is_active": true,
+        "is_staff": false,
+        "is_guide": true,
+        "introduction": "second guide introduction",
+        "icon": "",
+        "groups": [],
+        "user_permissions": []
+    }
+},
+{
+    "model": "core.user",
+    "pk": 5,
+    "fields": {
+        "password": "pbkdf2_sha256$180000$Zu7nq5DVLWb1$A3+MwCkEIBrlx9E0thP+lo0Q+lqJ/BqcbBhBmyQckv8=",
+        "last_login": null,
+        "is_superuser": false,
+        "created_at": "2021-02-12T02:15:00Z",
+        "updated_at": "2021-02-23T04:24:14.242Z",
+        "email": "participant1@example.com",
+        "first_name": "\u4e00",
+        "family_name": "\u53c2\u52a0\u8005",
+        "is_active": true,
+        "is_staff": false,
+        "is_guide": false,
+        "introduction": "\u53c2\u52a0\u8005\u4e00\u306e\u7d39\u4ecb\u6587",
+        "icon": "",
+        "groups": [],
+        "user_permissions": []
+    }
+},
+{
+    "model": "core.user",
+    "pk": 6,
+    "fields": {
+        "password": "pbkdf2_sha256$180000$kzbQKkX7rLcY$qCa4pv1xEKwxJoVdzkC5Lzk804/xf3CSmttkUb8ZBKY=",
+        "last_login": null,
+        "is_superuser": false,
+        "created_at": "2021-02-12T02:15:00Z",
+        "updated_at": "2021-02-23T04:24:40.317Z",
+        "email": "participant2@example.com",
+        "first_name": "second",
+        "family_name": "participant",
+        "is_active": true,
+        "is_staff": false,
+        "is_guide": false,
+        "introduction": "second participant introduction",
+        "icon": "",
+        "groups": [],
+        "user_permissions": []
+    }
+},
+{
+    "model": "core.event",
+    "pk": 1,
+    "fields": {
+        "created_at": "2021-02-12T02:15:00Z",
+        "updated_at": "2021-02-12T02:15:00Z",
+        "title": "first event",
+        "description": "first event description",
+        "organizer": 3,
+        "image": "",
+        "event_time": "2025-11-11T03:00:00Z",
+        "address": "tokyo",
+        "fee": 50,
+        "status": "1",
+        "is_active": true
+    }
+},
+{
+    "model": "core.event",
+    "pk": 2,
+    "fields": {
+        "created_at": "2021-02-12T02:15:00Z",
+        "updated_at": "2021-02-12T02:15:00Z",
+        "title": "2\u756a\u76ee\u306e\u30a4\u30d9\u30f3\u30c8",
+        "description": "\uff12\u756a\u76ee\u306e\u30a4\u30d9\u30f3\u30c8\u306e\u7d39\u4ecb",
+        "organizer": 3,
+        "image": "",
+        "event_time": "2022-08-11T03:00:00Z",
+        "address": "\u4eac\u90fd",
+        "fee": 30,
+        "status": "1",
+        "is_active": true
+    }
+},
+{
+    "model": "core.event",
+    "pk": 3,
+    "fields": {
+        "created_at": "2021-02-12T02:15:00Z",
+        "updated_at": "2021-02-12T02:15:00Z",
+        "title": "3\u756a\u76ee\u306e\u30a4\u30d9\u30f3\u30c8",
+        "description": "3\u756a\u76ee\u306e\u30a4\u30d9\u30f3\u30c8\u306e\u7d39\u4ecb",
+        "organizer": 4,
+        "image": "",
+        "event_time": "2025-10-11T03:00:00Z",
+        "address": "\u795e\u5948\u5ddd",
+        "fee": 22,
+        "status": "1",
+        "is_active": true
+    }
+},
+{
+    "model": "core.event",
+    "pk": 4,
+    "fields": {
+        "created_at": "2021-02-12T02:15:00Z",
+        "updated_at": "2021-02-12T02:15:00Z",
+        "title": "private event",
+        "description": "We are just getting ready",
+        "organizer": 4,
+        "image": "",
+        "event_time": "2026-11-11T03:00:00Z",
+        "address": "okinawa",
+        "fee": 70,
+        "status": "0",
+        "is_active": true
+    }
+},
+{
+    "model": "core.event",
+    "pk": 5,
+    "fields": {
+        "created_at": "2021-02-12T02:15:00Z",
+        "updated_at": "2021-02-12T02:15:00Z",
+        "title": "cancel event",
+        "description": "cancel event",
+        "organizer": 4,
+        "image": "",
+        "event_time": "2030-11-11T03:00:00Z",
+        "address": "ikebukuro",
+        "fee": 20,
+        "status": "2",
+        "is_active": true
+    }
+},
+{
+    "model": "core.eventcomment",
+    "pk": 1,
+    "fields": {
+        "created_at": "2021-02-12T03:15:00Z",
+        "updated_at": "2021-02-12T03:15:00Z",
+        "event": 1,
+        "user": 3,
+        "comment": "guide comment",
+        "is_active": true
+    }
+},
+{
+    "model": "core.eventcomment",
+    "pk": 2,
+    "fields": {
+        "created_at": "2021-02-12T03:15:01Z",
+        "updated_at": "2021-02-12T03:15:01Z",
+        "event": 1,
+        "user": 5,
+        "comment": "\u53c2\u52a0\u8005\u30b3\u30e1\u30f3\u30c8",
+        "is_active": true
+    }
+},
+{
+    "model": "core.participant",
+    "pk": 1,
+    "fields": {
+        "created_at": "2021-02-12T03:15:00Z",
+        "updated_at": "2021-02-12T03:15:00Z",
+        "event": 1,
+        "user": 3,
+        "status": "1",
+        "is_active": true
+    }
+},
+{
+    "model": "core.participant",
+    "pk": 2,
+    "fields": {
+        "created_at": "2021-02-12T03:15:01Z",
+        "updated_at": "2021-02-12T03:15:01Z",
+        "event": 1,
+        "user": 5,
+        "status": "0",
+        "is_active": true
+    }
+}
+]
