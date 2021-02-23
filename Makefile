@@ -12,3 +12,6 @@ migrate:
 
 tox:
 	docker-compose run --rm api tox ${c}
+
+loaddata:
+	docker-compose run --rm api python manage.py loaddata initial_data.json
