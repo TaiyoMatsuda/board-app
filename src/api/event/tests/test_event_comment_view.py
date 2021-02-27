@@ -182,9 +182,7 @@ class PrivateEventCommentApiTests(TestCase):
     def test_create_event_comment_successful(self):
         """Test creating a new event comment"""
         str_comment = fake.text(max_nb_chars=500)
-        payload = {
-            'comment': str_comment,
-        }
+        payload = {'comment': str_comment,}
         url = detail_url(self.event.id)
         res = self.client.post(url, payload)
         self.assertEqual(res.status_code, status.HTTP_201_CREATED)
