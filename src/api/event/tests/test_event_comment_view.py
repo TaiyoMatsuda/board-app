@@ -20,6 +20,11 @@ def detail_url(event_id):
     return reverse('event:eventComment', args=[event_id])
 
 
+def status_url(event_id, comment_id):
+    """Return status event comment URL"""
+    return reverse('event:statusComment', args=[event_id, comment_id])
+
+
 def delete_url(event_id, comment_id):
     """Return delete event comment URL"""
     return reverse('event:deleteComment', args=[event_id, comment_id])
@@ -35,7 +40,7 @@ def get_event_comment_by_json(**params):
             'is_active': event_comment.user.is_active,
             'icon': None
         },
-        'comment': event_comment.comment,
+        'comment': event_comment.display_comment,
         'brief_updated_at': localtime(event_comment.updated_at)
         .strftime('%Y-%m-%d %H:%M:%S')
     }
@@ -64,8 +69,7 @@ class PublicEventCommentApiTests(TestCase):
         res = self.client.get(url, {'page': 1})
         self.assertEqual(res.status_code, status.HTTP_200_OK)
 
-        event_comments = EventComment.objects.filter(
-            is_active=True).order_by('updated_at')
+        event_comments = EventComment.objects.all().order_by('updated_at')
         expected_json_dict_list = []
         for event_comment in event_comments:
             expected_json_dict = {
@@ -74,7 +78,8 @@ class PublicEventCommentApiTests(TestCase):
                 'user': event_comment.user.id,
                 'first_name': event_comment.user.first_name,
                 'icon': event_comment.user.icon_url,
-                'comment': event_comment.comment,
+                'comment': event_comment.display_comment,
+                'status': event_comment.status,
                 'brief_updated_at': event_comment.brief_updated_at
             }
             expected_json_dict_list.append(expected_json_dict)
@@ -103,7 +108,7 @@ class PublicEventCommentApiTests(TestCase):
 
         res = self.client.get(url, {'page': 2})
         self.assertEqual(res.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(res.data['results']), 1)
+        self.assertEqual(len(res.data['results']), 2)
 
     def test_retrieve_event_comment_pagination_false(self):
         """Test retrieving event comments false with pagination"""
@@ -126,7 +131,8 @@ class PublicEventCommentApiTests(TestCase):
             'user': self.event_comment.user.id,
             'first_name': self.event_comment.user.first_name,
             'icon': self.event_comment.user.icon_url,
-            'comment': self.event_comment.comment,
+            'comment': self.event_comment.display_comment,
+            'status': self.event_comment.status,
             'brief_updated_at': self.event_comment.brief_updated_at
         }
         self.assertIn(expected_json_dict, list(res.data['results']))
@@ -195,19 +201,39 @@ class PrivateEventCommentApiTests(TestCase):
         res = self.client.post(url, payload)
         self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
 
+    def test_change_event_comment_status(self):
+        """Test change event comment status"""
+        self.client.force_authenticate(self.comment_user)
+        url = status_url(self.event.id, self.event_comment.id)
+        res = self.client.patch(url)
+
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+
+        self.event_comment.refresh_from_db()
+
+        self.assertEqual(self.event_comment.status,
+                        EventComment.Status.EDITED.value)
+
     def test_not_create_event_comment_to_deleted_event(self):
         """Test not creating a new comment to deleted event"""
         self.event.delete()
 
-        payload = {
-            'comment': fake.text(max_nb_chars=500),
-        }
+        payload = {'comment': fake.text(max_nb_chars=500),}
         url = detail_url(self.event.id)
         res = self.client.post(url, payload)
         self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
 
-    def test_delete_event_comment(self):
+    def test_delete_event_comment_false(self):
+        """Test delete the event comment by unsuitable user"""
+        url = delete_url(self.event.id, self.organizer_comment.id)
+        res = self.client.delete(url)
+        self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertTrue(self.event.is_active)
+
+    def test_delete_event_comment_successful(self):
         """Test delete the event comment by authenticated user"""
+        self.organizer.is_staff = True
+        self.organizer.save()
         url = delete_url(self.event.id, self.organizer_comment.id)
         res = self.client.delete(url)
         self.assertEqual(res.status_code, status.HTTP_204_NO_CONTENT)

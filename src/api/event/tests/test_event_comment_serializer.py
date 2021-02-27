@@ -6,7 +6,10 @@ from django.test import TestCase
 from django.utils.timezone import make_aware
 
 from core.factorys import UserFactory, EventFactory, EventCommentFactory
-from event.serializers import ListCreateEventCommentSerializer
+from event.serializers import (
+    ListEventCommentSerializer, CreateEventCommentSerializer,
+    UpdateEventCommentSerializer
+)
 
 
 fake = Faker()
@@ -29,7 +32,7 @@ class EventCommentSerializerApiTests(TestCase):
             'user': self.organaizer.id,
             'comment': fake.text(max_nb_chars=500)
         }
-        serializer = ListCreateEventCommentSerializer(data=payload)
+        serializer = CreateEventCommentSerializer(data=payload)
         self.assertTrue(serializer.is_valid())
 
     def test_event_comment_too_long_comment(self):
@@ -39,7 +42,7 @@ class EventCommentSerializerApiTests(TestCase):
             'user': self.organaizer.id,
             'comment': 'test comment' * 100
         }
-        serializer = ListCreateEventCommentSerializer(data=payload)
+        serializer = CreateEventCommentSerializer(data=payload)
         self.assertFalse(serializer.is_valid())
         self.assertCountEqual(serializer.errors.keys(), ['comment'])
 
@@ -50,6 +53,6 @@ class EventCommentSerializerApiTests(TestCase):
             'user': self.organaizer.id,
             'comment': ''
         }
-        serializer = ListCreateEventCommentSerializer(data=payload)
+        serializer = CreateEventCommentSerializer(data=payload)
         self.assertFalse(serializer.is_valid())
         self.assertCountEqual(serializer.errors.keys(), ['comment'])

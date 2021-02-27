@@ -1,10 +1,11 @@
 from django.shortcuts import get_object_or_404
+from django.contrib.auth import get_user_model
 from rest_framework import mixins, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
 
-from core.models import Event, Participant, User
+from core.models import Event, Participant, EventComment
 from core.permissions import IsUserOwnerOnly
 from user import serializers
 
@@ -14,7 +15,7 @@ class UserViewSet(viewsets.GenericViewSet,
                   mixins.UpdateModelMixin,
                   mixins.DestroyModelMixin):
     """Manage User"""
-    queryset = User.objects.filter(is_active=True)
+    queryset = get_user_model().objects.filter(is_active=True)
 
     def get_permissions(self):
         """Return appropriate permission class"""
@@ -118,6 +119,19 @@ class UserViewSet(viewsets.GenericViewSet,
 
     def destroy(self, request, pk=None):
         """Logical Delete an user"""
-        event = self.get_object()
-        event.delete()
+        user = self.get_object()
+        user.delete()
+
+        events = Event.objects.filter(organizer=user.id)
+        for event in events:
+            event.delete()
+
+        participants = Participant.objects.filter(user=user.id)
+        for participant in participants:
+            participant.delete()
+
+        event_comments = EventComment.objects.filter(user=user.id)
+        for event_comment in event_comments:
+            event_comment.delete()
+
         return Response(status=status.HTTP_204_NO_CONTENT)

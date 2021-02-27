@@ -4,26 +4,50 @@ from rest_framework import serializers
 from core.models import Event, EventComment, Participant
 
 
-class ListCreateEventCommentSerializer(serializers.ModelSerializer):
-    """Serializer for Participant objects"""
+class ListEventCommentSerializer(serializers.ModelSerializer):
+    """Serializer for List EventComment"""
     user = serializers.PrimaryKeyRelatedField(
         queryset=get_user_model().objects.all()
     )
-    first_name = serializers.ReadOnlyField(source="user.first_name")
+    first_name = serializers.SerializerMethodField()
     icon = serializers.SerializerMethodField()
+    comment = serializers.SerializerMethodField()
     brief_updated_at = serializers.SerializerMethodField()
 
     class Meta:
         model = EventComment
-        fields = ('id', 'event', 'user', 'first_name',
-                  'icon', 'comment', 'brief_updated_at')
+        fields = ('id', 'event', 'user', 'first_name', 'icon',
+                  'comment', 'status', 'brief_updated_at')
 
-    def get_icon(self, participant):
-        user = get_user_model().objects.get(pk=participant.user_id)
+    def get_first_name(self, inastance):
+        user = get_user_model().objects.get(pk=inastance.user_id)
+        return user.short_name
+
+    def get_icon(self, inastance):
+        user = get_user_model().objects.get(pk=inastance.user_id)
         return user.icon_url
+
+    def get_comment(self, inastance):
+        return inastance.display_comment
 
     def get_brief_updated_at(self, instance):
         return instance.brief_updated_at
+
+
+class CreateEventCommentSerializer(serializers.ModelSerializer):
+    """Serializer for Create EventComment"""
+
+    class Meta:
+        model = EventComment
+        fields = ('event', 'user', 'comment')
+
+
+class UpdateEventCommentSerializer(serializers.ModelSerializer):
+    """Serializer for Update EventComment"""
+
+    class Meta:
+        model = Participant
+        fields = ('status',)
 
 
 class ListCreateParticipantSerializer(serializers.ModelSerializer):
@@ -129,8 +153,8 @@ class BriefEventSerializer(serializers.ModelSerializer):
 
     def get_participant_count(self, event):
         participant = Participant.objects.filter(
-                event_id=event.id, 
-                status=Participant.Status.JOIN.value, 
+                event_id=event.id,
+                status=Participant.Status.JOIN.value,
                 is_active=True
             )
         return participant.count()

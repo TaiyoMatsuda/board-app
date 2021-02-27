@@ -282,8 +282,17 @@ class PrivateParticipantApiTests(TestCase):
         res = self.client.post(EVENT_URL, payload)
         self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
 
-    def test_logically_delete_event(self):
+    def test_logically_delete_event_false(self):
+        """Test logically disable to delete an event for unsuitable user"""
+        url = detail_url(self.event.id)
+        res = self.client.delete(url)
+        self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertTrue(self.event.is_active)
+
+    def test_logically_delete_event_successful(self):
         """Test logically delete an event for authenticated user"""
+        self.organizer.is_staff = True
+        self.organizer.save()
         url = detail_url(self.event.id)
         res = self.client.delete(url)
         self.assertEqual(res.status_code, status.HTTP_204_NO_CONTENT)

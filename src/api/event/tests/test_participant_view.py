@@ -202,10 +202,9 @@ class PrivateParticipantApiTests(TestCase):
         self.client.force_authenticate(self.new_organizer)
 
         self.event.delete()
-
         url = listCreate_url(self.event.id)
         res = self.client.post(url)
-        self.assertEqual(res.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_cancel_participant(self):
         """Test canceling a participant"""
@@ -217,7 +216,8 @@ class PrivateParticipantApiTests(TestCase):
 
         self.participant.refresh_from_db()
 
-        self.assertEqual(self.participant.status, Participant.Status.CANCEL.value)
+        self.assertEqual(self.participant.status,
+                        Participant.Status.CANCEL.value)
 
     def test_join_participant(self):
         """Test joinning a participant"""
@@ -234,4 +234,5 @@ class PrivateParticipantApiTests(TestCase):
 
         self.participant.refresh_from_db()
 
-        self.assertEqual(self.participant.status, Participant.Status.JOIN.value)
+        self.assertEqual(self.participant.status,
+                        Participant.Status.JOIN.value)

@@ -12,7 +12,10 @@ from PIL import Image
 from rest_framework import status
 from rest_framework.test import APIClient
 
-from core.factorys import UserFactory, EventFactory, ParticipantFactory
+from core.models import Event, Participant, EventComment
+from core.factorys import (
+    UserFactory, EventFactory, ParticipantFactory, EventCommentFactory
+)
 
 USER_URL = reverse('user:user-list')
 
@@ -221,6 +224,14 @@ class PrivateUserApiTests(TestCase):
         self.client = APIClient()
         self.client.force_authenticate(user=self.user)
 
+        self.event = EventFactory(organizer=self.user)
+        self.participant = ParticipantFactory(
+            event=self.event, user=self.user
+        )
+        self.event_comment = EventCommentFactory(
+            event=self.event, user=self.user
+        )
+
     def test_retrieve_designated_user_short_name(self):
         """Test retrieving a user short name"""
         url = short_name_url(self.user.id)
@@ -317,12 +328,22 @@ class PrivateUserApiTests(TestCase):
 
     def test_delete_user_successful(self):
         """Test logically deleting the user"""
+        self.user.is_guide = True
+        self.user.save()
+
         url = detail_url(self.user.id)
         res = self.client.delete(url)
         self.assertEqual(res.status_code, status.HTTP_204_NO_CONTENT)
+
         self.user.refresh_from_db()
+        self.event.refresh_from_db()
+        self.participant.refresh_from_db()
+        self.event_comment.refresh_from_db()
 
         self.assertFalse(self.user.is_active)
+        self.assertFalse(self.event.is_active)
+        self.assertFalse(self.participant.is_active)
+        self.assertFalse(self.event_comment.is_active)
 
     def test_retrieve_user_email_by_another_user(self):
         """Test false retrieving user e-mail by another user"""

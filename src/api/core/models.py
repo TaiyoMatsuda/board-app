@@ -35,7 +35,7 @@ class BaseModel(models.Model):
         abstract = True
 
     def delete(self):
-        """Logical delete the user"""
+        """Logical delete the object"""
         self.is_active = False
         self.save()
         return self
@@ -101,6 +101,10 @@ class User(AbstractBaseUser, PermissionsMixin, BaseModel):
     @property
     def short_name(self):
         """Return the short name for the user"""
+
+        if not self.is_active:
+            return 'deleted user'
+
         if self.first_name:
             return self.first_name
 
@@ -112,6 +116,9 @@ class User(AbstractBaseUser, PermissionsMixin, BaseModel):
     @property
     def full_name(self):
         """Return the full name for the user"""
+        if not self.is_active:
+            return 'deleted user'
+
         if self.family_name and self.first_name:
             return self.family_name + self.first_name
 
@@ -203,6 +210,10 @@ class EventComment(BaseModel):
         db_table = 't_event_comment'
         ordering = ['updated_at']
 
+    class Status(models.TextChoices):
+        DEFAULT = '0', 'Default'
+        EDITED = '1', 'EDITED'
+
     event = models.ForeignKey(
         'Event',
         to_field='id',
@@ -214,10 +225,23 @@ class EventComment(BaseModel):
         on_delete=models.CASCADE,
     )
     comment = models.TextField(max_length=500)
+    status = models.CharField(
+        max_length=10,
+        choices=Status.choices,
+        default=Status.DEFAULT
+    )
     is_active = models.BooleanField(default=True)
 
     def __str__(self):
         return self.comment
+
+    @property
+    def display_comment(self):
+        """Return the update time except millisecond"""
+        if self.status == self.Status.DEFAULT:
+            return self.comment
+        else:
+            return 'deleted comment'
 
     @property
     def brief_updated_at(self):

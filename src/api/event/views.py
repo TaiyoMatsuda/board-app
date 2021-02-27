@@ -3,7 +3,7 @@ import datetime
 from django.shortcuts import get_object_or_404
 from rest_framework import generics, mixins, status, viewsets
 from rest_framework.pagination import PageNumberPagination
-from rest_framework.permissions import IsAuthenticatedOrReadOnly
+from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAdminUser 
 from rest_framework.response import Response
 
 from core.models import Event, EventComment, Participant
@@ -27,23 +27,49 @@ class UnlimitedtPagination(PageNumberPagination):
     page_size_query_param = 'page_size'
 
 
-class ListCreateParticipantView(generics.ListCreateAPIView):
+class ParticipantView(generics.GenericAPIView,
+                      mixins.ListModelMixin,
+                      mixins.CreateModelMixin,
+                      mixins.UpdateModelMixin,
+                      mixins.DestroyModelMixin
+                      ):
     pagination_class = UnlimitedtPagination
-    serializer_class = serializers.ListCreateParticipantSerializer
+
+    def get_permissions(self):
+        """Return appropriate permission class"""
+        if self.request.method in ('GET', 'POST', 'PATCH'):
+            permission_class_list = [IsAuthenticatedOrReadOnly, IsValidEvent]
+        else:
+            permission_class_list = [IsAdminUser]
+        return [permission() for permission in permission_class_list]
+
+    def get_serializer_class(self):
+        if self.request.method == 'GET' or self.request.method == 'POST':
+            return serializers.ListCreateParticipantSerializer
+        else:
+            return serializers.UpdateParticipantSerializer
 
     def get_queryset(self):
         return Participant.objects.filter(
-            event=self.kwargs['pk'], 
-            status=Participant.Status.JOIN, 
-            is_active=True
+            event=self.kwargs['pk'],
+            status=Participant.Status.JOIN, is_active=True
         ).order_by('updated_at')
+
+    def get_object(self):
+        obj = get_object_or_404(Participant,
+                                event=self.kwargs["pk"],
+                                user=self.request.user.id,
+                                is_active=True
+                                )
+        self.check_object_permissions(self.request, obj)
+        return obj
+
+    def get(self, request, *args, **kwargs):
+        return self.list(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
         """Create a new participant in the system"""
         event = Event.objects.get(pk=kwargs['pk'])
-        if not event.is_active:
-            return Response(status=status.HTTP_404_NOT_FOUND)
-
         if event.status != Event.Status.PUBLIC:
             return Response(status=status.HTTP_403_FORBIDDEN)
 
@@ -51,21 +77,15 @@ class ListCreateParticipantView(generics.ListCreateAPIView):
             'event': kwargs['pk'],
             'user': self.request.user.id
         }
-        serializer = serializers.ListCreateParticipantSerializer(data=data)
+        serializer = self.get_serializer(data=data)
         if serializer.is_valid():
             serializer.save()
             return Response(status=status.HTTP_201_CREATED)
 
         return Response(serializer.errors, status.HTTP_400_BAD_REQUEST)
 
-
-class UpdateParticipantView(generics.UpdateAPIView):
-    queryset = Participant.objects.all()
-    serializer_class = serializers.UpdateParticipantSerializer
-
     def patch(self, request, *args, **kwargs):
-        participant = get_object_or_404(
-            self.queryset, event=kwargs['pk'], user=request.user.id)
+        participant = self.get_object()
 
         data = {}
         url = self.request.path
@@ -76,7 +96,7 @@ class UpdateParticipantView(generics.UpdateAPIView):
         else:
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
-        serializer = serializers.UpdateParticipantSerializer(
+        serializer = self.get_serializer(
             instance=participant, data=data, partial=True)
         if not serializer.is_valid():
             Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -84,29 +104,47 @@ class UpdateParticipantView(generics.UpdateAPIView):
         serializer.save()
         return Response(status=status.HTTP_200_OK)
 
+    def delete(self, request, *arts, **kwargs):
+        """Logical Delete a participant"""
+        participant = self.get_object()
+        participant.delete()
+
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
 
 class EventCommentView(generics.GenericAPIView,
                        mixins.ListModelMixin,
                        mixins.CreateModelMixin,
+                       mixins.UpdateModelMixin,
                        mixins.DestroyModelMixin
                        ):
     """Manage event comment in the database"""
     pagination_class = EventCommentListSetPagination
-    serializer_class = serializers.ListCreateEventCommentSerializer
-    queryset = EventComment.objects.filter(is_active=True)
+    queryset = EventComment.objects.all()
     ordering = ['updated_at']
 
     def get_permissions(self):
         """Return appropriate permission class"""
-        if self.request.method == 'GET' or self.request.method == 'POST':
+        if self.request.method in ('GET', 'POST'):
             permission_class_list = [IsAuthenticatedOrReadOnly, IsValidEvent]
+        elif self.request.method == 'DELETE':
+            permission_class_list = [IsAdminUser]
         else:
             permission_class_list = [IsEventAttributeOwnerOnly]
         return [permission() for permission in permission_class_list]
 
+    def get_serializer_class(self):
+        if self.request.method == 'GET':
+            return serializers.ListEventCommentSerializer
+        elif self.request.method == 'POST':
+            return serializers.CreateEventCommentSerializer
+        elif self.request.method == 'PATCH':
+            return serializers.UpdateEventCommentSerializer
+        else:
+            return serializers.ListEventCommentSerializer
+
     def get_object(self):
-        obj = get_object_or_404(self.get_queryset(),
-                                pk=self.kwargs["comment_id"])
+        obj = get_object_or_404(EventComment, pk=self.kwargs["comment_id"])
         self.check_object_permissions(self.request, obj)
         return obj
 
@@ -125,6 +163,20 @@ class EventCommentView(generics.GenericAPIView,
             return Response(status=status.HTTP_201_CREATED)
 
         return Response(serializer.errors, status.HTTP_400_BAD_REQUEST)
+
+    def patch(self, request, *args, **kwargs):
+        event_comment = self.get_object()
+
+        serializer = self.get_serializer(
+            instance=event_comment,
+            data={'status': EventComment.Status.EDITED},
+            partial=True
+        )
+        if not serializer.is_valid():
+            Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        serializer.save()
+        return Response(status=status.HTTP_200_OK)
 
     def delete(self, request, *arts, **kwargs):
         """Logical Delete an event comment"""
@@ -173,11 +225,16 @@ class EventViewSet(viewsets.ModelViewSet):
         else:
             permission_class_list = [IsEventOwnerOnly]
 
+        if self.request.method == 'DELETE':
+            permission_class_list = [IsAdminUser]
+
         return [permission() for permission in permission_class_list]
 
     def get_object(self):
         obj = get_object_or_404(self.get_queryset(), pk=self.kwargs["pk"])
+        # いらんかも
         self.check_object_permissions(self.request, obj)
+        # いらんかも
         return obj
 
     def list(self, request):
