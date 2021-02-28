@@ -1,0 +1,1907 @@
+openapi: 3.0.3
+info:
+  title: ''
+  version: 0.0.0
+paths:
+  /api/events/:
+    get:
+      operationId: api_events_list
+      description: Manage Event in the event
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedBriefEventList'
+          description: ''
+    post:
+      operationId: api_events_create
+      description: Manage Event in the event
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateEvent'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CreateEvent'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CreateEvent'
+        required: true
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateEvent'
+          description: ''
+  /api/events/{event_id}/comments/{comment_id}/delete/:
+    get:
+      operationId: api_events_comments_delete_list
+      description: Manage event comment in the database
+      parameters:
+      - in: path
+        name: comment_id
+        schema:
+          type: integer
+        required: true
+      - in: path
+        name: event_id
+        schema:
+          type: integer
+        required: true
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedListEventCommentList'
+          description: ''
+    post:
+      operationId: api_events_comments_delete_create
+      description: Manage event comment in the database
+      parameters:
+      - in: path
+        name: comment_id
+        schema:
+          type: integer
+        required: true
+      - in: path
+        name: event_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateEventComment'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CreateEventComment'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CreateEventComment'
+        required: true
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateEventComment'
+          description: ''
+    patch:
+      operationId: api_events_comments_delete_partial_update
+      description: Manage event comment in the database
+      parameters:
+      - in: path
+        name: comment_id
+        schema:
+          type: integer
+        required: true
+      - in: path
+        name: event_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedUpdateEventComment'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedUpdateEventComment'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedUpdateEventComment'
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateEventComment'
+          description: ''
+    delete:
+      operationId: api_events_comments_delete_destroy
+      description: Logical Delete an event comment
+      parameters:
+      - in: path
+        name: comment_id
+        schema:
+          type: integer
+        required: true
+      - in: path
+        name: event_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/events/{event_id}/comments/{comment_id}/status/:
+    get:
+      operationId: api_events_comments_status_list
+      description: Manage event comment in the database
+      parameters:
+      - in: path
+        name: comment_id
+        schema:
+          type: integer
+        required: true
+      - in: path
+        name: event_id
+        schema:
+          type: integer
+        required: true
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedListEventCommentList'
+          description: ''
+    post:
+      operationId: api_events_comments_status_create
+      description: Manage event comment in the database
+      parameters:
+      - in: path
+        name: comment_id
+        schema:
+          type: integer
+        required: true
+      - in: path
+        name: event_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateEventComment'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CreateEventComment'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CreateEventComment'
+        required: true
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateEventComment'
+          description: ''
+    patch:
+      operationId: api_events_comments_status_partial_update
+      description: Manage event comment in the database
+      parameters:
+      - in: path
+        name: comment_id
+        schema:
+          type: integer
+        required: true
+      - in: path
+        name: event_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedUpdateEventComment'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedUpdateEventComment'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedUpdateEventComment'
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateEventComment'
+          description: ''
+    delete:
+      operationId: api_events_comments_status_destroy
+      description: Logical Delete an event comment
+      parameters:
+      - in: path
+        name: comment_id
+        schema:
+          type: integer
+        required: true
+      - in: path
+        name: event_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/events/{id}/:
+    get:
+      operationId: api_events_retrieve
+      description: Manage Event in the event
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this event.
+        required: true
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RetrieveEvent'
+          description: ''
+    put:
+      operationId: api_events_update
+      description: Manage Event in the event
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this event.
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateEvent'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/UpdateEvent'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/UpdateEvent'
+        required: true
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateEvent'
+          description: ''
+    patch:
+      operationId: api_events_partial_update
+      description: Manage Event in the event
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this event.
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedUpdateEvent'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedUpdateEvent'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedUpdateEvent'
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateEvent'
+          description: ''
+    delete:
+      operationId: api_events_destroy
+      description: Logical Delete an event
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this event.
+        required: true
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/events/{id}/comments/:
+    get:
+      operationId: api_events_comments_list
+      description: Manage event comment in the database
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedListEventCommentList'
+          description: ''
+    post:
+      operationId: api_events_comments_create
+      description: Manage event comment in the database
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateEventComment'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CreateEventComment'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CreateEventComment'
+        required: true
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateEventComment'
+          description: ''
+    patch:
+      operationId: api_events_comments_partial_update
+      description: Manage event comment in the database
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedUpdateEventComment'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedUpdateEventComment'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedUpdateEventComment'
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateEventComment'
+          description: ''
+    delete:
+      operationId: api_events_comments_destroy
+      description: Logical Delete an event comment
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/events/{id}/participants/:
+    get:
+      operationId: api_events_participants_list
+      description: ''
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedListCreateParticipantList'
+          description: ''
+    post:
+      operationId: api_events_participants_create
+      description: Create a new participant in the system
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ListCreateParticipant'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ListCreateParticipant'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ListCreateParticipant'
+        required: true
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListCreateParticipant'
+          description: ''
+    patch:
+      operationId: api_events_participants_partial_update
+      description: ''
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedUpdateParticipant'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedUpdateParticipant'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedUpdateParticipant'
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateParticipant'
+          description: ''
+    delete:
+      operationId: api_events_participants_destroy
+      description: Logical Delete a participant
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/events/{id}/participants/cancel/:
+    get:
+      operationId: api_events_participants_cancel_list
+      description: ''
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedListCreateParticipantList'
+          description: ''
+    post:
+      operationId: api_events_participants_cancel_create
+      description: Create a new participant in the system
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ListCreateParticipant'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ListCreateParticipant'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ListCreateParticipant'
+        required: true
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListCreateParticipant'
+          description: ''
+    patch:
+      operationId: api_events_participants_cancel_partial_update
+      description: ''
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedUpdateParticipant'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedUpdateParticipant'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedUpdateParticipant'
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateParticipant'
+          description: ''
+    delete:
+      operationId: api_events_participants_cancel_destroy
+      description: Logical Delete a participant
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/events/{id}/participants/join/:
+    get:
+      operationId: api_events_participants_join_list
+      description: ''
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedListCreateParticipantList'
+          description: ''
+    post:
+      operationId: api_events_participants_join_create
+      description: Create a new participant in the system
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ListCreateParticipant'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ListCreateParticipant'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ListCreateParticipant'
+        required: true
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListCreateParticipant'
+          description: ''
+    patch:
+      operationId: api_events_participants_join_partial_update
+      description: ''
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedUpdateParticipant'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedUpdateParticipant'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedUpdateParticipant'
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateParticipant'
+          description: ''
+    delete:
+      operationId: api_events_participants_join_destroy
+      description: Logical Delete a participant
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/users/:
+    get:
+      operationId: api_users_list
+      description: Manage User
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedUserList'
+          description: ''
+  /api/users/{id}/:
+    get:
+      operationId: api_users_retrieve
+      description: Manage User
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this user.
+        required: true
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: ''
+    put:
+      operationId: api_users_update
+      description: Manage User
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this user.
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/User'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/User'
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: ''
+    patch:
+      operationId: api_users_partial_update
+      description: Manage User
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this user.
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedUser'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedUser'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedUser'
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: ''
+    delete:
+      operationId: api_users_destroy
+      description: Logical Delete an user
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this user.
+        required: true
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/users/{id}/email/:
+    get:
+      operationId: api_users_email_retrieve
+      description: Manage User
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this user.
+        required: true
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserEmail'
+          description: ''
+    patch:
+      operationId: api_users_email_partial_update
+      description: Manage User
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this user.
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedUserEmail'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedUserEmail'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedUserEmail'
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserEmail'
+          description: ''
+  /api/users/{id}/joinedEvents/:
+    get:
+      operationId: api_users_joinedEvents_retrieve
+      description: Manage User
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this user.
+        required: true
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserEvents'
+          description: ''
+  /api/users/{id}/organizedEvents/:
+    get:
+      operationId: api_users_organizedEvents_retrieve
+      description: Manage User
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this user.
+        required: true
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserEvents'
+          description: ''
+  /api/users/{id}/read/:
+    get:
+      operationId: api_users_read_retrieve
+      description: Manage User
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this user.
+        required: true
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ShowUser'
+          description: ''
+  /api/users/{id}/shortname/:
+    get:
+      operationId: api_users_shortname_retrieve
+      description: Manage User
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this user.
+        required: true
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserShortName'
+          description: ''
+  /api/users/login/:
+    post:
+      operationId: api_users_login_create
+      description: |-
+        Check the credentials and return the REST Token
+        if the credentials are valid and authenticated.
+        Calls Django Auth login method to register User ID
+        in Django session framework
+
+        Accept the following POST parameters: username, password
+        Return the REST Framework Token Object's key.
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Login'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Login'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Login'
+        required: true
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Login'
+          description: ''
+  /api/users/logout/:
+    get:
+      operationId: api_users_logout_retrieve
+      description: |-
+        Calls Django logout method and delete the Token object
+        assigned to the current User object.
+
+        Accepts/Returns nothing.
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+    post:
+      operationId: api_users_logout_create
+      description: |-
+        Calls Django logout method and delete the Token object
+        assigned to the current User object.
+
+        Accepts/Returns nothing.
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/users/password/change/:
+    post:
+      operationId: api_users_password_change_create
+      description: |-
+        Calls Django Auth SetPasswordForm save method.
+
+        Accepts the following POST parameters: new_password1, new_password2
+        Returns the success/fail message.
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PasswordChange'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PasswordChange'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PasswordChange'
+        required: true
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PasswordChange'
+          description: ''
+  /api/users/registration/:
+    post:
+      operationId: api_users_registration_create
+      description: ''
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Register'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Register'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Register'
+        required: true
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Register'
+          description: ''
+  /api/users/registration/verify-email/:
+    post:
+      operationId: api_users_registration_verify_email_create
+      description: ''
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VerifyEmail'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/VerifyEmail'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/VerifyEmail'
+        required: true
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VerifyEmail'
+          description: ''
+components:
+  schemas:
+    BriefEvent:
+      type: object
+      description: Serialize for brief event object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        title:
+          type: string
+          maxLength: 255
+        image:
+          type: string
+          readOnly: true
+        event_time:
+          type: string
+          readOnly: true
+        address:
+          type: string
+          maxLength: 255
+        participant_count:
+          type: string
+          readOnly: true
+      required:
+      - address
+      - event_time
+      - id
+      - image
+      - participant_count
+      - title
+    CreateEvent:
+      type: object
+      description: Serialize for create event
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        title:
+          type: string
+          maxLength: 255
+        description:
+          type: string
+          maxLength: 2000
+        organizer:
+          type: integer
+        image:
+          type: string
+          format: uri
+          nullable: true
+        event_time:
+          type: string
+          format: date-time
+        address:
+          type: string
+          maxLength: 255
+        fee:
+          type: integer
+          maximum: 100000
+          default: 0
+          minimum: 0
+        status:
+          $ref: '#/components/schemas/StatusDe0Enum'
+      required:
+      - address
+      - description
+      - event_time
+      - id
+      - organizer
+      - title
+    CreateEventComment:
+      type: object
+      description: Serializer for Create EventComment
+      properties:
+        event:
+          type: integer
+        user:
+          type: integer
+        comment:
+          type: string
+          maxLength: 500
+      required:
+      - comment
+      - event
+      - user
+    ListCreateParticipant:
+      type: object
+      description: Serializer for Participant objects
+      properties:
+        event:
+          type: integer
+          writeOnly: true
+        user:
+          type: integer
+        first_name:
+          type: string
+          readOnly: true
+        icon:
+          type: string
+          readOnly: true
+      required:
+      - event
+      - first_name
+      - icon
+      - user
+    ListEventComment:
+      type: object
+      description: Serializer for List EventComment
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        event:
+          type: integer
+        user:
+          type: integer
+        first_name:
+          type: string
+          readOnly: true
+        icon:
+          type: string
+          readOnly: true
+        comment:
+          type: string
+          readOnly: true
+        status:
+          $ref: '#/components/schemas/StatusB35Enum'
+        brief_updated_at:
+          type: string
+          readOnly: true
+      required:
+      - brief_updated_at
+      - comment
+      - event
+      - first_name
+      - icon
+      - id
+      - user
+    Login:
+      type: object
+      properties:
+        username:
+          type: string
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+      required:
+      - password
+    PaginatedBriefEventList:
+      type: object
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+        previous:
+          type: string
+          nullable: true
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/BriefEvent'
+    PaginatedListCreateParticipantList:
+      type: object
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+        previous:
+          type: string
+          nullable: true
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/ListCreateParticipant'
+    PaginatedListEventCommentList:
+      type: object
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+        previous:
+          type: string
+          nullable: true
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/ListEventComment'
+    PaginatedUserList:
+      type: object
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+        previous:
+          type: string
+          nullable: true
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/User'
+    PasswordChange:
+      type: object
+      properties:
+        old_password:
+          type: string
+          maxLength: 128
+        new_password1:
+          type: string
+          maxLength: 128
+        new_password2:
+          type: string
+          maxLength: 128
+      required:
+      - new_password1
+      - new_password2
+      - old_password
+    PatchedUpdateEvent:
+      type: object
+      description: Serialize for update event
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        title:
+          type: string
+          maxLength: 255
+        description:
+          type: string
+          maxLength: 2000
+        image:
+          type: string
+          format: uri
+          nullable: true
+        event_time:
+          type: string
+          format: date-time
+        address:
+          type: string
+          maxLength: 255
+        fee:
+          type: integer
+          maximum: 100000
+          default: 0
+          minimum: 0
+        status:
+          $ref: '#/components/schemas/StatusDe0Enum'
+    PatchedUpdateEventComment:
+      type: object
+      description: Serializer for Update EventComment
+      properties:
+        status:
+          $ref: '#/components/schemas/StatusB35Enum'
+    PatchedUpdateParticipant:
+      type: object
+      description: Serializer for Participant objects
+      properties:
+        status:
+          $ref: '#/components/schemas/StatusB35Enum'
+    PatchedUser:
+      type: object
+      description: Serializer for the users object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        first_name:
+          type: string
+          maxLength: 30
+        family_name:
+          type: string
+          maxLength: 30
+        introduction:
+          type: string
+          maxLength: 1000
+        icon_url:
+          type: string
+          readOnly: true
+        is_guide:
+          type: boolean
+        icon:
+          type: string
+          format: uri
+          writeOnly: true
+          nullable: true
+    PatchedUserEmail:
+      type: object
+      description: Serializer for a user email object
+      properties:
+        email:
+          type: string
+          format: email
+          maxLength: 254
+    Register:
+      type: object
+      properties:
+        username:
+          type: string
+          maxLength: 0
+          minLength: 1
+        email:
+          type: string
+          format: email
+        password1:
+          type: string
+          writeOnly: true
+        password2:
+          type: string
+          writeOnly: true
+      required:
+      - email
+      - password1
+      - password2
+    RetrieveEvent:
+      type: object
+      description: Serialize for Event object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        title:
+          type: string
+          maxLength: 255
+        description:
+          type: string
+          maxLength: 2000
+        organizer:
+          type: integer
+        organizer_full_name:
+          type: string
+          readOnly: true
+        organizer_icon:
+          type: string
+          readOnly: true
+        image:
+          type: string
+          readOnly: true
+        event_time:
+          type: string
+          readOnly: true
+        address:
+          type: string
+          maxLength: 255
+        fee:
+          type: integer
+          maximum: 100000
+          minimum: 0
+        status:
+          $ref: '#/components/schemas/StatusDe0Enum'
+        brief_updated_at:
+          type: string
+          readOnly: true
+      required:
+      - address
+      - brief_updated_at
+      - description
+      - event_time
+      - id
+      - image
+      - organizer
+      - organizer_full_name
+      - organizer_icon
+      - title
+    ShowUser:
+      type: object
+      description: Serializer for the users object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        short_name:
+          type: string
+          readOnly: true
+        introduction:
+          type: string
+          maxLength: 1000
+        icon_url:
+          type: string
+          readOnly: true
+        is_guide:
+          type: boolean
+      required:
+      - icon_url
+      - id
+      - short_name
+    StatusB35Enum:
+      enum:
+      - '0'
+      - '1'
+      type: string
+    StatusDe0Enum:
+      enum:
+      - '0'
+      - '1'
+      - '2'
+      type: string
+    UpdateEvent:
+      type: object
+      description: Serialize for update event
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        title:
+          type: string
+          maxLength: 255
+        description:
+          type: string
+          maxLength: 2000
+        image:
+          type: string
+          format: uri
+          nullable: true
+        event_time:
+          type: string
+          format: date-time
+        address:
+          type: string
+          maxLength: 255
+        fee:
+          type: integer
+          maximum: 100000
+          default: 0
+          minimum: 0
+        status:
+          $ref: '#/components/schemas/StatusDe0Enum'
+      required:
+      - address
+      - description
+      - event_time
+      - id
+      - title
+    UpdateEventComment:
+      type: object
+      description: Serializer for Update EventComment
+      properties:
+        status:
+          $ref: '#/components/schemas/StatusB35Enum'
+    UpdateParticipant:
+      type: object
+      description: Serializer for Participant objects
+      properties:
+        status:
+          $ref: '#/components/schemas/StatusB35Enum'
+    User:
+      type: object
+      description: Serializer for the users object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        first_name:
+          type: string
+          maxLength: 30
+        family_name:
+          type: string
+          maxLength: 30
+        introduction:
+          type: string
+          maxLength: 1000
+        icon_url:
+          type: string
+          readOnly: true
+        is_guide:
+          type: boolean
+        icon:
+          type: string
+          format: uri
+          writeOnly: true
+          nullable: true
+      required:
+      - icon_url
+      - id
+    UserEmail:
+      type: object
+      description: Serializer for a user email object
+      properties:
+        email:
+          type: string
+          format: email
+          maxLength: 254
+      required:
+      - email
+    UserEvents:
+      type: object
+      description: Serialize for brief event object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        title:
+          type: string
+          maxLength: 255
+        image:
+          type: string
+          readOnly: true
+        event_time:
+          type: string
+          readOnly: true
+        address:
+          type: string
+          maxLength: 255
+        participant_count:
+          type: string
+          readOnly: true
+      required:
+      - address
+      - event_time
+      - id
+      - image
+      - participant_count
+      - title
+    UserShortName:
+      type: object
+      description: Serializer for a user short name object
+      properties:
+        short_name:
+          type: string
+          readOnly: true
+      required:
+      - short_name
+    VerifyEmail:
+      type: object
+      properties:
+        key:
+          type: string
+      required:
+      - key
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: Session
+    tokenAuth:
+      type: apiKey
+      in: header
+      name: Authorization
+      description: Token-based authentication with required prefix "Token"

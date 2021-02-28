@@ -15,3 +15,6 @@ tox:
 
 loaddata:
 	docker-compose run --rm api python manage.py loaddata initial_data.json
+
+spectacular:
+	docker-compose run --rm api python manage.py spectacular --file schema.yml

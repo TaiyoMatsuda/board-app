@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'allauth.socialaccount',
     'rest_auth',
     'rest_auth.registration',
+    'drf_spectacular',
     'corsheaders',
     'core',
     'user',
@@ -55,6 +56,7 @@ INSTALLED_APPS = [
 ]
 
 REST_FRAMEWORK = {
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework.authentication.TokenAuthentication',
         'rest_framework.authentication.SessionAuthentication',
