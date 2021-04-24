@@ -3,8 +3,11 @@
     <div id="nav">
       <router-link to="/">Home</router-link>|
       <router-link :to="{ name: 'User', query: { id: 3}}">profile</router-link>|
-      <router-link to="/login">log in</router-link>|
-      <router-link to="/logout">log out</router-link>|
+      <a v-on:click="show" class="modal_open">login</a>|
+      <router-link to="/logout">logout</router-link>|
+      <modal name="login" :draggable="true" :resizable="true">
+        <Login />
+      </modal>
     </div>
     <router-view/>
   </div>
@@ -31,4 +34,32 @@
 #nav a.router-link-exact-active {
   color: #42b983;
 }
+
+.modal_open {
+  cursor: pointer;
+}
+
+.modal-header, .modal-body {
+  padding: 5px 25px;
+}
+.modal-header {
+  border-bottom: 1px solid #ddd;
+}
 </style>
+
+<script>
+import Login from '@/views/Login.vue'
+export default {
+  components: {
+    Login
+  },
+  methods: {
+    show : function() {
+      this.$modal.show('login');
+    },
+    hide : function () {
+      this.$modal.hide('login');
+    },
+  }
+}
+</script>

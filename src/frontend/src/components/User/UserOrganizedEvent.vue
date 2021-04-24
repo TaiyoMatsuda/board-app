@@ -21,6 +21,8 @@
 </template>
 
 <script>
+import { axios } from '@/main.js'
+
 export default {
   name: 'OrganizedEvent',
   data() {
@@ -29,8 +31,7 @@ export default {
     };
   },
   mounted :function(){
-    this.axios
-      .get('api/users/' + this.$route.query.id + '/organizedEvents/')
+    axios.get('api/users/' + this.$route.query.id + '/organizedEvents/')
       .then(response => {this.events = response.data})
       .catch(error => console.log(error))
   }

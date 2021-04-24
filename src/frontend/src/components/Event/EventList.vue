@@ -21,6 +21,8 @@
 </template>
 
 <script>
+import { axios } from '@/main.js'
+
 export default {
   name: 'EventList',
   data() {
@@ -29,10 +31,9 @@ export default {
     };
   },
   mounted :function(){
-    this.axios
-      .get('/api/events/?start=2021-02-10&end=2100-02-11')
-      .then(response => {this.events = response.data})
-      .catch(error => console.log(error))
+    axios.get('/api/events/?start=2021-02-10&end=2100-02-11')
+    .then(response => {this.events = response.data})
+    .catch(error => console.log(error))
   }
 }
 </script>

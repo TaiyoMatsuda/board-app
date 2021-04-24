@@ -2,7 +2,7 @@ import Vue from 'vue'
 import App from './App.vue'
 import router from './router'
 import axios from 'axios'
-import VueAxios from 'vue-axios'
+import VModal from 'vue-js-modal'
 
 axios.defaults.baseURL = 'http://127.0.0.1:8000/'
 axios.defaults.headers.common['Accept'] = 'application/json'
@@ -12,7 +12,8 @@ axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest'
 
 Vue.config.productionTip = false
 
-Vue.use(VueAxios, axios)
+export { axios };
+Vue.use(VModal);
 
 new Vue({
   router,
