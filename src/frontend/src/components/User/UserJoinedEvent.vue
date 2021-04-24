@@ -21,6 +21,8 @@
 </template>
 
 <script>
+import { axios } from '@/main.js'
+
 export default {
   name: 'JoinedEvent',
   data() {
@@ -29,8 +31,7 @@ export default {
     };
   },
   mounted :function(){
-    this.axios
-      .get('api/users/' + this.$route.query.id + '/joinedEvents/')
+    axios.get('api/users/' + this.$route.query.id + '/joinedEvents/')
       .then(response => {this.events = response.data})
       .catch(error => console.log(error))
   }
